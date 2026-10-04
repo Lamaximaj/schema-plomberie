@@ -236,10 +236,11 @@ Object.assign(S, {
   siphon_sol: { cat: 'sani', name: 'Siphon de sol', prefix: 'SDS', box: [-9, -9, 18, 19], ports: [[0, 10]],
     params: { kind: { label: 'Type', type: 'select', options: [['siphon', 'Siphon de sol'], ['puisard', 'Puisard']], def: 'siphon' } },
     draw: (el, c) => ({ g: (el.p.kind === 'puisard' ? Re(-9, -9, 18, 17) + Ln(-9, -9, 9, 8, THIN) + Ln(9, -9, -9, 8, THIN) : Ci(0, 0, 8) + Ln(-5.6, -5.6, 5.6, 5.6, THIN) + Ln(5.6, -5.6, -5.6, 5.6, THIN)) + stub(c, 0, 0, 8, 0, 10) }) },
-  cta: { cat: 'aero', name: 'Centrale de traitement d’air double flux', prefix: 'CTA', tagOn: true, box: [-60, -30, 120, 60], ports: [[-60, -20], [-60, 20], [60, -20], [60, 20], [0, -30], [20, -30]],
-    pn: ['Air neuf', 'Air rejeté', 'Air soufflé', 'Air repris', 'Batterie aller', 'Batterie retour'],
+  cta: { cat: 'aero', name: 'Centrale de traitement d’air double flux', prefix: 'CTA', tagOn: true, box: [-60, -30, 120, 60], ports: [[-60, -20], [-60, 20], [60, -20], [60, 20], [0, -30], [20, -30], [10, 30]],
+    pn: ['Air neuf', 'Air rejeté', 'Air soufflé', 'Air repris', 'Batterie aller', 'Batterie retour', 'Évacuation des condensats'],
     draw: (el, c) => ({ g: Re(-60, -30, 120, 60, ' rx="2"') + Ln(-60, 0, 60, 0, THIN) + Re(-53, -27, 7, 24) + Ln(-53, -27, -46, -3, THIN) + Re(-32, -27, 24, 54) + Ln(-32, -27, -8, 27, THIN) + Ln(-8, -27, -32, 27, THIN)
-      + stub(c, 4, 0, -30, 0, -27) + stub(c, 5, 20, -30, 20, -27) + Re(-2, -27, 24, 24) + P('M1,-6L5,-24L9,-6L13,-24L17,-6L21,-24', NOF + THIN) + FAN(42, -15, 10) + FAN(-45, 15, 10) + Re(46, 3, 7, 24) + Ln(46, 3, 53, 27, THIN), t: [] }) },
+      + stub(c, 4, 0, -30, 0, -27) + stub(c, 5, 20, -30, 20, -27) + Re(-2, -27, 24, 24) + P('M1,-6L5,-24L9,-6L13,-24L17,-6L21,-24', NOF + THIN) + FAN(42, -15, 10) + FAN(-45, 15, 10) + Re(46, 3, 7, 24) + Ln(46, 3, 53, 27, THIN)
+      + stub(c, 6, 10, 0, 10, 30) + Re(-2, -3, 24, 3, THIN), t: [] }) },
   caisson: { cat: 'aero', name: 'Caisson d’extraction', prefix: 'CE', tagOn: true, box: [-30, -20, 60, 40], ports: [[-30, 0], [30, 0]], pn: ['Aspiration', 'Refoulement'],
     draw: () => ({ g: Re(-30, -20, 60, 40, ' rx="2"') + FAN(0, 0, 12) }) },
   pac_air: { cat: 'aero', name: 'PAC sur air extrait', prefix: 'PAC', tagOn: true, box: [-40, -30, 80, 60], ports: [[-40, 0], [40, 0], [-10, 30], [10, 30]], pn: ['Air extrait (entrée)', 'Air rejeté', 'Eau chaude départ', 'Eau chaude retour'],
@@ -397,10 +398,11 @@ const RACC = {
   squid: { c: 'À gauche, la vapeur et les condensats CPCU. À droite, le circuit d’eau chaude.', p: [
     RP('vap', 'Vanne d’arrêt, filtre, détendeur et vanne de régulation vapeur.'), RP('cond', 'Purgeur vapeur, puis retour des condensats vers le réseau CPCU.'),
     RP('dch', 'Départ vers les circuits : vanne d’isolement et thermomètre.'), RP('rch', 'Retour des circuits : vanne d’isolement, pot à boue et vase d’expansion.')] },
-  cta: { c: 'Air extérieur à gauche (air neuf en haut, rejet en bas), air intérieur à droite (soufflage en haut, reprise en bas). La batterie se raccorde par le dessus.', p: [
+  cta: { c: 'Air extérieur à gauche (air neuf en haut, rejet en bas), air intérieur à droite (soufflage en haut, reprise en bas). La batterie se raccorde par le dessus, les condensats sortent par le dessous.', p: [
     RP('an', 'Vers la prise d’air neuf extérieure, avec registre.'), RP('aj', 'Vers la grille de rejet, éloignée de la prise d’air neuf.'),
     RP('as', 'Silencieux, puis réseau de soufflage. Clapet coupe-feu à chaque traversée de paroi coupe-feu.'), RP('ar', 'Réseau de reprise et silencieux. Clapet coupe-feu aux traversées.'),
-    RP('dch', ISO + ' sur l’aller de la batterie.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.')] },
+    RP('dch', ISO + ' sur l’aller de la batterie.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.'),
+    RP('cond eu', 'Siphon dimensionné selon la pression de la CTA, puis évacuation avec rupture de charge (entonnoir siphonné) ou pompe de relevage des condensats.')] },
   caisson: { c: 'Aspiration à gauche, refoulement à droite.', p: [RP('ar', 'Réseau d’extraction, avec manchette souple.'), RP('aj', 'Vers le rejet extérieur, avec manchette souple.')] },
   pac_air: { c: 'Air à gauche et à droite, eau par le dessous.', p: [RP('ar', 'Air extrait des logements.'), RP('aj', 'Rejet vers l’extérieur.'),
     RP('dch ecs', 'Vers le primaire du ballon ou le circuit à alimenter, avec vanne d’isolement.'), RP('rch ef', 'Retour, avec vanne d’isolement et filtre.')] },
