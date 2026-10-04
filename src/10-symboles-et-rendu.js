@@ -344,6 +344,119 @@ const PALETTE = Object.values(PRE).filter(p => p.cat !== 'annot').map(p => ({ k:
   { k: '@text', name: 'Texte', cat: 'annot' }, { k: '@zone', name: 'Zone / local', cat: 'annot' }, { k: 'renvoi', name: PRE.renvoi.name, cat: 'annot' }, { k: 'renvoi_arr', name: PRE.renvoi_arr.name, cat: 'annot' },
   { k: '@legend', name: 'Légende', cat: 'annot' }, { k: '@nomen', name: 'Nomenclature', cat: 'annot' }, { k: '@cart', name: 'Cartouche', cat: 'annot' }]);
 
+/* ===== Raccordements : réseau attendu et conseils, point par point (onglet « Raccordement ») ===== */
+const RP = (nets, tip) => ({ nets: nets ? nets.split(' ') : [], tip: tip || '' });
+const ISO = 'Vanne d’isolement';
+const RACC = {
+  chaudiere: el => ({ c: 'Départ en haut à droite, retour en bas à droite. Le combustible arrive par le dessous, le conduit de fumée part par le dessus.', p: [
+    RP('dch', 'Soupape de sécurité au plus près de la chaudière, sans vanne entre les deux. Puis thermomanomètre et vanne d’isolement.'),
+    RP('rch', 'Vanne d’isolement, pot à boue ou désemboueur, et piquage du vase d’expansion.'),
+    RP(/gaz/i.test(el.p.txt || 'Gaz') ? 'gaz' : '', 'Robinet de barrage accessible au plus près de l’appareil.'),
+    RP('', 'Conduit de fumée : il ne se trace pas avec un réseau d’eau. Indiquez-le par un texte ou un renvoi.')] }),
+  pac: { c: 'Départ en haut, retour en bas, côté droit.', p: [RP('dch', ISO + ' et manchette antivibratile.'), RP('rch', 'Filtre à tamis pour protéger l’échangeur, vanne d’isolement et manchette antivibratile. Vase d’expansion et soupape s’ils ne sont pas intégrés.')] },
+  ballon: el => { const serp = el.p.coil === 'serp', off = RP('', 'Inutilisé sans serpentin : laissez ce point libre.'); return { c: 'Eau froide en bas, eau chaude en haut, retour de bouclage en partie médiane. ' + (serp ? 'Primaire (serpentin) à droite : entrée en haut, sortie en bas.' : 'Sans serpentin, les raccordements primaires restent libres.'), p: [
+    RP('ecs', 'Thermomètre en sortie, puis mitigeur thermostatique si la distribution l’exige.'),
+    RP('becs', 'Retour de boucle : vanne d’équilibrage, clapet anti-retour, circulateur de bouclage et vanne d’isolement.'),
+    RP('ef', 'Vanne d’isolement et clapet anti-retour, puis groupe de sécurité raccordé directement sur le ballon, sans vanne entre les deux.'),
+    serp ? RP('dch', 'Depuis le départ chauffage : vanne d’isolement et pompe de charge (ou vanne 3 voies) commandée par l’aquastat.') : off,
+    serp ? RP('rch', 'Vers le retour chauffage : vanne d’isolement et vanne d’équilibrage.') : off,
+    RP('eu', 'Robinet de vidange au point bas, vers l’évacuation.')] }; },
+  echangeur: { c: 'Raccordement à contre-courant : le primaire entre en haut à gauche, le secondaire entre en bas à droite.', p: [
+    RP('dch', ISO + ', filtre et vanne de régulation (2 ou 3 voies) sur le primaire.'), RP('rch', ISO + ' et vanne d’équilibrage.'),
+    RP('dch', 'Thermomètre et vanne d’isolement. Soupape de sécurité côté secondaire.'), RP('rch', ISO + ' et thermomètre.')] },
+  echangeur_vap: { c: 'Raccordement à contre-courant : la vapeur entre en haut à gauche, les condensats sortent en bas.', p: [
+    RP('vap', 'Vanne d’arrêt, filtre, détendeur et vanne de régulation vapeur.'), RP('cond', 'Purgeur vapeur, puis retour des condensats.'),
+    RP('dch', 'Thermomètre et vanne d’isolement. Soupape de sécurité côté eau.'), RP('rch', ISO + ' et thermomètre.')] },
+  prep_inst: { c: 'Raccordement à contre-courant : le primaire chauffage entre en haut à gauche, l’eau froide entre en bas à droite.', p: [
+    RP('dch', ISO + ', filtre et vanne de régulation sur le primaire.'), RP('rch', ISO + ' et vanne d’équilibrage.'),
+    RP('ecs', 'Eau chaude produite : thermomètre, puis distribution ECS.'), RP('ef becs', 'Eau froide d’alimentation, rejointe par le retour de bouclage.')] },
+  bouteille: { c: 'À gauche les générateurs (primaire), à droite les circuits (secondaire). Départs en haut, retours en bas.', p: [
+    RP('dch', 'Départ des générateurs.'), RP('rch', 'Retour vers les générateurs.'), RP('dch', 'Départ vers les circuits.'), RP('rch', 'Retour des circuits.'),
+    RP('', 'Purgeur d’air automatique en partie haute.'), RP('eu', 'Robinet de vidange en partie basse, pour le désembouage.')] },
+  collecteur: el => ({ c: 'Alimentez par une extrémité. Le nombre de départs se règle dans l’onglet Propriétés.',
+    n: ['Alimentation', 'Extrémité opposée'].concat(Array.from({ length: colN(el) }, (_, i) => 'Départ ' + (i + 1))),
+    p: [RP('', 'Arrivée du réseau qui alimente la nourrice.'), RP('', 'Bouchon, purge ou vidange, ou seconde alimentation.')].concat(Array.from({ length: colN(el) }, () => RP('', 'Une vanne d’isolement par départ, repérée par circuit.'))) }),
+  adoucisseur: { c: 'Monté en by-pass (3 vannes) pour pouvoir l’isoler sans couper l’eau.', p: [
+    RP('ef', 'Filtre et clapet anti-pollution en amont, puis vanne d’entrée du by-pass.'), RP('ea', 'Vanne de mixage pour régler la dureté, puis réseau d’eau adoucie.'),
+    RP('eu', 'Vers un entonnoir siphonné avec garde d’air, jamais en direct à l’égout.')] },
+  reservoir: el => { const ep = el.pre === 'cuve_ep', ev = el.pre === 'tampon_ev'; return { c: 'Remplissage et trop-plein en partie haute, aspiration en partie basse, vidange au fond.',
+    n: ['Remplissage', 'Trop-plein', 'Aspiration', 'Second départ', 'Évent', 'Vidange'], p: [
+    RP(ep ? 'ep' : ev ? 'ef' : '', ep ? 'Arrivée des eaux pluviales filtrées.' : ev ? 'Appoint d’eau de ville par robinet à flotteur, au-dessus du niveau de débordement.' : 'Arrivée par robinet à flotteur ou surverse, au-dessus du niveau maximal.'),
+    RP(ep ? 'ep eu' : 'eu', 'Trop-plein vers l’évacuation, avec clapet anti-retour et garde d’air.'),
+    RP(ep ? 'enp ep' : '', 'Aspiration au-dessus du fond pour ne pas reprendre les dépôts.'),
+    RP('', 'Second départ ou aspiration de secours.'), RP('', 'Évent, avec grille anti-insectes.'), RP('eu', 'Vidange au point bas.')] }; },
+  emetteur: { c: 'Aller et retour par le dessous.', p: [RP('dch', 'Robinet thermostatique ou robinet de réglage sur l’aller.'), RP('rch', 'Té de réglage sur le retour.')] },
+  bloc: { c: 'Bloc libre : raccordez chaque point selon l’équipement représenté. Les points sont répartis tous les 20 sur le contour.' },
+  regul: el => ({ c: 'Reliez-le aux sondes, vannes motorisées et pompes avec le réseau « Liaison de régulation ».', p: portsOf(el).map(() => RP('reg', '')) }),
+  surpresseur: { c: 'Aspiration à gauche, refoulement à droite.', p: [
+    RP('ef', ISO + ' et manchette antivibratile. Depuis une bâche, ou depuis le réseau avec une protection contre le manque d’eau.'),
+    RP('ef', 'Clapet anti-retour, vanne d’isolement, manchette antivibratile, réservoir à vessie et manomètre.')] },
+  relevage: el => { const n = el.pre === 'bache_cond' ? 'cond' : 'eu'; return { c: 'Arrivée gravitaire sur le côté, refoulement par le dessus.', p: [
+    RP(n, 'Arrivée gravitaire dans la bâche.'), RP(n, 'Clapet anti-retour et vanne d’isolement, avec une boucle de refoulement au-dessus du niveau du réseau d’évacuation.')] }; },
+  pompe_cond: { p: [RP('cond', 'Condensats des chaudières ou de la CTA, en gravitaire.'), RP('cond eu', 'Refoulement vers l’évacuation, avec clapet anti-retour.')] },
+  squid: { c: 'À gauche, la vapeur et les condensats CPCU. À droite, le circuit d’eau chaude.', p: [
+    RP('vap', 'Vanne d’arrêt, filtre, détendeur et vanne de régulation vapeur.'), RP('cond', 'Purgeur vapeur, puis retour des condensats vers le réseau CPCU.'),
+    RP('dch', 'Départ vers les circuits : vanne d’isolement et thermomètre.'), RP('rch', 'Retour des circuits : vanne d’isolement, pot à boue et vase d’expansion.')] },
+  cta: { c: 'Air extérieur à gauche (air neuf en haut, rejet en bas), air intérieur à droite (soufflage en haut, reprise en bas). La batterie se raccorde par le dessus.', p: [
+    RP('an', 'Vers la prise d’air neuf extérieure, avec registre.'), RP('aj', 'Vers la grille de rejet, éloignée de la prise d’air neuf.'),
+    RP('as', 'Silencieux, puis réseau de soufflage. Clapet coupe-feu à chaque traversée de paroi coupe-feu.'), RP('ar', 'Réseau de reprise et silencieux. Clapet coupe-feu aux traversées.'),
+    RP('dch', ISO + ' sur l’aller de la batterie.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.')] },
+  caisson: { c: 'Aspiration à gauche, refoulement à droite.', p: [RP('ar', 'Réseau d’extraction, avec manchette souple.'), RP('aj', 'Vers le rejet extérieur, avec manchette souple.')] },
+  pac_air: { c: 'Air à gauche et à droite, eau par le dessous.', p: [RP('ar', 'Air extrait des logements.'), RP('aj', 'Rejet vers l’extérieur.'),
+    RP('dch ecs', 'Vers le primaire du ballon ou le circuit à alimenter, avec vanne d’isolement.'), RP('rch ef', 'Retour, avec vanne d’isolement et filtre.')] },
+  batterie: { p: [RP('', 'Gaine amont.'), RP('', 'Gaine aval.'), RP('dch', ISO + ' sur l’aller.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.')] },
+  sanitaire: el => ({ c: 'Alimentations en partie haute, évacuation par le dessous.', p: [
+    RP('ef', 'Robinet d’arrêt en attente de l’appareil.'),
+    el.p.kind === 'wc' ? RP('', 'Pas d’eau chaude sur un WC : laissez ce point libre.') : RP('ecs', 'Robinet d’arrêt en attente de l’appareil.'),
+    RP('eu', 'Siphon, puis raccordement à la chute ou au collecteur EU.')] }),
+  siphon_sol: { p: [RP('eu', 'Vers le collecteur d’évacuation.')] },
+  entonnoir: { c: 'Reçoit les décharges des soupapes, disconnecteurs et groupes de sécurité, avec un écoulement visible.', p: [RP('eu', 'Vers la chute ou le collecteur d’évacuation.')] },
+  disco: { c: 'Entre deux vannes avec un filtre en amont, à une hauteur accessible pour l’entretien.', p: [
+    RP('ef', ISO + ' et filtre.'), RP('ef', ISO + '.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
+  gs: { c: 'Toujours sur l’arrivée d’eau froide du ballon.', p: [RP('ef', 'Arrivée d’eau froide.'),
+    RP('ef', 'Directement sur l’entrée eau froide du ballon, sans vanne ni clapet intermédiaire.'), RP('eu', 'Vers un entonnoir siphonné, écoulement visible.')] },
+  soupape: { p: [RP('', 'Sur le départ du générateur, sans organe d’isolement en amont.'), RP('eu', 'Échappement vers un entonnoir siphonné, écoulement visible.')] },
+  vase: { p: [RP('', 'Piquage sur le retour, avec une vanne cadenassable.')] },
+  vase_san: { p: [RP('ef', 'Piquage sur l’arrivée d’eau froide du ballon.')] },
+  reserve_vessie: { p: [RP('ef', 'Piquage sur le refoulement du surpresseur, avec vanne d’isolement.')] },
+  desemb: { c: 'Sur le retour, en amont du générateur.', p: [RP('', 'Arrivée du retour des circuits.'), RP('', 'Vers le générateur.'), RP('eu', 'Vidange des boues vers l’évacuation.')] },
+  pot_intro: { c: 'En dérivation, entre deux vannes, pour injecter le produit de traitement.', p: [RP('', ''), RP('', ''), RP('eu', 'Vidange.')] },
+  mitigeur: { c: 'En tête de la distribution d’eau chaude.', p: [RP('ecs', 'Arrivée d’eau chaude du ballon.'), RP('ecs', 'Départ d’eau mitigée vers la distribution.'), RP('ef', 'Arrivée d’eau froide, avec clapet anti-retour.')] },
+  v3v: { c: 'Montage en mélange : la voie AB alimente le circuit.', p: [RP('dch', 'Voie A : arrivée chaude, depuis le générateur.'), RP('dch', 'Voie AB : départ mélangé vers le circuit.'), RP('rch', 'Voie B : by-pass depuis le retour du circuit.')] },
+  v3v_mix: { c: 'Règle la dureté de l’eau distribuée.', p: [RP('ea', 'Eau adoucie.'), RP('ea', 'Eau mélangée vers la distribution.'), RP('ef', 'Eau brute, non adoucie.')] },
+  recup_ep: { c: 'Aspiration dans la bâche par le dessus, appoint d’eau de ville à gauche, distribution à droite, trop-plein par le dessous.', p: [
+    RP('ep enp', 'Depuis la bâche de rétention, par crépine flottante.'), RP('ef', 'Appoint par la disconnexion par surverse totale (AB) intégrée : jamais de liaison directe avec l’eau potable.'),
+    RP('enp', 'Réseau d’eau non potable séparé et repéré.'), RP('eu', 'Trop-plein vers les eaux usées, avec clapet anti-retour.')] },
+  surverse: { p: [RP('ef', 'Arrivée d’eau de ville, au-dessus du niveau de débordement.'), RP('', 'Vers le réservoir.')] },
+  toiture: el => ({ c: 'Chaque point marque un emplacement possible d’entrée d’eau pluviale.', n: portsOf(el).map((_, i) => 'Évacuation ' + (i + 1)), p: portsOf(el).map(() => RP('ep', 'Entrée d’eau pluviale avec crapaudine, puis descente EP.')) }),
+  eep: { p: [RP('ep', 'Descente d’eaux pluviales.')] },
+  gargouille: { p: [RP('', 'Trop-plein en façade, à l’air libre.')] },
+  renvoi: { p: [RP('', 'Terminez un tuyau ici pour indiquer qu’il continue sur un autre plan ou dans un autre local.')] },
+};
+RACC.armoire = RACC.regul;
+const raccOf = el => { const r = RACC[el.pre] || RACC[el.type]; return (typeof r === 'function' ? r(el) : r) || {}; };
+function portName(el, i) {
+  const d = S[el.type], r = raccOf(el), n = portsOf(el).length;
+  if (r.n && r.n[i]) return r.n[i];
+  if (d.pn && d.pn[i]) return d.pn[i];
+  if (d.inline && n === 2) return i ? 'Aval' : 'Amont';
+  if (n === 1) return d.pin ? 'Piquage sur le tuyau' : 'Raccordement';
+  return 'Raccordement ' + (i + 1);
+}
+function portSide(el, i) {
+  const d = S[el.type], n = portsOf(el).length;
+  if ((d.pin && n === 1) || (d.inline && n === 2)) return '';
+  const [x, y] = portVec(el, i);
+  return Math.abs(x) >= Math.abs(y) ? (x > 0 ? 'à droite' : 'à gauche') : (y > 0 ? 'en bas' : 'en haut');
+}
+function raccAdvice(el) {
+  const d = S[el.type], r = raccOf(el);
+  if (r.c) return r.c;
+  if (d.inline) return 'Symbole en ligne : posez-le directement sur un tuyau déjà tracé. Il s’aligne seul dans le sens d’écoulement ; « Sens » (F) inverse l’amont et l’aval.';
+  if (d.pin) return 'Piquage : posez-le sur un tuyau, il s’y accroche perpendiculairement. « Côté » (Maj+F) le fait passer de l’autre côté.';
+  return 'Tracez un tuyau depuis chaque point numéroté.';
+}
+
 /* ===== Document ===== */
 const DEFAULT_NETS = [
   { id: 'ef', abbr: 'EF', name: 'Eau froide', color: '#1c7ed6', dash: 'solid', w: 2.4 },
@@ -370,7 +483,7 @@ const DASH_OPTS = [['solid', 'Continu'], ['dash', 'Tirets'], ['dot', 'Pointillé
 const LS_KEY = 'schema-plomberie:v1', LS_CART = 'schema-plomberie:cart';
 function newDoc() { return { v: 2, name: 'Sans titre', nets: clone(DEFAULT_NETS), items: [], opts: { hops: true } }; }
 let doc = newDoc();
-const state = { tool: 'select', pre: null, ghost: null, gRot: 0, gFh: false, activeNet: 'ef', grid: true, sel: new Set(), draft: null, snap: null, space: false, mouse: null, mouseIn: false, libId: null };
+const state = { tool: 'select', pre: null, ghost: null, gRot: 0, gFh: false, activeNet: 'ef', grid: true, sel: new Set(), draft: null, snap: null, space: false, mouse: null, mouseIn: false, libId: null, itab: 'prop', hiPort: null };
 const view = { k: 1.5, tx: 60, ty: 60 };
 let drag = null;
 const byId = id => doc.items.find(i => i.id === id);
@@ -413,14 +526,15 @@ function simplify(pts) {
   return out;
 }
 function readable(a) { a = ((a % 360) + 360) % 360; if (a > 90 && a <= 270) a -= 180; else if (a > 270) a -= 360; if (Math.abs(a - 90) < 0.01) a = -90; return a; }
-function portDir(el, i) {
+/* Direction de sortie d'un raccordement, dans le repère du plan */
+function portVec(el, i) {
   const [px, py] = portsOf(el)[i], [bx, by, bw, bh] = boxOf(el), d = S[el.type]; let lx = 0, ly = 0;
   if (px === 0 && py === 0 && d.pin) { lx = -d.pin[0]; ly = -d.pin[1]; }
   else if (px <= bx + 0.5) lx = -1; else if (px >= bx + bw - 0.5) lx = 1; else if (py <= by + 0.5) ly = -1; else if (py >= by + bh - 0.5) ly = 1;
   else if (Math.abs(px) >= Math.abs(py) && px !== 0) lx = Math.sign(px); else if (py !== 0) ly = Math.sign(py); else lx = -1;
-  const [x, y] = rotv(el.fh ? -lx : lx, ly, el.rot || 0);
-  return Math.abs(x) >= Math.abs(y) ? 'h' : 'v';
+  return rotv(el.fh ? -lx : lx, ly, el.rot || 0);
 }
+function portDir(el, i) { const [x, y] = portVec(el, i); return Math.abs(x) >= Math.abs(y) ? 'h' : 'v'; }
 
 /* ===== Rendu ===== */
 function buildCtx() {

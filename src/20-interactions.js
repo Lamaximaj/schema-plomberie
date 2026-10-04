@@ -11,6 +11,7 @@ function renderUI() {
     one.pts.forEach((q, i) => { s += `<rect class="hdl vh" data-hit="vh" data-id="${one.id}" data-i="${i}" x="${r2(q.x - hs / 2)}" y="${r2(q.y - hs / 2)}" width="${r2(hs)}" height="${r2(hs)}" stroke-width="${sw}"/>`; });
   }
   if (one && one.kind === 'zone') { const s0 = 8 / k; for (const [c, x, y] of [['nw', one.x, one.y], ['ne', one.x + one.w, one.y], ['sw', one.x, one.y + one.h], ['se', one.x + one.w, one.y + one.h]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="zh" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
+  if (one && one.kind === 'el' && state.itab === 'racc') s += portBadges(one, k);
   const showPorts = state.tool === 'pipe' || (drag && drag.kind === 'vertex');
   if (showPorts) { const r = r2(3.2 / k), sw = r2(1.2 / k); for (const el of els()) for (const q of portsW(el)) s += `<circle class="portmark" cx="${q.x}" cy="${q.y}" r="${r}" stroke-width="${sw}"/>`; }
   if (state.tool === 'place' && state.ghost && state.mouseIn) { const g = state.ghost; s += g.kind === 'el' ? elSVG(g, buildCtx(), { exp: true, ghost: true }) : `<g opacity="0.55">${g.kind === 'legend' ? legendSVG(g, buildCtx()) : g.kind === 'nomen' ? nomenSVG(g, buildCtx()) : cartSVG(g)}</g>`; }
@@ -22,6 +23,21 @@ function renderUI() {
   if (showPorts && state.snap && state.snap.kind !== 'grid') s += `<circle cx="${state.snap.x}" cy="${state.snap.y}" r="${r2(7 / k)}" fill="none" style="stroke:${state.snap.kind === 'port' ? 'var(--sel)' : '#0b7285'}" stroke-width="${r2(2 / k)}"/>`;
   if (drag && drag.kind === 'rubber') { const d = drag, cross = d.cur.x < d.start.x; s += `<rect class="rubber${cross ? ' cross' : ''}" x="${r2(Math.min(d.start.x, d.cur.x))}" y="${r2(Math.min(d.start.y, d.cur.y))}" width="${r2(Math.abs(d.cur.x - d.start.x))}" height="${r2(Math.abs(d.cur.y - d.start.y))}" stroke-width="${r2(1 / k)}"${cross ? ` stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"` : ''}/>`; }
   LU.innerHTML = s;
+}
+/* Pastilles numérotées des raccordements (onglet « Raccordement ») ; k : échelle d'affichage */
+function portBadges(el, k, ctx, hi) {
+  ctx = ctx || buildCtx(); if (hi == null) hi = state.hiPort && state.hiPort.id === el.id ? state.hiPort.i : -1;
+  const d = S[el.type], side = d.inline || d.pin; let s = '';
+  portsW(el).forEach((q, i) => {
+    let [vx, vy] = portVec(el, i);
+    if (side) [vx, vy] = Math.abs(vx) >= Math.abs(vy) ? [0, -1] : [-1, 0];
+    const n = netAt(ctx, q), r = r2(7 / k), cx = r2(q.x + vx * 15 / k), cy = r2(q.y + vy * 15 / k);
+    s += `<line x1="${q.x}" y1="${q.y}" x2="${cx}" y2="${cy}" class="badge-lead" stroke-width="${r2(1 / k)}"/>`;
+    if (i === hi) s += `<circle cx="${q.x}" cy="${q.y}" r="${r2(8 / k)}" fill="none" style="stroke:var(--sel)" stroke-width="${r2(2.4 / k)}"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${i === hi ? r2(8.5 / k) : r}" class="badge${n ? ' ok' : ''}"${n ? ` style="fill:${n.color}"` : ''} stroke-width="${r2(1.4 / k)}"/>`;
+    s += `<text x="${cx}" y="${cy}" class="badge-t${n ? ' ok' : ''}" font-size="${r2(8.5 / k)}" font-weight="700" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" dominant-baseline="central">${i + 1}</text>`;
+  });
+  return s;
 }
 function updateGrid() {
   const g = $('#gridrect'), r = svg.getBoundingClientRect(), k = view.k;
@@ -45,7 +61,7 @@ function fitView() {
 /* ===== Historique ===== */
 const hist = { u: [], r: [] };
 const snapshot = () => JSON.stringify(doc);
-function commit(before) { if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); }
+function commit(before) { if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); if (IB.querySelector('.racc')) buildInspector(); }
 function restoreSnap(s) { doc = JSON.parse(s); for (const id of [...state.sel]) if (!byId(id)) state.sel.delete(id); scheduleSave(); render(); buildInspector(); updateUndo(); syncDocName(); }
 function undo() { if (state.draft) { cancelDraft(); return; } if (!hist.u.length) return; hist.r.push(snapshot()); restoreSnap(hist.u.pop()); }
 function redo() { if (!hist.r.length) return; hist.u.push(snapshot()); restoreSnap(hist.r.pop()); }

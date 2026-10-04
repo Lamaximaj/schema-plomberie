@@ -43,9 +43,13 @@ function paramField(el, k, sp) {
   if (sp.type === 'area') return F(sp.label, fArea(get, set, { k: 'p-' + k }));
   return F(sp.label, fText(get, set, { k: 'p-' + k, max: sp.max || 40 }));
 }
+const ITABS = [['prop', 'Propriétés'], ['racc', 'Raccordement']];
+function setItab(k) { state.itab = k; state.hiPort = null; buildInspector(); renderUI(); }
+const tabsNode = () => h('div', { class: 'itabs', role: 'tablist' }, ITABS.map(([k, l]) => h('button', { class: 'itab' + (state.itab === k ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': String(state.itab === k), onclick: () => setItab(k) }, l)));
 function inspEl(el) {
   const def = S[el.type], pre = PRE[el.pre];
   IB.append(headNode(thumbSVG(el), (pre && pre.name) || def.name, CATS[CAT_IDX[def.cat]][1]));
+  if (portsOf(el).length) { IB.append(tabsNode()); if (state.itab === 'racc') { inspRacc(el); return; } }
   IB.append(SEC(null,
     F('Repère', fText(() => el.tag, v => { el.tag = v; }, { k: 'tag', max: 24, aria: 'Repère' }), fCheck(() => el.st, v => { el.st = v; }, 'Afficher')),
     F('Désignation', fText(() => el.name, v => { el.name = v; }, { k: 'name', max: 120, aria: 'Désignation' }), fCheck(() => el.sn, v => { el.sn = v; }, 'Afficher')),
@@ -58,6 +62,56 @@ function inspEl(el) {
   IB.append(SEC('Apparence', F('Couleur du symbole', h('div', { class: 'btnrow' }, fColor(() => isHex(el.color) ? el.color : '#16191b', v => { el.color = v; }), btn('Par défaut', () => { const b = snapshot(); delete el.color; commit(b); buildInspector(); }))),
     (el.lx || el.ly) ? btn('Replacer les libellés', () => { const b = snapshot(); el.lx = 0; el.ly = 0; commit(b); buildInspector(); }) : null));
   IB.append(actionsSec());
+}
+/* ===== Onglet « Raccordement » : où et comment raccorder chaque point ===== */
+const elRef = (o, j) => (o.tag || o.name || S[o.type].name) + (portsOf(o).length > 1 ? ', ' + portName(o, j).toLowerCase() : '');
+function portAt(q, skip, ctx) { for (const o of ctx.els) { if (o === skip) continue; const j = portsW(o).findIndex(w => near(w, q)); if (j >= 0) return elRef(o, j); } return ''; }
+function portStatus(el, q, ctx) {
+  for (const p of ctx.pipes) {
+    const a = p.pts[0], b = p.pts[p.pts.length - 1], end = near(a, q) ? 0 : near(b, q) ? 1 : -1; if (end < 0) continue;
+    const far = end ? a : b, n = netOf(p.net); let to = portAt(far, el, ctx);
+    if (!to) { const host = ctx.pipes.find(o => o !== p && onPoly(far, o.pts)); if (host) to = 'piquage sur ' + (netOf(host.net).abbr || netOf(host.net).name); }
+    return { net: n, txt: (n.abbr || n.name) + (to ? ' vers ' + to : '') };
+  }
+  const host = ctx.pipes.find(p => onPoly(q, p.pts)); if (host) { const n = netOf(host.net); return { net: n, txt: 'Posé sur le tuyau ' + (n.abbr || n.name) }; }
+  const to = portAt(q, el, ctx); return to ? { net: null, txt: 'Accolé à ' + to } : null;
+}
+function raccFigure(el, ctx) {
+  const W = 268, H = 150, P = 30, b = elBox(el), bw = Math.max(b.x1 - b.x0, 1), bh = Math.max(b.y1 - b.y0, 1), k = Math.min((W - 2 * P) / bw, (H - 2 * P) / bh, 4);
+  const vw = W / k, vh = H / k, x0 = (b.x0 + b.x1) / 2 - vw / 2, y0 = (b.y0 + b.y1) / 2 - vh / 2;
+  return `<svg viewBox="${r2(x0)} ${r2(y0)} ${r2(vw)} ${r2(vh)}" width="${W}" height="${H}" aria-hidden="true">${elSVG(el, ctx, { exp: true })}${portBadges(el, k, ctx, -1)}</svg>`;
+}
+function traceFrom(el, i, net) {
+  const q = portsW(el)[i];
+  if (net) setActiveNet(net.id);
+  setTool('pipe');
+  state.draft = { pts: [{ x: q.x, y: q.y }], net: state.activeNet, flip: false, start: { kind: 'port', el, i, x: q.x, y: q.y }, preview: null };
+  app.classList.remove('show-insp'); showDraftBar(); updateHint(); renderUI();
+  toast('Tuyau ' + netLabel(netOf(state.activeNet)) + ' depuis « ' + portName(el, i) + ' » : cliquez les coudes, puis le point d’arrivée.');
+}
+function hoverPort(el, i) { state.hiPort = el ? { id: el.id, i } : null; renderUI(); }
+function raccRow(el, i, st, info) {
+  const want = info.nets.map(id => doc.nets.find(n => n.id === id)).filter(Boolean), side = portSide(el, i), net = st && st.net;
+  const bad = net && want.length && !want.some(n => n.id === net.id);
+  const chip = n => h('span', { class: 'chip' }, h('span', { class: 'sw', style: 'background:' + n.color }), n.abbr || n.name);
+  return h('li', { class: 'racc-row' + (st ? ' done' : ''), onmouseenter: () => hoverPort(el, i), onmouseleave: () => hoverPort(null) },
+    h('span', { class: 'rn' + (net ? ' ok' : ''), style: net ? 'background:' + net.color : null }, String(i + 1)),
+    h('div', { class: 'rb' },
+      h('div', { class: 'rt' }, h('b', null, portName(el, i)), side ? h('span', { class: 'rside' }, side) : null),
+      h('div', { class: 'rs' + (st ? '' : ' free') }, net ? h('span', { class: 'sw', style: 'background:' + net.color }) : null, st ? st.txt : 'Libre'),
+      want.length ? h('div', { class: 'rw' }, h('span', null, 'Réseau attendu'), want.map(chip)) : null,
+      bad ? h('div', { class: 'rbad' }, 'Raccordé sur un autre réseau que celui attendu.') : null,
+      info.tip ? h('p', { class: 'rtip' }, info.tip) : null,
+      st ? null : h('div', { class: 'btnrow', style: 'margin-top:7px' }, h('button', { class: 'btn sm ghost', type: 'button', title: 'Commencer un tuyau depuis ce point', onclick: () => traceFrom(el, i, want[0]), onfocus: () => hoverPort(el, i), onblur: () => hoverPort(null) }, 'Tracer depuis ce point'))));
+}
+function inspRacc(el) {
+  const ctx = buildCtx(), r = raccOf(el), wp = portsW(el), st = wp.map(q => portStatus(el, q, ctx)), done = st.filter(Boolean).length;
+  IB.append(SEC(null, h('div', { class: 'racc-fig', html: raccFigure(el, ctx) }),
+    h('div', { class: 'racc-sum' }, h('b', null, done + ' / ' + wp.length), wp.length > 1 ? ' points raccordés' : ' point raccordé'),
+    h('p', { class: 'racc-tip' }, raccAdvice(el)),
+    (norm360(el.rot || 0) || el.fh) && raccOf(el).c ? h('p', { class: 'hint' }, 'Ces repères décrivent le symbole dans son sens d’origine. Ici il est tourné ou retourné : suivez les numéros et le côté indiqué pour chaque point.') : null));
+  IB.append(SEC('Points de raccordement', h('ol', { class: 'racc' }, wp.map((q, i) => raccRow(el, i, st[i], (r.p && r.p[i]) || RP())))));
+  IB.append(SEC(null, h('p', { class: 'hint', style: 'margin:0' }, 'Les numéros restent affichés sur le plan tant que cet onglet est ouvert. Avec l’outil Tuyauterie (L), vous pouvez aussi partir du cercle vert d’un point.')));
 }
 function inspPipe(p) {
   const n = netOf(p.net), dash = DASHES[n.dash];
@@ -340,7 +394,7 @@ function updateHint() {
 }
 function showCoords(w) {
   const s = state.snap, c = $('#coords');
-  if (state.tool === 'pipe' && s && s.kind === 'port') { const d = S[s.el.type]; c.textContent = (s.el.tag ? s.el.tag + ' : ' : '') + ((d.pn && d.pn[s.i]) || 'Raccordement ' + (s.i + 1)); }
+  if (state.tool === 'pipe' && s && s.kind === 'port') c.textContent = (s.el.tag ? s.el.tag + ' : ' : '') + portName(s.el, s.i);
   else c.textContent = 'x ' + Math.round(w.x) + '   y ' + Math.round(w.y);
 }
 

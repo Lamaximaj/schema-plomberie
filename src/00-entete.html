@@ -78,6 +78,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .rubber{fill:rgba(44,154,70,.08);stroke:var(--sel)}
 .rubber.cross{fill:rgba(28,126,214,.07);stroke:#1c7ed6}
 .portmark{fill:#fff;stroke:var(--sel)}
+.badge{fill:var(--paper);stroke:var(--sel)}.badge.ok{stroke:var(--paper)}
+.badge-t{fill:var(--ink)}.badge-t.ok{fill:#fff}
+.badge-lead{stroke:var(--sel)}
 .empty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;padding:20px}
 .empty-card{pointer-events:auto;max-width:440px;background:var(--plate);border:1px solid var(--rule);border-radius:10px;padding:20px 22px 22px;box-shadow:var(--shadow);color:var(--text)}
 .empty-card svg{display:block;width:100%;height:58px;margin-bottom:10px;background:#fff;border-radius:6px}
@@ -119,6 +122,29 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .net .ext .inp{flex:1}
 kbd{font:600 11px/1 Barlow,sans-serif;padding:3px 5px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;background:var(--panel-2);color:var(--text);white-space:nowrap}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:12.5px;align-items:center;justify-items:start}
+.itabs{display:flex;gap:4px;padding:8px 16px 0;border-bottom:1px solid var(--rule-soft)}
+.itab{flex:1;height:32px;margin-bottom:-1px;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;background:transparent;cursor:pointer;font:600 13.5px "Barlow Semi Condensed",Barlow,sans-serif;color:var(--muted)}
+.itab:hover{color:var(--text);background:var(--panel-2)}
+.itab.on{color:var(--text);background:var(--panel);border-color:var(--rule-soft);box-shadow:inset 0 2px 0 var(--accent)}
+.itab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.racc-fig{background:var(--paper);border:1px solid var(--rule-soft);border-radius:6px;overflow:hidden}
+.racc-fig svg{display:block;width:100%;height:auto}
+.racc-sum{margin-top:10px;font-size:13px;color:var(--muted)}.racc-sum b{color:var(--text);font-variant-numeric:tabular-nums}
+.racc-tip{margin:6px 0 0;font-size:13px;line-height:1.45}
+.racc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.racc-row{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;padding:8px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2)}
+.racc-row:hover,.racc-row:focus-within{border-color:var(--accent)}
+.rn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--sel);background:var(--field);color:var(--text);font:700 12px Barlow,sans-serif}
+.rn.ok{border-color:transparent;color:#fff}
+.rb{min-width:0}
+.rt{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 6px;font-size:13.5px;line-height:1.25}
+.rside{font-size:12px;color:var(--muted)}
+.rs{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:12.5px}.rs.free{color:var(--muted)}
+.rs .sw,.chip .sw{width:12px}
+.rw{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:5px;font-size:12px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--rule);border-radius:10px;background:var(--field);color:var(--text);font:600 11.5px Barlow,sans-serif}
+.rbad{margin-top:4px;font-size:12px;color:var(--danger)}
+.rtip{margin:5px 0 0;font-size:12.5px;line-height:1.4}
 #foot{grid-area:foot;display:flex;align-items:center;gap:14px;padding:5px 12px;background:var(--panel);border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted);min-height:32px;overflow:hidden}
 #hint{display:flex;gap:16px;overflow:hidden;white-space:nowrap;flex:1;min-width:0}
 #hint span{display:inline-flex;align-items:center;gap:5px}
