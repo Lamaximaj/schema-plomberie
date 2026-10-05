@@ -156,7 +156,7 @@ function inspCart(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="6" y="11" width="52" height="24" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M6 19H58M6 27H58M24 11V19M18 27V35M30 27V35M44 27V35" stroke="#16191b" stroke-width=".8"/></svg>', 'Cartouche'));
   const keep = () => { try { localStorage.setItem(LS_CART, JSON.stringify({ ent: it.f.ent, auteur: it.f.auteur })); } catch (e) { /* stockage indisponible */ } };
   const fld = (k, label) => F(label, fText(() => it.f[k], v => { it.f[k] = v; }, { k: 'f-' + k, max: 120, after: keep }));
-  IB.append(SEC(null, fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
+  IB.append(SEC(null, F('Taille', fSelect(CART_SC.map(v => [String(v), Math.round(v * 100) + ' %']), () => String(cartSc(it)), v => { it.sc = +v; })), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
   IB.append(actionsSec());
 }
 function inspMulti(items) {
@@ -345,26 +345,71 @@ function svgToPng(str, w, hh, scale) {
 }
 function exportSVG() { const e = buildExport(); if (e) saveFile(fileBase() + '.svg', '<?xml version="1.0" encoding="UTF-8"?>\n' + e.svg); }
 async function exportPNG() { const e = buildExport(); if (!e) return; try { saveFile(fileBase() + '.png', await svgToPng(e.svg, e.w, e.h, clamp(Math.sqrt(16e6 / (e.w * e.h)), 1, 4))); } catch (err) { toast('Création de l’image impossible.'); } }
-/* Formats PDF (mm, paysage) et marge. Le schéma est rendu à environ 200 dpi, découpé en tuiles de 3000 px au plus :
-   un A0 dépasse la taille maximale d'image que certains navigateurs savent dessiner d'un seul tenant. */
-const PDF_FMT = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] }, PDF_PXMM = 8, PDF_TILE = 3000;
+/* Formats PDF (mm, paysage) et marge. Export vectoriel (svg2pdf, police Arimo, de même chasse qu'Arial) : net à toutes les échelles.
+   Si ces bibliothèques ne se chargent pas, repli sur un rendu image d'environ 300 dpi, découpé en tuiles de 3000 px au plus
+   (un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
+const PDF_FMT = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] }, PDF_PXMM = 12, PDF_TILE = 3000;
+const PDF_LIBS = {
+  svg2pdf: 'https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js',
+  reg: 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/400Regular/Arimo_400Regular.ttf',
+  bold: 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/700Bold/Arimo_700Bold.ttf',
+};
 const blobToURL = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+const loadScript = src => new Promise((res, rej) => { const sc = h('script', { src }); sc.onload = res; sc.onerror = rej; document.head.append(sc); });
+const abToB64 = ab => { const u = new Uint8Array(ab); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+let pdfVecP = null;
+function pdfVecLibs() {
+  if (!pdfVecP) pdfVecP = (async () => {
+    if (!(window.svg2pdf && window.svg2pdf.svg2pdf)) await loadScript(PDF_LIBS.svg2pdf);
+    const [reg, bold] = await Promise.all([PDF_LIBS.reg, PDF_LIBS.bold].map(async u => { const r = await fetch(u); if (!r.ok) throw new Error('police'); return abToB64(await r.arrayBuffer()); }));
+    if (!(window.svg2pdf && window.svg2pdf.svg2pdf)) throw new Error('svg2pdf');
+    return { reg, bold };
+  })().catch(e => { pdfVecP = null; throw e; });
+  return pdfVecP;
+}
+async function pdfVector(pdf, e, ox, oy, dw, dh) {
+  const libs = await pdfVecLibs();
+  pdf.addFileToVFS('Arimo-Regular.ttf', libs.reg); pdf.addFont('Arimo-Regular.ttf', 'Arimo', 'normal');
+  pdf.addFileToVFS('Arimo-Bold.ttf', libs.bold); pdf.addFont('Arimo-Bold.ttf', 'Arimo', 'bold');
+  const el = new DOMParser().parseFromString(e.svg, 'image/svg+xml').documentElement;
+  const host = h('div', { style: 'position:fixed;left:-99999px;top:0;width:4000px;height:4000px;overflow:hidden', 'aria-hidden': 'true' }); host.append(document.importNode(el, true)); document.body.append(host);
+  try {
+    const sv = host.firstChild, NS = 'http://www.w3.org/2000/svg';
+    /* Halo blanc des libellés (texte contourné de blanc) : svg2pdf le décale ; on le remplace par un rectangle blanc mesuré
+       ici avec la police d'origine (Arimo a la même chasse qu'Arial), avec la même rotation que le texte. */
+    for (const t of [...sv.querySelectorAll('text')]) {
+      if (!/fill:\s*none/.test(t.getAttribute('style') || '')) continue;
+      const b = t.getBBox(), r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', r2(b.x - 1)); r.setAttribute('y', r2(b.y + b.height * 0.12)); r.setAttribute('width', r2(b.width + 2)); r.setAttribute('height', r2(b.height * 0.8)); r.setAttribute('fill', '#ffffff');
+      if (t.getAttribute('transform')) r.setAttribute('transform', t.getAttribute('transform'));
+      t.replaceWith(r);
+    }
+    for (const n of [sv, ...sv.querySelectorAll('[font-family]')]) n.setAttribute('font-family', 'Arimo');
+    await window.svg2pdf.svg2pdf(sv, pdf, { x: ox, y: oy, width: dw, height: dh });
+  } finally { host.remove(); }
+}
+async function pdfRaster(pdf, e, ox, oy, s) {
+  const k = Math.max(1, s * PDF_PXMM), tu = PDF_TILE / k, ov = 2 / k; /* k : pixels par unité du schéma ; tu : côté d'une tuile ; ov : recouvrement contre les liserés */
+  for (let ty = 0; ty < e.h; ty += tu) for (let tx = 0; tx < e.w; tx += tu) {
+    const tw = Math.min(tu + ov, e.w - tx), th = Math.min(tu + ov, e.h - ty), pw = Math.max(1, Math.round(tw * k)), ph = Math.max(1, Math.round(th * k));
+    const url = await blobToURL(await svgToPng(e.wrap(e.x + tx, e.y + ty, tw, th, pw, ph), pw, ph, 1));
+    pdf.addImage(url, 'PNG', ox + tx * s, oy + ty * s, tw * s, th * s, undefined, 'FAST');
+  }
+}
 async function exportPDF(fmt) {
   const J = window.jspdf && window.jspdf.jsPDF; if (!J) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
   const e = buildExport(); if (!e) return;
   const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.w >= e.h, PW = land ? L : l, PH = land ? l : L;
   const s = Math.min((PW - 2 * mg) / e.w, (PH - 2 * mg) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
-  const k = Math.max(1, s * PDF_PXMM), tu = PDF_TILE / k, ov = 2 / k; /* k : pixels par unité du schéma ; tu : côté d'une tuile ; ov : recouvrement contre les liserés */
-  if (fmt === 'a0') toast('Création du PDF A0…');
-  try {
-    const pdf = new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt });
-    for (let ty = 0; ty < e.h; ty += tu) for (let tx = 0; tx < e.w; tx += tu) {
-      const tw = Math.min(tu + ov, e.w - tx), th = Math.min(tu + ov, e.h - ty), pw = Math.max(1, Math.round(tw * k)), ph = Math.max(1, Math.round(th * k));
-      const url = await blobToURL(await svgToPng(e.wrap(e.x + tx, e.y + ty, tw, th, pw, ph), pw, ph, 1));
-      pdf.addImage(url, 'PNG', ox + tx * s, oy + ty * s, tw * s, th * s, undefined, 'FAST');
-    }
-    saveFile(fileBase() + '-' + fmt.toUpperCase() + '.pdf', pdf.output('blob'));
-  } catch (err) { toast('Création du PDF impossible.'); }
+  const mk = () => new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt, compress: true });
+  toast('Création du PDF ' + fmt.toUpperCase() + '…');
+  let pdf = mk();
+  try { await pdfVector(pdf, e, ox, oy, dw, dh); }
+  catch (err) {
+    try { pdf = mk(); await pdfRaster(pdf, e, ox, oy, s); toast('PDF en image (environ 300 dpi) : le mode vectoriel n’a pas pu être chargé.'); }
+    catch (err2) { toast('Création du PDF impossible.'); return; }
+  }
+  saveFile(fileBase() + '-' + fmt.toUpperCase() + '.pdf', pdf.output('blob'));
 }
 function saveJSON() { saveFile(fileBase() + '.json', JSON.stringify(doc, null, 1)); }
 async function initCaps() {
