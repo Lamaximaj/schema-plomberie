@@ -32,7 +32,8 @@ open dist/index.html   # ou double-clic sur le fichier
 | `src/20-interactions.js` | Tracé, pose, aimantation sur les tuyaux, orientation, déplacements, historique |
 | `src/30-interface.js` | Panneau de propriétés, bibliothèque, menus, exports, sauvegarde, exemples |
 | `modeles/*.json` | Modèles proposés dans Fichier > Modèles (schémas enregistrés depuis l'outil) |
-| `build.sh` | Assemble `dist/index.html` et y intègre les modèles |
+| `vendor/` | jsPDF, svg2pdf.js et police Arimo pour l'export PDF, servis avec la page (licences dans le dossier) |
+| `build.sh` | Assemble `dist/index.html`, y intègre les modèles et copie `vendor/` |
 
 Pour ajouter un modèle : enregistrer le schéma en `.json` (Fichier > Enregistrer en fichier .json), le déposer dans `modeles/`, puis relancer `build.sh`. Le nom affiché dans le menu est celui du schéma.
 

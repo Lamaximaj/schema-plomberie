@@ -349,21 +349,26 @@ async function exportPNG() { const e = buildExport(); if (!e) return; try { save
    Si ces bibliothèques ne se chargent pas, repli sur un rendu image d'environ 300 dpi, découpé en tuiles de 3000 px au plus
    (un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
 const PDF_FMT = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] }, PDF_PXMM = 12, PDF_TILE = 3000;
+/* Bibliothèques servies avec la page (dossier vendor/), CDN en secours */
 const PDF_LIBS = {
-  svg2pdf: 'https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js',
-  reg: 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/400Regular/Arimo_400Regular.ttf',
-  bold: 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/700Bold/Arimo_700Bold.ttf',
+  jspdf: ['vendor/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'],
+  svg2pdf: ['vendor/svg2pdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js'],
+  reg: ['vendor/Arimo-Regular.ttf', 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/400Regular/Arimo_400Regular.ttf'],
+  bold: ['vendor/Arimo-Bold.ttf', 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/arimo@0.4.3/700Bold/Arimo_700Bold.ttf'],
 };
 const blobToURL = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
-const loadScript = src => new Promise((res, rej) => { const sc = h('script', { src }); sc.onload = res; sc.onerror = rej; document.head.append(sc); });
+const loadScript = src => new Promise((res, rej) => { const sc = h('script', { src }); sc.onload = res; sc.onerror = () => { sc.remove(); rej(new Error(src)); }; document.head.append(sc); });
+/* Essaie chaque adresse dans l'ordre jusqu'à ce que ok() soit vrai */
+async function loadFirst(urls, ok) { for (const u of urls) { if (ok()) return; try { await loadScript(u); } catch (e) { /* adresse suivante */ } } if (!ok()) throw new Error('script'); }
+async function fetchFirst(urls) { for (const u of urls) { try { const r = await fetch(u); if (r.ok) return await r.arrayBuffer(); } catch (e) { /* adresse suivante */ } } throw new Error('police'); }
 const abToB64 = ab => { const u = new Uint8Array(ab); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+const hasJsPDF = () => !!(window.jspdf && window.jspdf.jsPDF), hasSvg2pdf = () => !!(window.svg2pdf && window.svg2pdf.svg2pdf);
 let pdfVecP = null;
 function pdfVecLibs() {
   if (!pdfVecP) pdfVecP = (async () => {
-    if (!(window.svg2pdf && window.svg2pdf.svg2pdf)) await loadScript(PDF_LIBS.svg2pdf);
-    const [reg, bold] = await Promise.all([PDF_LIBS.reg, PDF_LIBS.bold].map(async u => { const r = await fetch(u); if (!r.ok) throw new Error('police'); return abToB64(await r.arrayBuffer()); }));
-    if (!(window.svg2pdf && window.svg2pdf.svg2pdf)) throw new Error('svg2pdf');
-    return { reg, bold };
+    await loadFirst(PDF_LIBS.svg2pdf, hasSvg2pdf);
+    const [reg, bold] = await Promise.all([fetchFirst(PDF_LIBS.reg), fetchFirst(PDF_LIBS.bold)]);
+    return { reg: abToB64(reg), bold: abToB64(bold) };
   })().catch(e => { pdfVecP = null; throw e; });
   return pdfVecP;
 }
@@ -397,7 +402,8 @@ async function pdfRaster(pdf, e, ox, oy, s) {
   }
 }
 async function exportPDF(fmt) {
-  const J = window.jspdf && window.jspdf.jsPDF; if (!J) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
+  try { await loadFirst(PDF_LIBS.jspdf, hasJsPDF); } catch (e) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
+  const J = window.jspdf.jsPDF;
   const e = buildExport(); if (!e) return;
   const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.w >= e.h, PW = land ? L : l, PH = land ? l : L;
   const s = Math.min((PW - 2 * mg) / e.w, (PH - 2 * mg) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
