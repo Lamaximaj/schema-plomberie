@@ -48,6 +48,8 @@ const stub = (c, i, x1, y1, x2, y2) => Ln(x1, y1, x2, y2, ` stroke="${c.pc(i)}" 
 /* Manomètre intégré à un organe (piqué sur le tuyau du port i, en x) et robinet de purge bouchonné sous un corps */
 const MANO_S = (c, i, x) => stub(c, i, x, 0, x, -9) + Ci(x, -14, 5) + Ln(x, -14, r2(x + 2.9), -16.9, ' stroke-width="1.1"') + Ci(x, -14, 0.9, FILLED);
 const PURGE = y0 => Ln(0, y0, 0, y0 + 4) + BOWV(y0 + 4, y0 + 13, 4) + Ln(0, y0 + 13, 0, y0 + 16) + Re(-3, y0 + 16, 6, 4.5, ' rx="1"');
+/* Émetteur d'impulsions posé sur un compteur */
+const EMET = Ln(0, -9, 0, -12, THIN) + Re(-7, -20, 14, 8, ' rx="1"') + P('M-5,-14L-2.5,-14L-2.5,-18L0,-18L0,-14L2.5,-14L2.5,-18L5,-18', NOF + ' stroke-width="0.9"');
 const FLAME = 'M0,-9Q9,1 6,9Q4,14 0,14Q-4,14 -6,9Q-8,3 -2,-3Q-1,2 1,3Q1,-3 0,-9Z';
 const NOCTX = { pc: () => 'currentColor', pw: () => 1.5 };
 const IN2 = [[-10, 0], [10, 0]];
@@ -104,7 +106,8 @@ const S = {
   soupape: { cat: 'secu', name: 'Soupape de sécurité', prefix: 'SS', tagOn: true, box: [-8, -19, 18, 29], ports: [[0, 10], [10, 0]], pn: ['Entrée', 'Échappement'],
     draw: () => ({ g: P('M-7,10L7,10L0,0Z') + P('M10,-7L10,7L0,0Z') + P('M0,0L0,-4L-4,-6L4,-9.5L-4,-13L4,-16.5L0,-18.5', NOF + THIN) }) },
   vase: { cat: 'secu', name: "Vase d'expansion", prefix: 'VX', tagOn: true, pin: [0, 1], box: [-12, -1, 24, 46], ports: [[0, 0]],
-    draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, 10) + Re(-12, 10, 24, 34, ' rx="11" ry="9"') + P('M-12,27q3,-3 6,0t6,0t6,0t6,0', NOF + THIN) }) },
+    params: { txt: { label: 'Pression de gonflage', type: 'text', def: '', max: 8 } },
+    draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, 10) + Re(-12, 10, 24, 34, ' rx="11" ry="9"') + P('M-12,27q3,-3 6,0t6,0t6,0t6,0', NOF + THIN), t: el.p.txt ? [[0, 35.5, el.p.txt, 5.5, 700]] : [] }) },
   purgeur: { cat: 'secu', name: "Purgeur d'air automatique", prefix: 'PA', pin: [0, -1], box: [-6, -22, 12, 23], ports: [[0, 0]],
     draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, -5) + Re(-5, -14, 10, 9, ' rx="1.5"') + Ln(0, -14, 0, -20) + P('M-2.6,-17.4L0,-20.6L2.6,-17.4', NOF) }) },
   desemb: { cat: 'secu', name: 'Pot à boue / désemboueur', prefix: 'PB', inline: true, box: [-10, -9, 20, 40], ports: [[-10, 0], [10, 0], [0, 30]], pn: ['Entrée', 'Sortie', 'Vidange'],
@@ -124,14 +127,17 @@ const S = {
   sonde: { cat: 'mes', name: 'Sonde de température', prefix: 'ST', pin: [0, -1], box: [-6, -20, 12, 21], ports: [[0, 0]],
     params: { txt: { label: 'Grandeur', type: 'text', def: 'T', max: 3 } },
     draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, -8) + Ci(0, -14, 6), t: [[0, -13.8, el.p.txt || '', 6.5, 700]] }) },
-  compteur: { cat: 'mes', name: "Compteur d'eau", prefix: 'C', inline: true, tagOn: true, box: [-20, -10, 40, 20], ports: [[-20, 0], [20, 0]],
-    params: { txt: { label: 'Inscription', type: 'text', def: 'm³', max: 5 } },
-    draw: (el, c) => ({ g: stub(c, 0, -20, 0, -13, 0) + stub(c, 1, 13, 0, 20, 0) + Re(-13, -9, 26, 18, ' rx="1.5"'), t: [[0, 0.3, el.p.txt || '', 7, 700]] }) },
+  compteur: { cat: 'mes', name: "Compteur d'eau", prefix: 'C', inline: true, tagOn: true, ports: [[-20, 0], [20, 0]],
+    params: { txt: { label: 'Inscription', type: 'text', def: 'm³', max: 5 }, emet: { label: 'Émetteur d’impulsions (télérelève)', type: 'check', def: false } },
+    box: el => el.p.emet ? [-20, -21, 40, 31] : [-20, -10, 40, 20],
+    draw: (el, c) => ({ g: stub(c, 0, -20, 0, -13, 0) + stub(c, 1, 13, 0, 20, 0) + Re(-13, -9, 26, 18, ' rx="1.5"') + (el.p.emet ? EMET : ''), t: [[0, 0.3, el.p.txt || '', 7, 700]] }) },
   regul: { cat: 'mes', name: 'Régulateur / automate', prefix: 'REG', tagOn: true, box: [-20, -20, 40, 40], ports: [[-20, 0], [20, 0], [0, -20], [0, 20]],
     draw: () => ({ g: Re(-20, -20, 40, 40, ' rx="2.5"') + Re(-14, -14, 28, 13, ' rx="1"') + P('M-11,-6L-6,-6L-3,-11L1,-4L4,-9L11,-9', NOF + THIN), t: [[0, 9, 'RÉGUL.', 6, 700]] }) },
 
-  pompe: { cat: 'pompes', name: 'Circulateur / pompe', prefix: 'P', inline: true, tagOn: true, box: [-10, -10, 20, 20], ports: IN2,
-    draw: () => ({ g: Ci(0, 0, 10) + P('M-4.5,-6.2L-4.5,6.2L7.5,0Z', FILLED) }) },
+  pompe: { cat: 'pompes', name: 'Circulateur / pompe', prefix: 'P', inline: true, tagOn: true, ports: IN2,
+    params: { vv: { label: 'Vitesse variable (variateur)', type: 'check', def: false } },
+    box: el => el.p.vv ? [-14, -14, 28, 28] : [-10, -10, 20, 20],
+    draw: el => ({ g: Ci(0, 0, 10) + P('M-4.5,-6.2L-4.5,6.2L7.5,0Z', FILLED) + (el.p.vv ? Ln(-12.5, 12.5, 10, -10, THIN) + P('M13,-13L6.4,-11.2L11.2,-6.4Z', FILLED) : '') }) },
   pompe2: { cat: 'pompes', name: 'Circulateur double', prefix: 'P', inline: true, tagOn: true, box: [-20, -12, 40, 24], ports: [[-20, 0], [20, 0]],
     draw: () => ({ g: Re(-20, -12, 40, 24, ' rx="4"') + Ci(-9, 0, 7) + Ci(9, 0, 7) + P('M-12,-4.2L-12,4.2L-4.5,0Z', FILLED) + P('M6,-4.2L6,4.2L13.5,0Z', FILLED) }) },
   surpresseur: { cat: 'pompes', name: 'Groupe de surpression', prefix: 'SUR', tagOn: true, box: [-40, -26, 80, 52], ports: [[-40, 0], [40, 0]], pn: ['Aspiration', 'Refoulement'],
@@ -343,6 +349,27 @@ Object.assign(S, {
       + P('M-10,0L0,-9L10,0L0,9Z') + Ln(0, -7.5, 0, 7.5, THIN + ' stroke-dasharray="2 1.5"') + Ln(0, 9, 0, 12) + BOWV(12, 21, 4) + stub(c, 2, 0, 21, 0, 30) }) },
 });
 
+/* ===== Organes relevés côté gestionnaire EP : filtre à cartouche (type Cintropur NW), stérilisateur UV (type Cintropur UV) ===== */
+const cartBot = el => el.p.purge ? 40 : 27;
+const CUVE = (y1) => P(`M-8,4L-8,${y1 - 5}Q-8,${y1} 0,${y1}Q8,${y1} 8,${y1 - 5}L8,4`);
+Object.assign(S, {
+  filtre_cart: { cat: 'ep', name: 'Filtre à cartouche', prefix: 'F', inline: true, tagOn: true, pn: ['Entrée', 'Sortie', 'Purge'],
+    params: { mano: { label: 'Manomètres amont / aval', type: 'check', def: true }, purge: { label: 'Robinet de purge', type: 'check', def: true } },
+    box: el => { const y0 = el.p.mano ? -20 : -6; return [-20, y0, 40, cartBot(el) - y0]; },
+    ports: el => el.p.purge ? [[-20, 0], [20, 0], [0, 40]] : [[-20, 0], [20, 0]],
+    draw: (el, c) => ({ g: stub(c, 0, -20, 0, -10, 0) + stub(c, 1, 10, 0, 20, 0) + (el.p.mano ? MANO_S(c, 0, -15) + MANO_S(c, 1, 15) : '')
+      + CUVE(27) + Re(-4.5, 7, 9, 16, ' rx="1" fill="none"' + THIN + ' stroke-dasharray="2 1.5"') + Re(-10, -5, 20, 9, ' rx="1.5"')
+      + (el.p.purge ? Ln(0, 27, 0, 29) + BOWV(29, 37, 3.6) + stub(c, 2, 0, 37, 0, 40) : '') }) },
+  uv: { cat: 'ep', name: 'Stérilisateur UV', prefix: 'UV', inline: true, tagOn: true, box: [-20, -6, 40, 41], ports: [[-20, 0], [20, 0]], pn: ['Entrée (eau filtrée)', 'Sortie'],
+    draw: (el, c) => { let g = stub(c, 0, -20, 0, -10, 0) + stub(c, 1, 10, 0, 20, 0) + CUVE(34) + Re(-1.8, 7, 3.6, 22, ' rx="1.8"' + THIN) + Re(-10, -5, 20, 9, ' rx="1.5"');
+      for (const y of [11, 18, 25]) g += Ln(-3.5, y, -6, y - 2, ' stroke-width="0.9"') + Ln(3.5, y, 6, y - 2, ' stroke-width="0.9"');
+      return { g, t: [[0, -0.4, 'UV', 6, 700]] }; } },
+});
+PRE_ADD.push(
+  ['filtre_cart'], ['uv'], ['compteur_imp', 'compteur', "Compteur d'eau à émetteur d'impulsions", { emet: true }],
+  ['pompe_vv', 'pompe', 'Pompe à vitesse variable', { vv: true }]
+);
+
 /* ===== Préréglages de la bibliothèque ===== */
 const PRE_LIST = [
   ['vanne'], ['vanne_bs'], ['papillon'], ['clapet'], ['filtre'], ['filtre_y', 'filtre', 'Filtre à tamis en Y avec purge', { purge: true }], ['filtre_rc'],
@@ -448,6 +475,12 @@ const RACC = {
   recup_ep: { c: 'Aspiration dans la bâche par le dessus, appoint d’eau de ville à gauche, distribution à droite, trop-plein par le dessous.', p: [
     RP('ep enp', 'Depuis la bâche de rétention, par crépine flottante.'), RP('ef', 'Appoint par la disconnexion par surverse totale (AB) intégrée : jamais de liaison directe avec l’eau potable.'),
     RP('enp', 'Réseau d’eau non potable séparé et repéré.'), RP('eu', 'Trop-plein vers les eaux usées, avec clapet anti-retour.')] },
+  filtre_cart: el => ({ c: 'Sur la distribution, entre deux vannes d’isolement et avant le stérilisateur UV. Cartouche à changer au moins deux fois par an, ou dès que l’écart entre les deux manomètres augmente.', p: [
+    RP('enp ef', ISO + '.'), RP('enp ef', ISO + ', puis stérilisateur UV s’il est prévu.'), RP('eu', 'Purge des dépôts vers un entonnoir siphonné ou un siphon de sol.')].slice(0, portsOf(el).length) }),
+  uv: { c: 'Toujours après la filtration : les UV n’agissent que sur une eau claire. Alimentation électrique permanente, lampe à remplacer environ une fois par an.', p: [
+    RP('enp ef', 'Depuis le filtre à cartouche, avec vanne d’isolement.'), RP('enp ef', ISO + ', puis distribution.')] },
+  compteur_ep: { c: 'Mesure l’eau de pluie consommée dans le bâtiment, pour déclarer les volumes rejetés à l’égout (arrêté du 21 août 2008).', p: [
+    RP('enp', 'Refoulement du surpresseur, avec vanne d’isolement.'), RP('enp', 'Distribution d’eau non potable.')] },
   surverse: { p: [RP('ef', 'Arrivée d’eau de ville, au-dessus du niveau de débordement.'), RP('', 'Vers le réservoir.')] },
   toiture: el => ({ c: 'Chaque point marque un emplacement possible d’entrée d’eau pluviale.', n: portsOf(el).map((_, i) => 'Évacuation ' + (i + 1)), p: portsOf(el).map(() => RP('ep', 'Entrée d’eau pluviale avec crapaudine, puis descente EP.')) }),
   eep: { p: [RP('ep', 'Descente d’eaux pluviales.')] },
