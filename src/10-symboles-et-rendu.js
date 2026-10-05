@@ -234,9 +234,10 @@ Object.assign(S, {
     draw: (el, c) => ({ g: Re(-9, -8, 18, 12, ' rx="2"') + P('M-9,-8L-4,-12L4,-12L9,-8', NOF + THIN) + stub(c, 0, 0, 4, 0, 10), t: [[0, -2, 'θe', 6.5, 700]] }) },
   armoire: { cat: 'mes', name: 'Armoire électrique', prefix: 'AE', tagOn: true, box: [-20, -30, 40, 60], ports: [[-20, 0], [20, 0], [0, -30], [0, 30]],
     draw: () => ({ g: Re(-20, -30, 40, 60, ' rx="2"') + Ln(-14, -22, 14, -22, THIN) + P('M3,-14L-5,2L1,2L-3,16L7,-2L1,-2L5,-14Z', FILLED) }) },
-  relevage: { cat: 'equip', name: 'Poste de relevage', prefix: 'PR', tagOn: true, box: [-30, -30, 60, 61], ports: [[-30, -10], [10, -30]], pn: ['Arrivée', 'Refoulement'],
-    params: { np: { label: 'Pompes', type: 'select', options: [['1', '1 pompe'], ['2', '2 pompes (normal / secours)']], def: '1' } },
-    draw: (el, c) => { let g = stub(c, 0, -30, -10, -24, -10) + P('M-24,-20L-24,30L24,30L24,-20') + P('M-24,0q3,-2.5 6,0t6,0t6,0t6,0t6,0t6,0t6,0t6,0', NOF + THIN) + stub(c, 1, 10, 14, 10, -30) + Ci(10, 20, 6) + P('M6.8,23L13.2,23L10,16.5Z', FILLED);
+  relevage: { cat: 'equip', name: 'Poste de relevage', prefix: 'PR', tagOn: true, box: [-30, -30, 60, 61], pn: ['Arrivée', 'Refoulement', 'Évent'],
+    params: { np: { label: 'Pompes', type: 'select', options: [['1', '1 pompe'], ['2', '2 pompes (normal / secours)']], def: '1' }, event: { label: 'Évent en partie haute', type: 'check', def: false } },
+    ports: el => el.p.event ? [[-30, -10], [10, -30], [-20, -30]] : [[-30, -10], [10, -30]],
+    draw: (el, c) => { let g = (el.p.event ? Ln(-24, -20, 24, -20) + stub(c, 2, -20, -20, -20, -30) : '') + stub(c, 0, -30, -10, -24, -10) + P('M-24,-20L-24,30L24,30L24,-20') + P('M-24,0q3,-2.5 6,0t6,0t6,0t6,0t6,0t6,0t6,0t6,0', NOF + THIN) + stub(c, 1, 10, 14, 10, -30) + Ci(10, 20, 6) + P('M6.8,23L13.2,23L10,16.5Z', FILLED);
       if (String(el.p.np) === '2') g += Ln(-10, 14, -10, -8, THIN) + Ln(-10, -8, 10, -8, THIN) + Ci(-10, 20, 6) + P('M-13.2,23L-6.8,23L-10,16.5Z', FILLED);
       return { g, t: String(el.p.np) === '2' ? [[-10, 4.5, 'S', 5, 700], [10, 4.5, 'N', 5, 700]] : [] }; } },
   pompe_cond: { cat: 'pompes', name: 'Pompe de relevage des condensats', prefix: 'PRC', tagOn: true, box: [-20, -10, 40, 27], ports: [[-20, 0], [10, -10]], pn: ['Arrivée des condensats', 'Refoulement'],
@@ -298,7 +299,7 @@ const PRE_ADD = [
   ['v3v_therm', 'v3v', 'Vanne 3 voies thermostatique', { act: 'therm' }], ['v3v_mix', 'v3v', 'Vanne de mixage (adoucisseur)', { act: 'none' }, 'VMX'], ['vanne_auto', 'reducteur', 'Vanne automotrice de détente', null, 'VAD'],
   ['antibelier'], ['purge_man'], ['pot_intro'], ['reserve_vessie', 'vase', 'Réservoir à vessie', null, 'RES'], ['reserve_diaph', 'vase', 'Réservoir à diaphragme', null, 'RES'], ['raccord_pomp', 'pompier', 'Raccord pompier (alimentation colonne sèche)'], ['prise_pomp', 'pompier', 'Prise pompier d’étage', null, 'PIN'],
   ['prise_p'], ['sonde_ext'], ['aquastat', 'sonde', 'Aquastat', { txt: 'AQ' }, 'AQ'], ['sonde_p', 'sonde', 'Sonde de pression', { txt: 'P' }, 'SP'], ['armoire'], ['coffret', 'armoire', 'Coffret de commande', null, 'CC'],
-  ['pompe_charge', 'pompe', 'Pompe de charge'], ['relevage'], ['bache_cond', 'relevage', 'Bâche de relevage des condensats', { np: '2' }, 'BRC'], ['pompe_cond'],
+  ['pompe_charge', 'pompe', 'Pompe de charge'], ['relevage'], ['bache_cond', 'relevage', 'Bâche de relevage des condensats', { np: '2', event: true }, 'BRC'], ['pompe_cond'],
   ['squid'], ['echangeur_vap', 'echangeur', 'Échangeur vapeur / eau'], ['prep_inst', 'echangeur', 'Préparateur ECS instantané à plaques'], ['panneau', 'emetteur', 'Panneaux rayonnants'], ['cuve_ep', 'reservoir', 'Bâche de rétention des eaux pluviales', null, 'BR', 'ep'],
   ['cuve_ep_pr', 'reservoir', 'Bâche de rétention EP avec pompe de relevage immergée', { pompe: '1' }, 'BR', 'ep'],
   ['lavabo', 'sanitaire', 'Lavabo', { kind: 'lavabo' }], ['wc', 'sanitaire', 'WC', { kind: 'wc' }], ['douche', 'sanitaire', 'Douche', { kind: 'douche' }], ['evier', 'sanitaire', 'Évier inox', { kind: 'evier' }],
@@ -478,7 +479,7 @@ const realBal = (el, c) => { /* ballon / bâche : fonds bombés, piquages à bri
   return { g, t: [[0, -25.5, el.p.txt || '', 7, 700]] }; };
 const realVase = (el, c) => ({ g: stub(c, 0, 0, 0, 0, 8) + P('M-10,14A10,6 0 0 1 10,14L10,34A10,5 0 0 1 -10,34Z') + P('M-10,24q2.5,-2.5 5,0t5,0t5,0t5,0', NOF + THIN) + Ln(-7, 37.5, -9, 45) + Ln(7, 37.5, 9, 45) + Ln(-12, 45, -6, 45) + Ln(6, 45, 12, 45), t: el.p.txt ? [[0, 29.5, el.p.txt, 5, 700]] : [] });
 const realRel = (el, c, orig) => { const o = orig(el, c); /* bâche fermée, évent, flotteur, niveau à glace */
-  o.g += Ln(-24, -20, 24, -20, THIN) + Ln(-16, -20, -16, -26) + Ln(-19.5, -26, -12.5, -26) + Ln(-2, -18, -2, -3, THIN) + Ci(-2, 0, 3) + Ln(24, -12, 25, -12, THIN) + Ln(24, 24, 25, 24, THIN) + Re(25, -14, 4, 40, ' rx="1"') + Re(26, 0, 2, 25, FILLED); return o; };
+  o.g += Ln(-24, -20, 24, -20, THIN) + (el.p.event ? '' : Ln(-16, -20, -16, -26) + Ln(-19.5, -26, -12.5, -26)) + Ln(-2, -18, -2, -3, THIN) + Ci(-2, 0, 3) + Ln(24, -12, 25, -12, THIN) + Ln(24, 24, 25, 24, THIN) + Re(25, -14, 4, 40, ' rx="1"') + Re(26, 0, 2, 25, FILLED); return o; };
 const realDes = (el, c) => ({ g: stub(c, 0, -10, 0, -8, 0) + stub(c, 1, 8, 0, 10, 0) + P('M-8,-10A8,4 0 0 1 8,-10L8,14L3,20L-3,20L-8,14Z') + Ln(-6, 15, -11, 26) + Ln(6, 15, 11, 26) + stub(c, 2, 0, 20, 0, 30)
   + (/agn/i.test(el.name || '') ? Re(-1.6, -19, 3.2, 26, FILLED) + Ln(-4, -16, 4, -16, ' stroke-width="1.6"') : Ln(0, -8, 0, 12, THIN + ' stroke-dasharray="2 1.5"')) });
 const realFil = (el, c) => { let g = FL(-9, 0) + FL(9, 0) + Re(-8, -3.5, 16, 7, ' rx="1.5"') + P('M-3,2L5,12L9,9L2,0Z') + Ln(-0.5, 3, 5.5, 10.5, THIN + ' stroke-dasharray="2 1.5"');
@@ -569,8 +570,9 @@ const RACC = {
   surpresseur: { c: 'Aspiration à gauche, refoulement à droite.', p: [
     RP('ef', ISO + ' et manchette antivibratile. Depuis une bâche, ou depuis le réseau avec une protection contre le manque d’eau.'),
     RP('ef', 'Clapet anti-retour, vanne d’isolement, manchette antivibratile, réservoir à vessie et manomètre.')] },
-  relevage: el => { const n = el.pre === 'bache_cond' ? 'cond' : 'eu'; return { c: 'Arrivée gravitaire sur le côté, refoulement par le dessus.', p: [
-    RP(n, 'Arrivée gravitaire dans la bâche.'), RP(n, 'Clapet anti-retour et vanne d’isolement, avec une boucle de refoulement au-dessus du niveau du réseau d’évacuation.')] }; },
+  relevage: el => { const n = el.pre === 'bache_cond' ? 'cond' : 'eu'; return { c: 'Arrivée gravitaire sur le côté, refoulement par le dessus' + (el.p.event ? ', évent en partie haute.' : '.'), p: [
+    RP(n, 'Arrivée gravitaire dans la bâche.'), RP(n, 'Clapet anti-retour et vanne d’isolement, avec une boucle de refoulement au-dessus du niveau du réseau d’évacuation.'),
+    RP('', n === 'cond' ? 'Évent mené à l’extérieur, sans vanne ni contre-pente, pour évacuer la vapeur de revaporisation et les buées hors du local.' : 'Ventilation menée à l’extérieur ou en toiture, sans vanne.')].slice(0, portsOf(el).length) }; },
   pompe_cond: { p: [RP('cond', 'Condensats des chaudières ou de la CTA, en gravitaire.'), RP('cond eu', 'Refoulement vers l’évacuation, avec clapet anti-retour.')] },
   squid: { c: 'À gauche, la vapeur et les condensats CPCU. À droite, le circuit d’eau chaude.', p: [
     RP('vap', 'Vanne d’arrêt, filtre, détendeur et vanne de régulation vapeur.'), RP('cond', 'Purgeur vapeur, puis retour des condensats vers le réseau CPCU.'),
