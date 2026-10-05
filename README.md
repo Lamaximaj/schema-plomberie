@@ -13,7 +13,7 @@
 - **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
 - **Exports** PNG, SVG, PDF A4, A3 et A0 (environ 200 dpi), et JSON. Le travail en cours est gardé dans le navigateur.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
-- **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin (ind. B).
+- **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin.
 
 ## Utiliser en local
 
