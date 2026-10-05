@@ -1,7 +1,7 @@
 
 /* ===== Couche interface (sélection, poignées, aperçus) ===== */
 const svg = $('#cv'), VP = $('#vp'), LC = $('#lc'), LU = $('#lu'), app = $('#app');
-function render() { LC.innerHTML = contentSVG({}); renderUI(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select'; }
+function render() { if (palReal !== null && palReal !== REAL()) buildPalette(); LC.innerHTML = contentSVG({}); renderUI(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select'; }
 function renderUI() {
   const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = '', ctx = null;
   for (const it of items) { if (it.kind === 'pipe') continue; ctx = ctx || buildCtx(); const b = bboxOf(it, ctx), pd = 3 / k; s += `<rect class="selbox" x="${r2(b.x0 - pd)}" y="${r2(b.y0 - pd)}" width="${r2(b.x1 - b.x0 + 2 * pd)}" height="${r2(b.y1 - b.y0 + 2 * pd)}" stroke-width="${r2(1.3 / k)}" stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"/>`; }

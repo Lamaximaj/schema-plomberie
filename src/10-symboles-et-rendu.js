@@ -121,8 +121,8 @@ const S = {
     draw: (el, c) => ({ g: P('M-9,-25L-2,-14L2,-14L9,-25', NOF) + stub(c, 0, 0, -14, 0, 0) }) },
 
   mano: { cat: 'mes', name: 'Manomètre', prefix: 'M', pin: [0, -1], box: [-8, -28, 16, 29], ports: [[0, 0]],
-    params: { rob: { label: 'Robinet de manomètre', type: 'check', def: false } },
-    draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, -12) + (el.p.rob ? BOWV(-11, -3, 3.6) : '') + Ci(0, -20, 8) + Ln(0, -20, 4.6, -24.6, ' stroke-width="1.3"') + Ci(0, -20, 1.3, FILLED) }) },
+    params: { rob: { label: 'Robinet de manomètre', type: 'check', def: false }, siphon: { label: 'Siphon (vapeur)', type: 'check', def: false } },
+    draw: (el, c) => ({ g: (el.p.siphon ? stub(c, 0, 0, 0, 0, -2) + P('M0,-2C-8,-2 -8,-10 0,-10L0,-12', NOF) : stub(c, 0, 0, 0, 0, -12) + (el.p.rob ? BOWV(-11, -3, 3.6) : '')) + Ci(0, -20, 8) + Ln(0, -20, 4.6, -24.6, ' stroke-width="1.3"') + Ci(0, -20, 1.3, FILLED) }) },
   thermo: { cat: 'mes', name: 'Thermomètre', prefix: 'T', pin: [0, -1], box: [-8, -28, 16, 29], ports: [[0, 0]],
     draw: (el, c) => ({ g: stub(c, 0, 0, 0, 0, -12) + Ci(0, -20, 8) + Ln(0, -25.5, 0, -18.5, ' stroke-width="1.5"') + Ci(0, -17, 2.1, FILLED) }) },
   thmano: { cat: 'mes', name: 'Thermomanomètre', prefix: 'TM', pin: [0, -1], box: [-8, -28, 16, 29], ports: [[0, 0]],
@@ -392,6 +392,59 @@ PRE_ADD.push(
   ['filtre_cart'], ['uv'], ['compteur_imp', 'compteur', "Compteur d'eau à émetteur d'impulsions", { emet: true }],
   ['pompe_vv', 'pompe', 'Pompe à vitesse variable', { vv: true }]
 );
+
+/* ===== Vue réaliste des équipements (option « Équipements en vue réaliste » du schéma) =====
+   Les raccordements (ports) restent identiques : un schéma passe d'une vue à l'autre sans rien redessiner. */
+const REAL = () => { try { return !!(doc && doc.opts && doc.opts.real); } catch (e) { return false; } };
+const HATCH = (x0, y0, w, h, s) => { let d = ''; for (let x = x0; x <= x0 + w - h; x += s) d += `M${r2(x)},${r2(y0 + h)}L${r2(x + h)},${r2(y0)}`; return P(d, NOF + THIN); };
+const FL = (x, y, v) => v ? Ln(x - 3.5, y, x + 3.5, y, ' stroke-width="2"') : Ln(x, y - 3.5, x, y + 3.5, ' stroke-width="2"');
+const realTub = (el, c) => { /* échangeur tubulaire vapeur / eau : boîte à eau, brides, calandre, faisceau, pieds et socle */
+  let g = stub(c, 0, -20, -20, -12, -20) + stub(c, 1, -20, 20, -12, 20) + stub(c, 2, 12, -20, 20, -20) + stub(c, 3, 12, 20, 20, 20) + FL(-16, -20) + FL(-16, 20) + FL(16, -20) + FL(16, 20);
+  g += Re(-9, -50, 18, 8, ' rx="2"') + Re(-14, -42, 28, 4) + Re(-12, -38, 24, 78) + Re(-14, 26, 28, 4);
+  for (const x of [-6, 0, 6]) g += Ln(x, -34, x, 24, THIN + ' stroke-dasharray="3 2"');
+  return { g: g + Ln(-9, 40, -9, 48) + Ln(9, 40, 9, 48) + Re(-18, 48, 36, 3) + HATCH(-18, 51, 36, 5, 4) }; };
+const realPlq = (el, c) => { /* échangeur à plaques : bâti fixe, paquet de plaques, plaque de serrage, barres, semelle */
+  let g = stub(c, 0, -20, -20, -15, -20) + stub(c, 1, -20, 20, -15, 20) + stub(c, 2, 13, -20, 20, -20) + stub(c, 3, 13, 20, 20, 20) + FL(-18, -20) + FL(-18, 20) + FL(17, -20) + FL(17, 20);
+  g += Re(-15, -33, 30, 3) + Re(-15, 27, 30, 3) + Re(-15, -36, 6, 70, ' rx="1"') + Re(-9, -28, 17, 52);
+  for (let x = -7.5; x <= 6.5; x += 2) g += Ln(x, -27, x, 23, THIN);
+  return { g: g + Re(8, -31, 5, 58, ' rx="1"') + Re(-18, 34, 12, 3) }; };
+const realBou = (el, c) => { /* bouteille à fonds bombés, sur pieds (bouteille de découplage) */
+  let g = P('M-10,-50A10,6 0 0 1 10,-50L10,50A10,6 0 0 1 -10,50Z') + Ln(-5, -54, -5, 54, THIN) + Ln(5, -54, 5, 54, THIN) + Ln(-10, -50, 10, -50, THIN) + Ln(-10, 50, 10, 50, THIN) + stub(c, 4, 0, -56, 0, -60) + stub(c, 5, 0, 56, 0, 60);
+  if (el.pre !== 'bouteille_hp') g += Ln(-8, 52, -16, 64) + Ln(8, 52, 16, 64) + Ln(-19, 64, -13, 64) + Ln(13, 64, 19, 64);
+  return { g }; };
+const realBal = (el, c) => { /* ballon / bâche : fonds bombés, piquages à brides, plaque, trou d'homme, pieds */
+  let g = P('M-28,-46A28,12 0 0 1 28,-46L28,46A28,9 0 0 1 -28,46Z') + Ln(-28, -46, 28, -46, THIN) + Ln(-28, 46, 28, 46, THIN);
+  [[-30, -40], [-30, 0], [-30, 40], [30, -20], [30, 40]].forEach(([x, y], i) => { g += stub(c, i, x, y, x < 0 ? -28 : 28, y) + FL(x, y); });
+  if (el.p.coil === 'serp') { const pts = [[28, -20], [14, -20]]; for (let i = 1; i <= 7; i++) pts.push([i % 2 ? -6 : 14, -20 + i * 7.5]); pts.push([14, 40], [28, 40]); g += P('M' + pts.map(p => p.join(',')).join('L'), NOF + ` stroke="${c.pc(3)}" stroke-width="1.6"`); }
+  else if (el.p.coil === 'res') g += P('M28,40L16,40L13,35L9,45L5,35L1,45L-3,35L-6,40L-12,40', NOF + THIN);
+  else g += Ci(0, 26, 9) + Ci(0, 26, 6.5, THIN);
+  g += Re(-20, -34, 40, 13, ' rx="1"') + stub(c, 5, 0, 55, 0, 60) + Ln(-18, 52, -22, 63) + Ln(18, 52, 22, 63) + Ln(-26, 63, -18, 63) + Ln(18, 63, 26, 63);
+  return { g, t: [[0, -25.5, el.p.txt || '', 7, 700]] }; };
+const realVase = (el, c) => ({ g: stub(c, 0, 0, 0, 0, 8) + P('M-10,14A10,6 0 0 1 10,14L10,34A10,5 0 0 1 -10,34Z') + P('M-10,24q2.5,-2.5 5,0t5,0t5,0t5,0', NOF + THIN) + Ln(-7, 37.5, -9, 45) + Ln(7, 37.5, 9, 45) + Ln(-12, 45, -6, 45) + Ln(6, 45, 12, 45), t: el.p.txt ? [[0, 29.5, el.p.txt, 5, 700]] : [] });
+const realRel = (el, c, orig) => { const o = orig(el, c); /* bâche fermée, évent, flotteur, niveau à glace */
+  o.g += Ln(-24, -20, 24, -20, THIN) + Ln(-16, -20, -16, -26) + Ln(-19.5, -26, -12.5, -26) + Ln(-2, -18, -2, -3, THIN) + Ci(-2, 0, 3) + Ln(24, -12, 25, -12, THIN) + Ln(24, 24, 25, 24, THIN) + Re(25, -14, 4, 40, ' rx="1"') + Re(26, 0, 2, 25, FILLED); return o; };
+const realDes = (el, c) => ({ g: stub(c, 0, -10, 0, -8, 0) + stub(c, 1, 8, 0, 10, 0) + P('M-8,-10A8,4 0 0 1 8,-10L8,14L3,20L-3,20L-8,14Z') + Ln(-6, 15, -11, 26) + Ln(6, 15, 11, 26) + stub(c, 2, 0, 20, 0, 30)
+  + (/agn/i.test(el.name || '') ? Re(-1.6, -19, 3.2, 26, FILLED) + Ln(-4, -16, 4, -16, ' stroke-width="1.6"') : Ln(0, -8, 0, 12, THIN + ' stroke-dasharray="2 1.5"')) });
+const realFil = (el, c) => { let g = FL(-9, 0) + FL(9, 0) + Re(-8, -3.5, 16, 7, ' rx="1.5"') + P('M-3,2L5,12L9,9L2,0Z') + Ln(-0.5, 3, 5.5, 10.5, THIN + ' stroke-dasharray="2 1.5"');
+  if (el.p.purge) g += `<g transform="translate(7,10.5)">${PURGE(0)}</g>`; return { g }; };
+const realTh = (el, c) => ({ g: stub(c, 0, 0, 0, 0, -6) + Ln(-4.5, -6, 4.5, -6, ' stroke-width="1.6"') + Re(-3.5, -29, 7, 23, ' rx="3.5"') + Ln(0, -25, 0, -12, ' stroke-width="1.8"') + Ci(0, -10, 2.4, FILLED) });
+const realDet = (el, c) => ({ g: FL(-10, 0) + FL(10, 0) + Re(-9, -4, 18, 8) + Ci(0, 0, 6) + Ln(0, -6, 0, -10) + Ln(-4, -10, 4, -10, ' stroke-width="1.6"') + Ln(0, 6, 0, 11) + Re(-8, 11, 16, 3) + Re(-6, 14, 12, 16) + Ln(-3, 15, -3, 29, THIN) + Ln(0, 15, 0, 29, THIN) + Ln(3, 15, 3, 29, THIN) });
+const REAL_V = {
+  echangeur: { draw: (el, c) => el.pre === 'echangeur_vap' ? realTub(el, c) : realPlq(el, c), box: el => el.pre === 'echangeur_vap' ? [-20, -50, 40, 106] : [-22, -36, 44, 73] },
+  bouteille: { draw: realBou, box: el => el.pre === 'bouteille_hp' ? [-10, -60, 20, 120] : [-19, -60, 38, 126] },
+  ballon: { draw: realBal, box: () => [-31, -60, 62, 124] },
+  vase: { draw: realVase, box: () => [-12, -1, 24, 47] },
+  relevage: { draw: realRel },
+  desemb: { draw: realDes, box: () => [-12, -19, 24, 49] },
+  filtre: { draw: realFil, box: el => el.p.purge ? [-10, -6, 20, 38] : [-10, -6, 20, 20] },
+  thermo: { draw: realTh, box: () => [-8, -29, 16, 30] },
+  reducteur: { draw: (el, c, o) => el.pre === 'vanne_auto' ? realDet(el, c) : o(el, c), box: (el, o) => el.pre === 'vanne_auto' ? [-10, -11, 20, 42] : o(el) },
+};
+for (const k in REAL_V) {
+  const d = S[k], v = REAL_V[k], dr = d.draw, bx = d.box, ob = el => typeof bx === 'function' ? bx(el) : bx;
+  d.draw = (el, c) => REAL() ? v.draw(el, c, dr) : dr(el, c);
+  if (v.box) d.box = el => REAL() ? v.box(el, ob) : ob(el);
+}
 
 /* ===== Préréglages de la bibliothèque ===== */
 const PRE_LIST = [

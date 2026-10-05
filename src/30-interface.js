@@ -174,7 +174,7 @@ function inspDoc() {
   const list = h('div', { class: 'nets' }); doc.nets.forEach((n, i) => list.append(netRow(n, i)));
   IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9.'), list, h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet))));
   const g = h('input', { type: 'checkbox' }); g.checked = state.grid; g.addEventListener('change', () => { state.grid = g.checked; updateGrid(); });
-  IB.append(SEC('Affichage', h('div', { class: 'f' }, h('label', { class: 'chk' }, g, h('span', null, 'Grille'))), h('div', { class: 'f' }, fCheck(() => doc.opts.hops !== false, v => { doc.opts.hops = v; }, 'Sauts aux croisements de tuyaux'))));
+  IB.append(SEC('Affichage', h('div', { class: 'f' }, h('label', { class: 'chk' }, g, h('span', null, 'Grille'))), h('div', { class: 'f' }, fCheck(() => doc.opts.hops !== false, v => { doc.opts.hops = v; }, 'Sauts aux croisements de tuyaux')), h('div', { class: 'f' }, fCheck(() => !!doc.opts.real, v => { doc.opts.real = v; }, 'Équipements en vue réaliste'))));
   IB.append(SEC('Repères', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Numérote les symboles de gauche à droite, ligne par ligne.'), btn('Renuméroter les repères', renumber)));
   const keys = [['V', 'Sélection'], ['L', 'Tuyauterie'], ['T', 'Texte'], ['Z', 'Zone ou local'], ['R', 'Tourner de 90°'], ['F', 'Inverser le sens'], ['Maj+F', 'Passer de l’autre côté'], ['1 à 9', 'Réseau du tracé'], ['/', 'Autre coude pendant le tracé'], ['Maj', 'Tracé à 45°, ou déplacement droit'], ['Alt + glisser', 'Dupliquer'], ['Ctrl+Z', 'Annuler'], ['Suppr', 'Supprimer'], ['Flèches', 'Décaler d’un pas'], ['Espace + glisser', 'Déplacer la vue'], ['0', 'Ajuster à l’écran'], ['G', 'Grille']];
   IB.append(SEC('Raccourcis', h('div', { class: 'keys' }, keys.flatMap(([k, t]) => [h('kbd', null, k), h('span', null, t)]))));
@@ -211,7 +211,9 @@ const SPECIAL_THUMB = {
 };
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 let palDrag = null;
+let palReal = null;
 function buildPalette() {
+  palReal = REAL();
   const list = $('#pal-list'), q = norm($('#pal-q').value.trim()); list.innerHTML = '';
   for (const [cat, label] of CATS) {
     const entries = PALETTE.filter(p => p.cat === cat && (!q || norm(p.name).includes(q))); if (!entries.length) continue;
@@ -303,7 +305,7 @@ function sanitize(d) {
     else continue;
     out.items.push(c);
   }
-  out.opts = { hops: !d.opts || d.opts.hops !== false };
+  out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real) };
   return out;
 }
 function restore() { try { const raw = localStorage.getItem(LS_KEY); if (!raw) return false; const o = JSON.parse(raw); doc = sanitize(o.doc); state.libId = o.libId || null; if (o.net && doc.nets.some(n => n.id === o.net)) state.activeNet = o.net; return true; } catch (e) { return false; } }
