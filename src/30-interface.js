@@ -266,7 +266,8 @@ document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e
 function fileMenu(a) {
   openMenu(a, [{ label: 'Nouveau schéma', run: newSchema }, { label: 'Ouvrir un fichier .json…', run: () => $('#file-in').click() }, { label: 'Enregistrer en fichier .json', run: saveJSON, disabled: !canDownload() }, '-',
     { head: 'Mes schémas' }, { label: lib.ok ? 'Enregistrer dans Mes schémas' : 'Indisponible dans cette vue', kbd: lib.ok ? 'Ctrl+S' : null, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes schémas…', run: openLib, disabled: !lib.ok }, '-',
-    { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }], 'file');
+    { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }]
+    .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : []), 'file');
 }
 function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }], 'exp'); }
 function netMenu(a) { openMenu(a, doc.nets.map((n, i) => ({ label: netLabel(n), sw: n.color, kbd: i < 9 ? String(i + 1) : null, on: n.id === state.activeNet, run: () => { setActiveNet(n.id); setTool('pipe'); } })), 'net'); }
@@ -313,6 +314,8 @@ function loadDocObj(d) { const nd = sanitize(d), before = snapshot(); doc = nd; 
 function syncDocName() { $('#docname').value = doc.name || 'Sans titre'; }
 function newSchema() { const before = snapshot(), nets = doc.nets; doc = newDoc(); doc.nets = nets; state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); view.k = 1.5; view.tx = 60; view.ty = 60; applyView(); toast('Nouveau schéma. Ctrl+Z pour revenir au précédent.'); }
 function loadExample(k) { const before = snapshot(); doc = k === 'eau' ? exLocalEau() : k === 'ep' ? exEauxPluviales() : exChaufferie(); state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
+const MODS = typeof MODELES !== 'undefined' ? MODELES : [];
+function loadModele(i) { const before = snapshot(); doc = sanitize(clone(MODS[i].doc)); state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); toast('Modèle ouvert. Ctrl+Z pour revenir au schéma précédent.'); }
 const canDownload = () => !!dl || !window.claude;
 async function saveFile(name, data) {
   if (dl) {
