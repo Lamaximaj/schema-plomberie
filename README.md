@@ -4,7 +4,7 @@
 
 ## Ce que fait l'outil
 
-- **Bibliothèque de 135 symboles** : robinetterie, sécurité, mesure et régulation, pompes, équipements (chaudière, sous-station vapeur, préparateur ECS, échangeur, bouteille de découplage…), appareils sanitaires, eaux pluviales (dont filtre à cartouche et stérilisateur UV), ventilation et désenfumage.
+- **Bibliothèque de 140 symboles** : robinetterie, sécurité, mesure et régulation, pompes, équipements (chaudière, sous-station vapeur, préparateur ECS, échangeur, bouteille de découplage…), appareils sanitaires, eaux pluviales (dont filtre à cartouche et stérilisateur UV), ventilation et désenfumage.
 - **Orientation comme sur le terrain** : un symbole lâché sur un tuyau s'aligne dans le sens d'écoulement. `R` tourne de 90°, `F` inverse le sens, `Maj+F` passe le corps de l'autre côté du tuyau.
 - **Onglet « Raccordement »** sur chaque équipement : points numérotés sur le plan, réseau attendu, état (libre ou raccordé, et vers quoi), accessoires à prévoir, et bouton pour tracer le tuyau depuis le point choisi.
 - **Tuyauteries par réseau** (EF, ECS, bouclage, chauffage, gaz, EU, EP, vapeur, air…) avec tracé orthogonal, piquages, sauts aux croisements, flèches de sens et libellés DN. Un tuyau raccordé suit l'équipement qu'on déplace.
