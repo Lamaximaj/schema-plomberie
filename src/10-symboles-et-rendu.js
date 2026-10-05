@@ -429,6 +429,26 @@ PRE_ADD.push(
   ['pompe_vv', 'pompe', 'Pompe à vitesse variable', { vv: true }]
 );
 
+/* ===== Fosse sous caillebotis avec pompe de relevage immergée haute température (vidanges et purges de chaufferie / sous-station) ===== */
+const fcNp = el => String(el.p.np) === '2' ? 2 : 1;
+Object.assign(S, {
+  fosse_caill: { cat: 'sani', name: 'Fosse sous caillebotis avec pompe de relevage immergée haute température', prefix: 'PR', tagOn: true,
+    params: { np: { label: 'Pompes', type: 'select', options: [['1', '1 pompe'], ['2', '2 pompes (normal / secours)']], def: '1' }, txt: { label: 'Inscription', type: 'text', def: 'HT 90 °C', max: 14 } },
+    box: [-34, -30, 68, 72], ports: [[-30, 0], [10, -30]], pn: ['Arrivée gravitaire', 'Refoulement'],
+    draw: (el, c) => {
+      let g = Ln(-34, -20, -24, -20, ' stroke-width="2.2"') + Ln(24, -20, 34, -20, ' stroke-width="2.2"');
+      for (const x0 of [-34, 24]) for (let x = x0; x < x0 + 10; x += 3.5) g += Ln(r2(x), -16, r2(x + 4), -20, ' stroke-width="0.6"');
+      g += P('M-24,-20L-24,30L24,30L24,-20') + P('M-24,6q3,-2.5 6,0t6,0t6,0t6,0t6,0t6,0t6,0t6,0', NOF + THIN) + stub(c, 0, -30, 0, -24, 0);
+      g += Ln(-17, -18, -17, 2, THIN) + Ci(-17, 5, 2.5);
+      g += stub(c, 1, 10, 14, 10, -30) + Ci(10, 20, 6) + P('M6.8,23L13.2,23L10,16.5Z', FILLED);
+      if (fcNp(el) === 2) g += Ln(-10, 14, -10, -6, THIN) + Ln(-10, -6, 10, -6, THIN) + Ci(-10, 20, 6) + P('M-13.2,23L-6.8,23L-10,16.5Z', FILLED);
+      g += Re(-24, -22, 48, 4, ' fill="none"'); for (let x = -20; x <= 20; x += 4) g += Ln(x, -22, x, -18, THIN);
+      const t = [[0, 37, el.p.txt || '', 6, 700]]; if (fcNp(el) === 2) t.push([-5, 10.5, 'S', 5, 700], [15, 10.5, 'N', 5, 700]);
+      return { g, t };
+    } },
+});
+PRE_ADD.push(['fosse_caill']);
+
 /* ===== Vue réaliste des équipements (option « Équipements en vue réaliste » du schéma) =====
    Les raccordements (ports) restent identiques : un schéma passe d'une vue à l'autre sans rien redessiner. */
 const REAL = () => { try { return !!(doc && doc.opts && doc.opts.real); } catch (e) { return false; } };
@@ -569,6 +589,9 @@ const RACC = {
     el.p.kind === 'wc' ? RP('', 'Pas d’eau chaude sur un WC : laissez ce point libre.') : RP('ecs', 'Robinet d’arrêt en attente de l’appareil.'),
     RP('eu', 'Siphon, puis raccordement à la chute ou au collecteur EU.')] }),
   siphon_sol: { p: [RP('eu', 'Vers le collecteur d’évacuation.')] },
+  fosse_caill: { c: 'Fosse en point bas du local, sous caillebotis amovible. La pompe immergée doit admettre la température des vidanges (souvent 90 °C en chaufferie ou en sous-station) : vérifier la fiche du modèle.', p: [
+    RP('eu cond', 'Arrivées gravitaires : vidanges, purges, soupapes et condensats du local. Elles peuvent aussi tomber directement sur le caillebotis.'),
+    RP('eu', 'Clapet anti-retour à boule et vanne d’isolement, puis boucle de refoulement au-dessus du niveau de mise en charge du réseau. Tuyauterie résistant à la température. Le rejet au réseau public est en général limité à 30 °C : prévoir un refroidissement si besoin.')] },
   entonnoir: { c: 'Reçoit les décharges des soupapes, disconnecteurs et groupes de sécurité, avec un écoulement visible.', p: [RP('eu', 'Vers la chute ou le collecteur d’évacuation.')] },
   disco: { c: 'Entre deux vannes avec un filtre en amont, à une hauteur accessible pour l’entretien.', p: [
     RP('ef', ISO + ' et filtre.'), RP('ef', ISO + '.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
