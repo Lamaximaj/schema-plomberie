@@ -45,6 +45,9 @@ const T3 = P('M-10,-7L-10,7L0,0ZM10,-7L10,7L0,0ZM-7,10L7,10L0,0Z');
 const ACT = Ln(0, 0, 0, -12) + Re(-7, -22, 14, 10, ' rx="1"');
 const FUNNEL = y0 => Ln(0, y0, 0, 15) + P('M-7,19L-2,25L-2,30M7,19L2,25L2,30', NOF);
 const stub = (c, i, x1, y1, x2, y2) => Ln(x1, y1, x2, y2, ` stroke="${c.pc(i)}" stroke-width="${c.pw(i)}" stroke-linecap="butt"`);
+/* Manomètre intégré à un organe (piqué sur le tuyau du port i, en x) et robinet de purge bouchonné sous un corps */
+const MANO_S = (c, i, x) => stub(c, i, x, 0, x, -9) + Ci(x, -14, 5) + Ln(x, -14, r2(x + 2.9), -16.9, ' stroke-width="1.1"') + Ci(x, -14, 0.9, FILLED);
+const PURGE = y0 => Ln(0, y0, 0, y0 + 4) + BOWV(y0 + 4, y0 + 13, 4) + Ln(0, y0 + 13, 0, y0 + 16) + Re(-3, y0 + 16, 6, 4.5, ' rx="1"');
 const FLAME = 'M0,-9Q9,1 6,9Q4,14 0,14Q-4,14 -6,9Q-8,3 -2,-3Q-1,2 1,3Q1,-3 0,-9Z';
 const NOCTX = { pc: () => 'currentColor', pw: () => 1.5 };
 const IN2 = [[-10, 0], [10, 0]];
@@ -64,10 +67,14 @@ const S = {
     draw: (el, c) => ({ g: stub(c, 0, -10, 0, 10, 0) + Ln(-10, -7, -10, 7, ' stroke-width="1.8"') + Ln(10, -7, 10, 7, ' stroke-width="1.8"') + Ln(-4.5, 6, 4.5, -6, ' stroke-width="1.8"') + Ci(0, 0, 1.9, FILLED) }) },
   clapet: { cat: 'rob', name: 'Clapet anti-retour', prefix: 'CL', inline: true, box: [-10, -8, 20, 16], ports: IN2,
     draw: () => ({ g: P('M-10,-7L-10,7L10,0Z') + Ln(10, -7, 10, 7, ' stroke-width="1.9"') }) },
-  filtre: { cat: 'rob', name: 'Filtre à tamis', prefix: 'F', inline: true, box: [-10, -10, 20, 20], ports: IN2,
-    draw: () => ({ g: P('M-10,0L0,-9L10,0L0,9Z') + Ln(0, -7.5, 0, 7.5, THIN + ' stroke-dasharray="2 1.5"') }) },
-  reducteur: { cat: 'rob', name: 'Réducteur de pression', prefix: 'RP', inline: true, tagOn: true, box: [-10, -19, 26, 27], ports: IN2,
-    draw: () => ({ g: BOW + Ln(0, 0, 0, -11) + P('M-7,-11A7,7 0 0 1 7,-11Z') + P('M6,-15L15,-15L15,-1.5', NOF + THIN + ' stroke-dasharray="2 1.6"') }) },
+  filtre: { cat: 'rob', name: 'Filtre à tamis', prefix: 'F', inline: true, ports: IN2,
+    params: { purge: { label: 'Robinet de purge', type: 'check', def: false } },
+    box: el => el.p.purge ? [-10, -10, 20, 40] : [-10, -10, 20, 20],
+    draw: el => ({ g: P('M-10,0L0,-9L10,0L0,9Z') + Ln(0, -7.5, 0, 7.5, THIN + ' stroke-dasharray="2 1.5"') + (el.p.purge ? PURGE(9) : '') }) },
+  reducteur: { cat: 'rob', name: 'Réducteur de pression', prefix: 'RP', inline: true, tagOn: true, ports: IN2,
+    params: { mano: { label: 'Manomètre aval', type: 'check', def: false } },
+    box: el => el.p.mano ? [-10, -20, 40, 28] : [-10, -19, 26, 27],
+    draw: (el, c) => ({ g: (el.p.mano ? stub(c, 1, 10, 0, 25, 0) + MANO_S(c, 1, 25) : '') + BOW + Ln(0, 0, 0, -11) + P('M-7,-11A7,7 0 0 1 7,-11Z') + P('M6,-15L15,-15L15,-1.5', NOF + THIN + ' stroke-dasharray="2 1.6"') }) },
   equil: { cat: 'rob', name: "Vanne d'équilibrage", prefix: 'VE', inline: true, box: [-10, -9, 20, 18], ports: IN2,
     draw: () => ({ g: BOW + Ln(-8, 8, 4.5, -4.5) + P('M8.5,-8.5L1.8,-5.6L5.6,-1.8Z', FILLED) }) },
   vanne_mot: { cat: 'rob', name: 'Vanne motorisée 2 voies', prefix: 'VM', inline: true, tagOn: true, box: [-10, -23, 20, 31], ports: IN2,
@@ -327,9 +334,19 @@ PRE_ADD.push(
   ['tampon_ev', 'reservoir', 'Réservoir tampon eau de ville', null, 'RT', 'ep']
 );
 
+/* ===== Organes relevés en local eau : filtre à rinçage (type Braukmann F76S), filtre Y à purge, réducteur avec manomètre ===== */
+Object.assign(S, {
+  filtre_rc: { cat: 'rob', name: 'Filtre à rinçage à contre-courant', prefix: 'F', inline: true, tagOn: true, ports: [[-20, 0], [20, 0], [0, 30]], pn: ['Entrée', 'Sortie', 'Rinçage (vers égout)'],
+    params: { mano: { label: 'Manomètres amont / aval', type: 'check', def: true } },
+    box: el => el.p.mano ? [-20, -20, 40, 50] : [-20, -10, 40, 40],
+    draw: (el, c) => ({ g: stub(c, 0, -20, 0, -10, 0) + stub(c, 1, 10, 0, 20, 0) + (el.p.mano ? MANO_S(c, 0, -15) + MANO_S(c, 1, 15) : '')
+      + P('M-10,0L0,-9L10,0L0,9Z') + Ln(0, -7.5, 0, 7.5, THIN + ' stroke-dasharray="2 1.5"') + Ln(0, 9, 0, 12) + BOWV(12, 21, 4) + stub(c, 2, 0, 21, 0, 30) }) },
+});
+
 /* ===== Préréglages de la bibliothèque ===== */
 const PRE_LIST = [
-  ['vanne'], ['vanne_bs'], ['papillon'], ['clapet'], ['filtre'], ['reducteur'], ['equil'], ['vanne_mot'], ['electrovanne'], ['v3v'], ['mitigeur'], ['vidange'], ['reduction'], ['manchette'], ['dielec'], ['bouchon'],
+  ['vanne'], ['vanne_bs'], ['papillon'], ['clapet'], ['filtre'], ['filtre_y', 'filtre', 'Filtre à tamis en Y avec purge', { purge: true }], ['filtre_rc'],
+  ['reducteur'], ['reducteur_m', 'reducteur', 'Réducteur de pression avec manomètre', { mano: true }], ['equil'], ['vanne_mot'], ['electrovanne'], ['v3v'], ['mitigeur'], ['vidange'], ['reduction'], ['manchette'], ['dielec'], ['bouchon'],
   ['disco', 'disco', 'Disconnecteur BA', { code: 'BA' }], ['disco_ca', 'disco', 'Disconnecteur CA', { code: 'CA' }], ['gs'], ['soupape'], ['vase'], ['vase_san', 'vase', "Vase d'expansion sanitaire", null, 'VXS'], ['purgeur'], ['desemb'], ['doseur'], ['entonnoir'],
   ['mano'], ['thermo'], ['thmano'], ['sonde'], ['pressostat', 'sonde', 'Pressostat', { txt: 'P' }, 'PS'], ['compteur'], ['compteur_e', 'compteur', "Compteur d'énergie", { txt: 'kWh' }, 'CE'], ['compteur_g', 'compteur', 'Compteur gaz', { txt: 'Gaz' }, 'CG'], ['regul'],
   ['pompe'], ['pompe2'], ['surpresseur'],
@@ -415,6 +432,8 @@ const RACC = {
   entonnoir: { c: 'Reçoit les décharges des soupapes, disconnecteurs et groupes de sécurité, avec un écoulement visible.', p: [RP('eu', 'Vers la chute ou le collecteur d’évacuation.')] },
   disco: { c: 'Entre deux vannes avec un filtre en amont, à une hauteur accessible pour l’entretien.', p: [
     RP('ef', ISO + ' et filtre.'), RP('ef', ISO + '.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
+  filtre_rc: { c: 'En tête d’installation, juste après le compteur, entre deux vannes d’isolement et à une hauteur accessible pour le rinçage.', p: [
+    RP('ef', ISO + '.'), RP('ef', ISO + ', puis protections et réducteur de pression.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
   gs: { c: 'Toujours sur l’arrivée d’eau froide du ballon.', p: [RP('ef', 'Arrivée d’eau froide.'),
     RP('ef', 'Directement sur l’entrée eau froide du ballon, sans vanne ni clapet intermédiaire.'), RP('eu', 'Vers un entonnoir siphonné, écoulement visible.')] },
   soupape: { p: [RP('', 'Sur le départ du générateur, sans organe d’isolement en amont.'), RP('eu', 'Échappement vers un entonnoir siphonné, écoulement visible.')] },
