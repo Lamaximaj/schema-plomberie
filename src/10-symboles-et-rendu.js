@@ -51,6 +51,7 @@ const PURGE = y0 => Ln(0, y0, 0, y0 + 4) + BOWV(y0 + 4, y0 + 13, 4) + Ln(0, y0 +
 /* Émetteur d'impulsions posé sur un compteur */
 const EMET = Ln(0, -9, 0, -12, THIN) + Re(-7, -20, 14, 8, ' rx="1"') + P('M-5,-14L-2.5,-14L-2.5,-18L0,-18L0,-14L2.5,-14L2.5,-18L5,-18', NOF + ' stroke-width="0.9"');
 const FLAME = 'M0,-9Q9,1 6,9Q4,14 0,14Q-4,14 -6,9Q-8,3 -2,-3Q-1,2 1,3Q1,-3 0,-9Z';
+const resNp = el => clamp(Math.round(+el.p.pompe || 0), 0, 2);
 const NOCTX = { pc: () => 'currentColor', pw: () => 1.5 };
 const IN2 = [[-10, 0], [10, 0]];
 const actOf = el => el.p.act || (el.p.mot === false ? 'none' : 'mot');
@@ -172,8 +173,15 @@ const S = {
     draw: (el, c) => { const H = colH(el), n = colN(el), e = colE(el); let g = Re(-H, -5, 2 * H, 10, ' rx="2"'); for (let i = 0; i < n; i++) { const x = (i - (n - 1) / 2) * e; g += stub(c, i + 2, x, -5, x, -10); } return { g }; } },
   adoucisseur: { cat: 'equip', name: 'Adoucisseur', prefix: 'ADO', tagOn: true, box: [-30, -40, 60, 80], ports: [[-20, -40], [0, -40], [-30, -30]], pn: ['Entrée', 'Sortie', 'Rejet à l’égout'],
     draw: (el, c) => ({ g: stub(c, 0, -20, -40, -20, -36) + stub(c, 1, 0, -40, 0, -36) + stub(c, 2, -30, -30, -24, -30) + Re(-24, -36, 28, 12, ' rx="2"') + Re(-19, -24, 18, 62, ' rx="9" ry="6"') + Re(8, -10, 20, 48, ' rx="2"') + P('M4,-30L18,-30L18,-10', NOF + THIN) + P('M8,2q2.5,-2 5,0t5,0t5,0t5,0', NOF + THIN), t: [[18, 22, 'SEL', 5.5, 700]] }) },
-  reservoir: { cat: 'equip', name: 'Bâche / réservoir', prefix: 'BAC', tagOn: true, box: [-40, -30, 80, 60], ports: [[-40, -20], [40, -20], [-40, 20], [40, 20], [0, -30], [0, 30]],
-    draw: () => ({ g: Re(-40, -30, 80, 60, ' rx="2"') + P('M-40,-14q5,-3 10,0t10,0t10,0t10,0t10,0t10,0t10,0t10,0', NOF + THIN) + P('M-4,-22L4,-22L0,-16Z', NOF + THIN) }) },
+  reservoir: { cat: 'equip', name: 'Bâche / réservoir', prefix: 'BAC', tagOn: true, box: [-40, -30, 80, 60],
+    params: { pompe: { label: 'Pompe de relevage immergée', type: 'select', options: [['0', 'Aucune'], ['1', '1 pompe'], ['2', '2 pompes (normal / secours)']], def: '0' } },
+    ports: el => { const a = [[-40, -20], [40, -20], [-40, 20], [40, 20], [0, -30], [0, 30]]; if (resNp(el)) a.push([20, -30]); return a; },
+    draw: (el, c) => {
+      const np = resNp(el); let g = Re(-40, -30, 80, 60, ' rx="2"') + P('M-40,-14q5,-3 10,0t10,0t10,0t10,0t10,0t10,0t10,0t10,0', NOF + THIN) + P('M-4,-22L4,-22L0,-16Z', NOF + THIN);
+      if (np) g += stub(c, 6, 20, 14, 20, -30) + Ci(20, 20, 6) + P('M16.8,23L23.2,23L20,16.5Z', FILLED);
+      if (np === 2) g += Ln(-20, 14, -20, 4, THIN) + Ln(-20, 4, 20, 4, THIN) + Ci(-20, 20, 6) + P('M-23.2,23L-16.8,23L-20,16.5Z', FILLED);
+      return { g, t: np === 2 ? [[-24.5, 9, 'S', 5, 700], [24.5, 9, 'N', 5, 700]] : [] };
+    } },
   emetteur: { cat: 'equip', name: 'Radiateur / émetteurs', prefix: 'R', box: [-30, -15, 60, 35], ports: [[-20, 20], [20, 20]], pn: ['Aller', 'Retour'],
     draw: (el, c) => { let g = stub(c, 0, -20, 15, -20, 20) + stub(c, 1, 20, 15, 20, 20) + Re(-30, -15, 60, 30, ' rx="2"'); for (let x = -20; x <= 20; x += 10) g += Ln(x, -11, x, 11, THIN); return { g }; } },
   bloc: { cat: 'equip', name: 'Bloc équipement', prefix: 'EQ', nolegend: true,
@@ -290,6 +298,7 @@ const PRE_ADD = [
   ['prise_p'], ['sonde_ext'], ['aquastat', 'sonde', 'Aquastat', { txt: 'AQ' }, 'AQ'], ['sonde_p', 'sonde', 'Sonde de pression', { txt: 'P' }, 'SP'], ['armoire'], ['coffret', 'armoire', 'Coffret de commande', null, 'CC'],
   ['pompe_charge', 'pompe', 'Pompe de charge'], ['relevage'], ['bache_cond', 'relevage', 'Bâche de relevage des condensats', { np: '2' }, 'BRC'], ['pompe_cond'],
   ['squid'], ['echangeur_vap', 'echangeur', 'Échangeur vapeur / eau'], ['prep_inst', 'echangeur', 'Préparateur ECS instantané à plaques'], ['panneau', 'emetteur', 'Panneaux rayonnants'], ['cuve_ep', 'reservoir', 'Bâche de rétention des eaux pluviales', null, 'BR', 'ep'],
+  ['cuve_ep_pr', 'reservoir', 'Bâche de rétention EP avec pompe de relevage immergée', { pompe: '1' }, 'BR', 'ep'],
   ['lavabo', 'sanitaire', 'Lavabo', { kind: 'lavabo' }], ['wc', 'sanitaire', 'WC', { kind: 'wc' }], ['douche', 'sanitaire', 'Douche', { kind: 'douche' }], ['evier', 'sanitaire', 'Évier inox', { kind: 'evier' }],
   ['lavelinge', 'sanitaire', 'Lave-linge (attente)', { kind: 'll' }], ['bac', 'sanitaire', 'Bac à laver', { kind: 'bac' }], ['poste_eau', 'sanitaire', 'Poste d’eau', { kind: 'poste' }], ['siphon_sol'], ['puisard', 'siphon_sol', 'Puisard', { kind: 'puisard' }, 'PUI'],
   ['cta'], ['caisson'], ['pac_air'], ['ventilo'], ['batterie'], ['filtre_air'], ['registre'], ['silencieux'], ['clapet_cf'], ['volet_df', 'clapet_cf', 'Volet de désenfumage', null, 'VDE'],
@@ -424,12 +433,13 @@ const RACC = {
   adoucisseur: { c: 'Monté en by-pass (3 vannes) pour pouvoir l’isoler sans couper l’eau.', p: [
     RP('ef', 'Filtre et clapet anti-pollution en amont, puis vanne d’entrée du by-pass.'), RP('ea', 'Vanne de mixage pour régler la dureté, puis réseau d’eau adoucie.'),
     RP('eu', 'Vers un entonnoir siphonné avec garde d’air, jamais en direct à l’égout.')] },
-  reservoir: el => { const ep = el.pre === 'cuve_ep', ev = el.pre === 'tampon_ev'; return { c: 'Remplissage et trop-plein en partie haute, aspiration en partie basse, vidange au fond.',
-    n: ['Remplissage', 'Trop-plein', 'Aspiration', 'Second départ', 'Évent', 'Vidange'], p: [
+  reservoir: el => { const ep = /^cuve_ep/.test(el.pre || ''), ev = el.pre === 'tampon_ev'; return { c: 'Remplissage et trop-plein en partie haute, aspiration en partie basse, vidange au fond.',
+    n: ['Remplissage', 'Trop-plein', 'Aspiration', 'Second départ', 'Évent', 'Vidange', 'Refoulement de la pompe immergée'], p: [
     RP(ep ? 'ep' : ev ? 'ef' : '', ep ? 'Arrivée des eaux pluviales filtrées.' : ev ? 'Appoint d’eau de ville par robinet à flotteur, au-dessus du niveau de débordement.' : 'Arrivée par robinet à flotteur ou surverse, au-dessus du niveau maximal.'),
     RP(ep ? 'ep eu' : 'eu', 'Trop-plein vers l’évacuation, avec clapet anti-retour et garde d’air.'),
     RP(ep ? 'enp ep' : '', 'Aspiration au-dessus du fond pour ne pas reprendre les dépôts.'),
-    RP('', 'Second départ ou aspiration de secours.'), RP('', 'Évent, avec grille anti-insectes.'), RP('eu', 'Vidange au point bas.')] }; },
+    RP('', 'Second départ ou aspiration de secours.'), RP('', 'Évent, avec grille anti-insectes.'), RP('eu', 'Vidange au point bas.'),
+    RP(ep ? 'ep' : 'eu ep', 'Clapet anti-retour et vanne d’isolement, puis boucle de refoulement au-dessus du niveau de mise en charge du réseau.' + (ep ? ' Le débit de la pompe fixe le débit de fuite vers le réseau public.' : ''))].slice(0, portsOf(el).length) }; },
   emetteur: { c: 'Aller et retour par le dessous.', p: [RP('dch', 'Robinet thermostatique ou robinet de réglage sur l’aller.'), RP('rch', 'Té de réglage sur le retour.')] },
   bloc: { c: 'Bloc libre : raccordez chaque point selon l’équipement représenté. Les points sont répartis tous les 20 sur le contour.' },
   regul: el => ({ c: 'Reliez-le aux sondes, vannes motorisées et pompes avec le réseau « Liaison de régulation ».', p: portsOf(el).map(() => RP('reg', '')) }),
