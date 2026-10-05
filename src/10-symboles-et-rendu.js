@@ -933,22 +933,28 @@ function nomenLayout(it, ctx) {
   const cells = [...groups.values()].sort((a, b) => a.ci - b.ci || a.name.localeCompare(b.name, 'fr')).map(r => [String(r.n), r.name, r.note, compressTags(r.tags)]);
   const fs = 7, rh = 13, pad = 5, titleH = 20, maxW = [30, 210, 170, 150];
   const widths = NOM_HEAD.map((hd, i) => Math.min(maxW[i], Math.max(tw(hd, fs, 700), ...cells.map(c => tw(c[i], fs, 400)))) + pad * 2);
-  return { cells, widths, W: widths.reduce((a, b) => a + b, 0), H: titleH + rh * (cells.length + 1) + 3, fs, rh, pad, titleH };
+  /* Lignes par colonne : 0 ou vide = une seule colonne ; sinon la nomenclature se répartit en colonnes côte à côte */
+  const per = +it.rows > 0 ? clamp(Math.round(+it.rows), 5, 200) : Math.max(1, cells.length), cols = Math.max(1, Math.ceil(cells.length / per)), CW = widths.reduce((a, b) => a + b, 0);
+  return { cells, widths, per, cols, CW, W: CW * cols, H: titleH + rh * (Math.min(per, Math.max(1, cells.length)) + 1) + 3, fs, rh, pad, titleH };
 }
 function nomenSVG(it, ctx) {
   const L = nomenLayout(it, ctx), x0 = it.x, y0 = it.y, yT = y0 + L.titleH;
   let s = `<g data-id="${it.id}" data-hit="item"><rect x="${x0}" y="${y0}" width="${r2(L.W)}" height="${r2(L.H)}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1"/>`;
   s += `<text x="${x0 + 8}" y="${y0 + 13.5}" font-size="9" font-weight="700" style="fill:var(--ink)">${esc(it.title || 'NOMENCLATURE')}</text>`;
   s += `<rect x="${x0}" y="${yT}" width="${r2(L.W)}" height="${L.rh}" style="fill:var(--hdr)" stroke="none"/><line x1="${x0}" y1="${yT}" x2="${r2(x0 + L.W)}" y2="${yT}" style="stroke:var(--ink)" stroke-width="0.8"/>`;
-  for (let r = 0; r < L.cells.length; r++) { const y = yT + L.rh * (r + 1); s += `<line x1="${x0}" y1="${y}" x2="${r2(x0 + L.W)}" y2="${y}" style="stroke:var(--ink)" stroke-width="${r === 0 ? 0.8 : 0.4}"/>`; }
-  let cx = x0;
-  L.widths.forEach((w, ci) => {
-    if (ci) s += `<line x1="${r2(cx)}" y1="${yT}" x2="${r2(cx)}" y2="${r2(y0 + L.H)}" style="stroke:var(--ink)" stroke-width="0.5"/>`;
-    const tx = ci === 0 ? cx + w / 2 : cx + L.pad, an = ci === 0 ? 'middle' : 'start';
-    s += `<text x="${r2(tx)}" y="${r2(yT + L.rh * 0.72)}" font-size="${L.fs}" font-weight="700" text-anchor="${an}" style="fill:var(--ink)">${esc(NOM_HEAD[ci])}</text>`;
-    L.cells.forEach((c, ri) => { s += `<text x="${r2(tx)}" y="${r2(yT + L.rh * (ri + 1.72))}" font-size="${L.fs}" text-anchor="${an}" style="fill:var(--ink)">${esc(fitText(c[ci], w - L.pad * 2, L.fs, 400))}</text>`; });
-    cx += w;
-  });
+  for (let k = 0; k < L.cols; k++) {
+    const bx = x0 + k * L.CW, rows = L.cells.slice(k * L.per, (k + 1) * L.per);
+    if (k) s += `<line x1="${r2(bx)}" y1="${yT}" x2="${r2(bx)}" y2="${r2(y0 + L.H)}" style="stroke:var(--ink)" stroke-width="1"/>`;
+    for (let r = 0; r < rows.length; r++) { const y = yT + L.rh * (r + 1); s += `<line x1="${r2(bx)}" y1="${y}" x2="${r2(bx + L.CW)}" y2="${y}" style="stroke:var(--ink)" stroke-width="${r === 0 ? 0.8 : 0.4}"/>`; }
+    let cx = bx;
+    L.widths.forEach((w, ci) => {
+      if (ci) s += `<line x1="${r2(cx)}" y1="${yT}" x2="${r2(cx)}" y2="${r2(yT + L.rh * (rows.length + 1))}" style="stroke:var(--ink)" stroke-width="0.5"/>`;
+      const tx = ci === 0 ? cx + w / 2 : cx + L.pad, an = ci === 0 ? 'middle' : 'start';
+      s += `<text x="${r2(tx)}" y="${r2(yT + L.rh * 0.72)}" font-size="${L.fs}" font-weight="700" text-anchor="${an}" style="fill:var(--ink)">${esc(NOM_HEAD[ci])}</text>`;
+      rows.forEach((c, ri) => { s += `<text x="${r2(tx)}" y="${r2(yT + L.rh * (ri + 1.72))}" font-size="${L.fs}" text-anchor="${an}" style="fill:var(--ink)">${esc(fitText(c[ci], w - L.pad * 2, L.fs, 400))}</text>`; });
+      cx += w;
+    });
+  }
   if (!L.cells.length) s += `<text x="${x0 + 8}" y="${r2(yT + L.rh + 10)}" font-size="7" font-style="italic" style="fill:var(--muted-ink)">Aucun symbole</text>`;
   return s + '</g>';
 }

@@ -149,7 +149,7 @@ function inspLegend(it) {
 }
 function inspNomen(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="10" y="8" width="44" height="30" fill="#fff" stroke="#16191b"/><path d="M10 16H54M10 23H54M10 30H54M20 8V38M38 8V38" stroke="#16191b" stroke-width=".8"/></svg>', 'Nomenclature', 'Mise à jour automatique'));
-  IB.append(SEC(null, F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), h('p', { class: 'hint' }, 'Les symboles sont regroupés par désignation et caractéristiques. Renseignez-les dans les propriétés de chaque symbole pour obtenir les quantités par référence.')));
+  IB.append(SEC(null, F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne (0 : une seule colonne)', fNum(() => +it.rows || 0, v => { it.rows = Math.max(0, Math.round(v)); }, { min: 0, max: 200 })), h('p', { class: 'hint' }, 'Les symboles sont regroupés par désignation et caractéristiques. Renseignez-les dans les propriétés de chaque symbole pour obtenir les quantités par référence.')));
   IB.append(actionsSec());
 }
 function inspCart(it) {
