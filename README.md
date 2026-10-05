@@ -10,7 +10,8 @@
 - **Onglet « Raccordement »** sur chaque équipement : points numérotés sur le plan, réseau attendu, état (libre ou raccordé, et vers quoi), accessoires à prévoir, et bouton pour tracer le tuyau depuis le point choisi.
 - **Tuyauteries par réseau** (EF, ECS, bouclage, chauffage, gaz, EU, EP, vapeur, air…) avec tracé orthogonal, piquages, sauts aux croisements, flèches de sens et libellés DN. Un tuyau raccordé suit l'équipement qu'on déplace.
 - **Mise en page** : légende et nomenclature générées automatiquement, cartouche (lot, phase, indice, date).
-- **Exports** PNG, SVG, PDF A4/A3 et JSON. Le travail en cours est gardé dans le navigateur.
+- **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
+- **Exports** PNG, SVG, PDF A4, A3 et A0 (environ 200 dpi), et JSON. Le travail en cours est gardé dans le navigateur.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
 - **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin (ind. B).
 
@@ -42,5 +43,5 @@ Le workflow `.github/workflows/pages.yml` construit et publie la page sur GitHub
 
 ## Différences avec la version hébergée sur claude.ai
 
-- « Mes schémas » (enregistrement en ligne) n'est disponible que sur claude.ai. Ici, on enregistre en fichier `.json` et on le rouvre avec Fichier > Ouvrir.
+- « Mes projets » est enregistré en ligne sur claude.ai. Sur ce site, il est enregistré dans le navigateur : les projets restent sur l'ordinateur et le navigateur utilisés. Pour les passer sur un autre poste ou les mettre à l'abri, utilisez « Sauvegarder tout » puis « Restaurer… ».
 - Les exports se téléchargent directement.
