@@ -1,0 +1,5709 @@
+{
+ "v": 2,
+ "name": "Sous-station CPCU Bessin – schéma de principe ind. B",
+ "nets": [
+  {
+   "id": "ef",
+   "abbr": "EF",
+   "name": "Eau froide",
+   "color": "#1c7ed6",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "ea",
+   "abbr": "EA",
+   "name": "Eau adoucie",
+   "color": "#0ca5b8",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "ecs",
+   "abbr": "ECS",
+   "name": "Eau chaude sanitaire",
+   "color": "#e03131",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "becs",
+   "abbr": "BECS",
+   "name": "Bouclage ECS",
+   "color": "#d6336c",
+   "dash": "dash",
+   "w": 2.4
+  },
+  {
+   "id": "dch",
+   "abbr": "DCH",
+   "name": "Départ chauffage",
+   "color": "#f76707",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "rch",
+   "abbr": "RCH",
+   "name": "Retour chauffage",
+   "color": "#7048e8",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "gaz",
+   "abbr": "GAZ",
+   "name": "Gaz",
+   "color": "#c99a06",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "eu",
+   "abbr": "EU",
+   "name": "Évacuation / vidange",
+   "color": "#8d6e63",
+   "dash": "dash",
+   "w": 2
+  },
+  {
+   "id": "reg",
+   "abbr": "",
+   "name": "Liaison de régulation",
+   "color": "#7d868c",
+   "dash": "dot",
+   "w": 1.2
+  },
+  {
+   "id": "ep",
+   "abbr": "EP",
+   "name": "Eaux pluviales",
+   "color": "#0b7285",
+   "dash": "dash",
+   "w": 2
+  },
+  {
+   "id": "enp",
+   "abbr": "ENP",
+   "name": "Eau non potable (récupération EP)",
+   "color": "#74b816",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "vap",
+   "abbr": "VAP",
+   "name": "Vapeur CPCU",
+   "color": "#a61e4d",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "cond",
+   "abbr": "COND",
+   "name": "Condensats",
+   "color": "#9c36b5",
+   "dash": "dash",
+   "w": 2
+  },
+  {
+   "id": "an",
+   "abbr": "AN",
+   "name": "Air neuf",
+   "color": "#37b24d",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "as",
+   "abbr": "AS",
+   "name": "Air soufflé",
+   "color": "#4dabf7",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "ar",
+   "abbr": "AR",
+   "name": "Air repris / extrait",
+   "color": "#f59f00",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "aj",
+   "abbr": "AJ",
+   "name": "Air rejeté",
+   "color": "#a9712f",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "pac_a",
+   "abbr": "PAC A",
+   "name": "Primaire PAC aller",
+   "color": "#e64980",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "pac_r",
+   "abbr": "PAC R",
+   "name": "Primaire PAC retour",
+   "color": "#3b5bdb",
+   "dash": "solid",
+   "w": 2.4
+  }
+ ],
+ "items": [
+  {
+   "id": "6mvylek8",
+   "kind": "zone",
+   "x": -40,
+   "y": 20,
+   "w": 3200,
+   "h": 1820,
+   "title": "SOUS-STATION CPCU – RUE DU BESSIN, 75015 PARIS",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "b7nagcf4",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 100,
+   "y": 440,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "Arrivée vapeur CPCU",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "r38p8366",
+   "kind": "el",
+   "type": "limite",
+   "pre": "limite",
+   "x": 250,
+   "y": 470,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txtL": "Lot CPCU",
+    "txtR": "Lot CH",
+    "h": 160
+   },
+   "tag": "",
+   "name": "Limite de prestation",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ov0xj8uc",
+   "kind": "el",
+   "type": "bouteille",
+   "pre": "bouteille_hp",
+   "x": 450,
+   "y": 470,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "BV1",
+   "name": "Bouteille vapeur HP 80/89",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "cmasamqi",
+   "kind": "pipe",
+   "net": "vap",
+   "pts": [
+    {
+     "x": 100,
+     "y": 440
+    },
+    {
+     "x": 440,
+     "y": 440
+    }
+   ],
+   "dn": "50/60",
+   "lab": true,
+   "lp": 0.78,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "vtococts",
+   "kind": "el",
+   "type": "vanne_mot",
+   "pre": "vanne_mot",
+   "x": 150,
+   "y": 440,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "VM1",
+   "name": "Vanne d’arrêt vapeur télécommandée",
+   "note": "Commande à distance hors lot ITE",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ig2wclbe",
+   "kind": "text",
+   "x": 20,
+   "y": 500,
+   "txt": "Vanne d’arrêt : commande à distance hors lot ITE",
+   "size": 7,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "z6bv5fz0",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 440,
+   "y": 500,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": true
+   },
+   "tag": "M1",
+   "name": "Manomètre avec siphon",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bkjs46c5",
+   "kind": "el",
+   "type": "relevage",
+   "pre": "bache_cond",
+   "x": 620,
+   "y": 650,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "np": "2"
+   },
+   "tag": "BRC1",
+   "name": "Groupe de relevage des condensats GRAL 200 D",
+   "note": "200 L – 2 pompes – Vimatherm",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -80,
+   "ly": 50
+  },
+  {
+   "id": "l17zatwh",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 460,
+     "y": 500
+    },
+    {
+     "x": 720,
+     "y": 500
+    },
+    {
+     "x": 720,
+     "y": 640
+    }
+   ],
+   "dn": "20/27",
+   "lab": true,
+   "lp": 0.45,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "27nwlqh5",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 520,
+   "y": 500,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V1",
+   "name": "Robinet condensats",
+   "note": "PN16 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "p88xuen5",
+   "kind": "el",
+   "type": "purg_vap",
+   "pre": "purg_vap",
+   "x": 570,
+   "y": 500,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PV1",
+   "name": "Purgeur",
+   "note": "DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "w8hx03ha",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 450,
+     "y": 530
+    },
+    {
+     "x": 450,
+     "y": 580
+    },
+    {
+     "x": 690,
+     "y": 580
+    },
+    {
+     "x": 690,
+     "y": 640
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "pbdokerf",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 520,
+   "y": 580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V2",
+   "name": "Robinet condensats",
+   "note": "PN16 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "l2kkz9oq",
+   "kind": "el",
+   "type": "echangeur",
+   "pre": "echangeur",
+   "x": 810,
+   "y": 660,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "ECH1",
+   "name": "Échangeur de préchauffage sur retour condensats",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "cpatjn9w",
+   "kind": "text",
+   "x": 810,
+   "y": 562,
+   "txt": "Échangeur de préchauffage\nsur retour condensats",
+   "size": 7,
+   "bold": false,
+   "color": "",
+   "align": "middle",
+   "bg": false
+  },
+  {
+   "id": "3xg9qahg",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 790,
+     "y": 640
+    },
+    {
+     "x": 650,
+     "y": 640
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "i2lmcoid",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 870,
+     "y": 640
+    },
+    {
+     "x": 870,
+     "y": 600
+    },
+    {
+     "x": 750,
+     "y": 600
+    },
+    {
+     "x": 750,
+     "y": 640
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "qpu5dicv",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": 810,
+   "y": 600,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "V3",
+   "name": "Vanne de by-pass de l’échangeur (normalement fermée)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2bhf9kus",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 100,
+   "y": 480,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "Retour condensats CPCU",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "4psgp3ma",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 610,
+     "y": 620
+    },
+    {
+     "x": 610,
+     "y": 600
+    },
+    {
+     "x": 310,
+     "y": 600
+    },
+    {
+     "x": 310,
+     "y": 480
+    },
+    {
+     "x": 100,
+     "y": 480
+    }
+   ],
+   "dn": "DN20",
+   "lab": true,
+   "lp": 0.42,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "u5xfba2h",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 520,
+   "y": 600,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "CL1",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "i2ufga9z",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 470,
+   "y": 600,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V4",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ghuxhkwt",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 310,
+   "y": 545,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": false
+   },
+   "tag": "M2",
+   "name": "Manomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "vcfpwghi",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 200,
+   "y": 480,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V5",
+   "name": "Vanne d’arrêt retour condensats",
+   "note": "Lot CPCU",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "tuk6eyjc",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 560,
+   "y": 700,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "txt": "Égout",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "z9n3nqaw",
+   "kind": "pipe",
+   "net": "eu",
+   "pts": [
+    {
+     "x": 560,
+     "y": 600
+    },
+    {
+     "x": 560,
+     "y": 700
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "xu0fkqt6",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 560,
+   "y": 635,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "CL2",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "i3emacf9",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 560,
+   "y": 668,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V6",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "b96evvqf",
+   "kind": "el",
+   "type": "echangeur",
+   "pre": "echangeur_vap",
+   "x": 1420,
+   "y": 620,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "ECH2",
+   "name": "Échangeur vapeur/eau RVT 265 – 250 kW",
+   "note": "Vimatherm",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -64,
+   "ly": 70
+  },
+  {
+   "id": "dddzrs9w",
+   "kind": "pipe",
+   "net": "vap",
+   "pts": [
+    {
+     "x": 1020,
+     "y": 440
+    },
+    {
+     "x": 1360,
+     "y": 440
+    },
+    {
+     "x": 1360,
+     "y": 600
+    },
+    {
+     "x": 1400,
+     "y": 600
+    }
+   ],
+   "dn": "26/34",
+   "lab": true,
+   "lp": 0.55,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "yf7vlj4s",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1080,
+   "y": 440,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V7",
+   "name": "Robinet vapeur",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "x4kdgh8b",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1130,
+   "y": 440,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "purge": false
+   },
+   "tag": "F1",
+   "name": "Filtre à tamis",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "x2ot96rs",
+   "kind": "el",
+   "type": "reducteur",
+   "pre": "vanne_auto",
+   "x": 1190,
+   "y": 440,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "mano": false
+   },
+   "tag": "VAD1",
+   "name": "Vanne de détente sécurité et régulation",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rm14cv86",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1270,
+   "y": 440,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": true
+   },
+   "tag": "M3",
+   "name": "Manomètre avec siphon",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "j54e8n9k",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 1400,
+     "y": 640
+    },
+    {
+     "x": 830,
+     "y": 640
+    }
+   ],
+   "dn": "20/27",
+   "lab": true,
+   "lp": 0.45,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "lynj30f6",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1378,
+   "y": 640,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": true
+   },
+   "tag": "M4",
+   "name": "Manomètre avec siphon",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ji1fbcer",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1340,
+   "y": 640,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "purge": false
+   },
+   "tag": "F2",
+   "name": "Filtre à tamis",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "weg0tb2i",
+   "kind": "el",
+   "type": "vanne_mot",
+   "pre": "vanne_mot",
+   "x": 1300,
+   "y": 640,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VM2",
+   "name": "Vanne de régulation sur condensats",
+   "note": "PN16 DN20, filtre et robinet inclus – Vimatherm",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "w9gxgm8y",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 1440,
+     "y": 600
+    },
+    {
+     "x": 1630,
+     "y": 600
+    },
+    {
+     "x": 1630,
+     "y": 790
+    }
+   ],
+   "dn": "Ø50/60",
+   "lab": true,
+   "lp": 0.62,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "kt3vwlpf",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1460,
+   "y": 600,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T1",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mnoh2jq0",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 1490,
+   "y": 590,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "SS1",
+   "name": "Soupape de sécurité",
+   "note": "4 bar",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "9u37ob9f",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 1520,
+   "y": 590,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "SS2",
+   "name": "Soupape de sécurité",
+   "note": "4 bar",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "q4nz9rd1",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 1550,
+   "y": 600,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "S"
+   },
+   "tag": "ST1",
+   "name": "Sonde et thermostat de sécurité",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2mm8w485",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1595,
+   "y": 600,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V8",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "9g05rxa7",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 1660,
+     "y": 850
+    },
+    {
+     "x": 1660,
+     "y": 640
+    },
+    {
+     "x": 1440,
+     "y": 640
+    }
+   ],
+   "dn": "Ø50/60",
+   "lab": true,
+   "lp": 0.25,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "ocopvi84",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1615,
+   "y": 640,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V9",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "9dvrmkyn",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1575,
+   "y": 640,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T2",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "sp4mkx1m",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1530,
+   "y": 640,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "purge": false
+   },
+   "tag": "F3",
+   "name": "Filtre à tamis",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8khagby1",
+   "kind": "el",
+   "type": "echangeur",
+   "pre": "echangeur_vap",
+   "x": 1420,
+   "y": 1000,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "ECH3",
+   "name": "Échangeur vapeur/eau RVT 265 – 250 kW",
+   "note": "Vimatherm",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -64,
+   "ly": 70
+  },
+  {
+   "id": "6invl5wy",
+   "kind": "pipe",
+   "net": "vap",
+   "pts": [
+    {
+     "x": 1020,
+     "y": 820
+    },
+    {
+     "x": 1360,
+     "y": 820
+    },
+    {
+     "x": 1360,
+     "y": 980
+    },
+    {
+     "x": 1400,
+     "y": 980
+    }
+   ],
+   "dn": "26/34",
+   "lab": true,
+   "lp": 0.55,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "x6898ewo",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1080,
+   "y": 820,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V10",
+   "name": "Robinet vapeur",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8pe2opop",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1130,
+   "y": 820,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "purge": false
+   },
+   "tag": "F4",
+   "name": "Filtre à tamis",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "35erq41a",
+   "kind": "el",
+   "type": "reducteur",
+   "pre": "vanne_auto",
+   "x": 1190,
+   "y": 820,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "mano": false
+   },
+   "tag": "VAD2",
+   "name": "Vanne de détente sécurité et régulation",
+   "note": "PN40 DN20 – Vimatherm",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "cvzrp2z3",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1270,
+   "y": 820,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": true
+   },
+   "tag": "M5",
+   "name": "Manomètre avec siphon",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "dybfi89o",
+   "kind": "pipe",
+   "net": "cond",
+   "pts": [
+    {
+     "x": 1400,
+     "y": 1020
+    },
+    {
+     "x": 1240,
+     "y": 1020
+    },
+    {
+     "x": 1240,
+     "y": 640
+    }
+   ],
+   "dn": "20/27",
+   "lab": true,
+   "lp": 0.6,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "d9l4s6ix",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1378,
+   "y": 1020,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": true
+   },
+   "tag": "M6",
+   "name": "Manomètre avec siphon",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qrqwu87m",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1340,
+   "y": 1020,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "purge": false
+   },
+   "tag": "F5",
+   "name": "Filtre à tamis",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mx7qaint",
+   "kind": "el",
+   "type": "vanne_mot",
+   "pre": "vanne_mot",
+   "x": 1300,
+   "y": 1020,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VM3",
+   "name": "Vanne de régulation sur condensats",
+   "note": "PN16 DN20, filtre et robinet inclus – Vimatherm",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8s6bsgks",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 1440,
+     "y": 980
+    },
+    {
+     "x": 1630,
+     "y": 980
+    },
+    {
+     "x": 1630,
+     "y": 790
+    }
+   ],
+   "dn": "Ø50/60",
+   "lab": true,
+   "lp": 0.62,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "lzpcuvge",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1460,
+   "y": 980,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T3",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "st0xjbm4",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 1490,
+   "y": 970,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "SS3",
+   "name": "Soupape de sécurité",
+   "note": "4 bar",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ce83gsdd",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 1520,
+   "y": 970,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "SS4",
+   "name": "Soupape de sécurité",
+   "note": "4 bar",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "c0xcrsoy",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 1550,
+   "y": 980,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "S"
+   },
+   "tag": "ST2",
+   "name": "Sonde et thermostat de sécurité",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "90khoxta",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1595,
+   "y": 980,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V11",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pbozz4p2",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 1660,
+     "y": 850
+    },
+    {
+     "x": 1660,
+     "y": 1020
+    },
+    {
+     "x": 1440,
+     "y": 1020
+    }
+   ],
+   "dn": "Ø50/60",
+   "lab": true,
+   "lp": 0.25,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "8lz01vyi",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1615,
+   "y": 1020,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V12",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jcm5v2ze",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1575,
+   "y": 1020,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T4",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "7i1ctmyi",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1530,
+   "y": 1020,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "purge": false
+   },
+   "tag": "F6",
+   "name": "Filtre à tamis",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "nic8c9hf",
+   "kind": "pipe",
+   "net": "vap",
+   "pts": [
+    {
+     "x": 460,
+     "y": 440
+    },
+    {
+     "x": 1020,
+     "y": 440
+    }
+   ],
+   "dn": "33/42",
+   "lab": true,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "b1ex31m3",
+   "kind": "pipe",
+   "net": "vap",
+   "pts": [
+    {
+     "x": 1020,
+     "y": 440
+    },
+    {
+     "x": 1020,
+     "y": 820
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "v3sagp6p",
+   "kind": "el",
+   "type": "bouteille",
+   "pre": "bouteille",
+   "x": 1920,
+   "y": 820,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "BD1",
+   "name": "Bouteille de découplage DN250",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pomgdlkp",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 1630,
+     "y": 790
+    },
+    {
+     "x": 1910,
+     "y": 790
+    }
+   ],
+   "dn": "Ø80x89",
+   "lab": true,
+   "lp": 0.45,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "5aczx0lq",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1830,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T5",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "54wxmzwf",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1875,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V13",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kezagcnp",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 1910,
+     "y": 850
+    },
+    {
+     "x": 1660,
+     "y": 850
+    }
+   ],
+   "dn": "Ø80x89",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "mojz74f6",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "pressostat",
+   "x": 1895,
+   "y": 850,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "P"
+   },
+   "tag": "PS1",
+   "name": "Pressostat manque d’eau",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "7e6h3442",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1870,
+   "y": 850,
+   "rot": 180,
+   "fh": false,
+   "p": {},
+   "tag": "T6",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "w09gsd33",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1840,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V14",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "vzp8wyhf",
+   "kind": "el",
+   "type": "pompe2",
+   "pre": "pompe2",
+   "x": 1780,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "P1",
+   "name": "Pompe de charge Lowara XL D50-120F",
+   "note": "21,5 m³/h",
+   "st": true,
+   "sn": true,
+   "sv": true,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "t9grn6q3",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1730,
+   "y": 850,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "rob": true,
+    "siphon": false
+   },
+   "tag": "M7",
+   "name": "Manomètre différentiel",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "sol8k63y",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1695,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V15",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "in5b5r9k",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 1660,
+     "y": 980
+    },
+    {
+     "x": 1720,
+     "y": 980
+    },
+    {
+     "x": 1720,
+     "y": 1040
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "p7ib4lz0",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1720,
+   "y": 1008,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V16",
+   "name": "Vanne d’isolement avec purge",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5joaa6sw",
+   "kind": "el",
+   "type": "vase",
+   "pre": "vase",
+   "x": 1720,
+   "y": 1040,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "VX1",
+   "name": "Vase d’expansion 150 L",
+   "note": "Gonflé à 3,2 bar",
+   "st": true,
+   "sn": true,
+   "sv": true,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kg7cc1fd",
+   "kind": "el",
+   "type": "purgeur",
+   "pre": "purgeur",
+   "x": 1920,
+   "y": 760,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PA1",
+   "name": "Purgeur automatique",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "r8fdt8c1",
+   "kind": "el",
+   "type": "vidange",
+   "pre": "vidange",
+   "x": 1920,
+   "y": 880,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "RV1",
+   "name": "Robinet de vidange",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mlg486qv",
+   "kind": "el",
+   "type": "collecteur",
+   "pre": "collecteur",
+   "x": 2500,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "n": 3,
+    "esp": "200"
+   },
+   "tag": "COL1",
+   "name": "Collecteur départ DN80",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5jseaifw",
+   "kind": "el",
+   "type": "collecteur",
+   "pre": "collecteur",
+   "x": 2580,
+   "y": 850,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "n": 3,
+    "esp": "200"
+   },
+   "tag": "COL2",
+   "name": "Collecteur retour DN80",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "nea6exqo",
+   "kind": "text",
+   "x": 2610,
+   "y": 800,
+   "txt": "Collecteur départ DN80",
+   "size": 7,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "fhmuaoyd",
+   "kind": "text",
+   "x": 2610,
+   "y": 862,
+   "txt": "Collecteur retour DN80",
+   "size": 7,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "fm2i4ga3",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 1930,
+     "y": 790
+    },
+    {
+     "x": 2200,
+     "y": 790
+    }
+   ],
+   "dn": "DN80",
+   "lab": true,
+   "lp": 0.88,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "42ma51x9",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1960,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V17",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gyno82wb",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1990,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T7",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "19j4u81o",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 2025,
+   "y": 790,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "T"
+   },
+   "tag": "ST3",
+   "name": "Sonde départ du compteur CH CPCU",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "e2tafu1u",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2280,
+     "y": 850
+    },
+    {
+     "x": 1930,
+     "y": 850
+    }
+   ],
+   "dn": "DN80",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "2cver9qo",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2255,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V18",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8ced5whh",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur_e",
+   "x": 2200,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "txt": "kWh"
+   },
+   "tag": "CE1",
+   "name": "Compteur d’énergie CH CPCU",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gh45uiyn",
+   "kind": "el",
+   "type": "desemb",
+   "pre": "desemb",
+   "x": 2070,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "PB1",
+   "name": "Pot à boues magnétique PROCHIMA FPI 40",
+   "note": "",
+   "st": false,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 12
+  },
+  {
+   "id": "mgkg9r1d",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2015,
+   "y": 850,
+   "rot": 180,
+   "fh": false,
+   "p": {},
+   "tag": "T8",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mthq97iq",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1965,
+   "y": 850,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V19",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "zcmq72mn",
+   "kind": "text",
+   "x": 2340,
+   "y": 382,
+   "txt": "Réseau radiateurs logements – 50/60",
+   "size": 8,
+   "bold": true,
+   "color": "",
+   "align": "middle",
+   "bg": true
+  },
+  {
+   "id": "91beqtb9",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 2300,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Départ",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5fewrkat",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 2380,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Retour",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bsoxtrv7",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 2300,
+     "y": 780
+    },
+    {
+     "x": 2300,
+     "y": 460
+    }
+   ],
+   "dn": "50/60",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "7hi3znpm",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2300,
+   "y": 750,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V20",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "d8ypmx1s",
+   "kind": "el",
+   "type": "v3v",
+   "pre": "v3v",
+   "x": 2300,
+   "y": 700,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "act": "mot"
+   },
+   "tag": "V3V1",
+   "name": "Vanne 3 voies motorisée",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "plub96zs",
+   "kind": "el",
+   "type": "pompe2",
+   "pre": "pompe2",
+   "x": 2300,
+   "y": 640,
+   "rot": 90,
+   "fh": true,
+   "p": {},
+   "tag": "P2",
+   "name": "Pompe double radiateurs logements",
+   "note": "Lowara XL D40-120F",
+   "st": true,
+   "sn": false,
+   "sv": true,
+   "lx": -110,
+   "ly": 0
+  },
+  {
+   "id": "lqfxlw6a",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 2300,
+   "y": 600,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "rob": true,
+    "siphon": false
+   },
+   "tag": "M8",
+   "name": "Manomètre différentiel",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "cqwuhx0n",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2300,
+   "y": 565,
+   "rot": 270,
+   "fh": false,
+   "p": {},
+   "tag": "T9",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "43l4pdd6",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2300,
+   "y": 530,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V21",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "l8c5tg2m",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 2300,
+   "y": 495,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "T"
+   },
+   "tag": "ST4",
+   "name": "Sonde de départ",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1fez22rb",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2380,
+     "y": 460
+    },
+    {
+     "x": 2380,
+     "y": 840
+    }
+   ],
+   "dn": "50/60",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "dctfdjhn",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur_e",
+   "x": 2380,
+   "y": 500,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "txt": "kWh"
+   },
+   "tag": "CE2",
+   "name": "Compteur d’énergie radiateurs logements",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "uzodq290",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2380,
+   "y": 545,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V22",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qw97di7g",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2380,
+   "y": 580,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "T10",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "6kepmj3u",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2380,
+   "y": 620,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "VE1",
+   "name": "Vanne d’équilibrage TA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "4akg8y9c",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2380,
+   "y": 750,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V23",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "s7drm8qm",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2380,
+     "y": 700
+    },
+    {
+     "x": 2310,
+     "y": 700
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "a6lhwc37",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2345,
+   "y": 700,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VE2",
+   "name": "Vanne d’équilibrage du by-pass",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8m8kfjps",
+   "kind": "text",
+   "x": 2540,
+   "y": 382,
+   "txt": "Réseau radiateurs crèche – 33/42",
+   "size": 8,
+   "bold": true,
+   "color": "",
+   "align": "middle",
+   "bg": true
+  },
+  {
+   "id": "36pg5by0",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 2500,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Départ",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "vnof9bkm",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 2580,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Retour",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "j018cywt",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 2500,
+     "y": 780
+    },
+    {
+     "x": 2500,
+     "y": 460
+    }
+   ],
+   "dn": "33/42",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "z61mc3at",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2500,
+   "y": 750,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V24",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "sr4i0da6",
+   "kind": "el",
+   "type": "v3v",
+   "pre": "v3v",
+   "x": 2500,
+   "y": 700,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "act": "mot"
+   },
+   "tag": "V3V2",
+   "name": "Vanne 3 voies motorisée",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bclabvhx",
+   "kind": "el",
+   "type": "pompe2",
+   "pre": "pompe2",
+   "x": 2500,
+   "y": 640,
+   "rot": 90,
+   "fh": true,
+   "p": {},
+   "tag": "P3",
+   "name": "Pompe double radiateurs crèche",
+   "note": "Lowara XL D32-80F",
+   "st": true,
+   "sn": false,
+   "sv": true,
+   "lx": -110,
+   "ly": 0
+  },
+  {
+   "id": "n4kjmwz7",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 2500,
+   "y": 600,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "rob": true,
+    "siphon": false
+   },
+   "tag": "M9",
+   "name": "Manomètre différentiel",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "iutyk38i",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2500,
+   "y": 565,
+   "rot": 270,
+   "fh": false,
+   "p": {},
+   "tag": "T11",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "d9ef4kk6",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2500,
+   "y": 530,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V25",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "uu2002t5",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 2500,
+   "y": 495,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "T"
+   },
+   "tag": "ST5",
+   "name": "Sonde de départ",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "hvmgsrjf",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2580,
+     "y": 460
+    },
+    {
+     "x": 2580,
+     "y": 840
+    }
+   ],
+   "dn": "33/42",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "6re6owsv",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur_e",
+   "x": 2580,
+   "y": 500,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "txt": "kWh"
+   },
+   "tag": "CE3",
+   "name": "Compteur d’énergie radiateurs crèche",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ma82li9q",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2580,
+   "y": 545,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V26",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8odnq98m",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2580,
+   "y": 580,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "T12",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "nt4vph4c",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2580,
+   "y": 620,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "VE3",
+   "name": "Vanne d’équilibrage TA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mla8n3vh",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2580,
+   "y": 750,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V27",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "6lsq85pq",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2580,
+     "y": 700
+    },
+    {
+     "x": 2510,
+     "y": 700
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "kuaa4u6m",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2545,
+   "y": 700,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VE4",
+   "name": "Vanne d’équilibrage du by-pass",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3ng0nwzs",
+   "kind": "text",
+   "x": 2740,
+   "y": 382,
+   "txt": "Réseau panneaux rayonnants – 40/49",
+   "size": 8,
+   "bold": true,
+   "color": "",
+   "align": "middle",
+   "bg": true
+  },
+  {
+   "id": "0hxapngc",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 2700,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Départ",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jg8kvcnv",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 2780,
+   "y": 460,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Retour",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pen2051r",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 2700,
+     "y": 780
+    },
+    {
+     "x": 2700,
+     "y": 460
+    }
+   ],
+   "dn": "40/49",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "5ienu5oa",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2700,
+   "y": 750,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V28",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3o9og5l6",
+   "kind": "el",
+   "type": "v3v",
+   "pre": "v3v",
+   "x": 2700,
+   "y": 700,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "act": "mot"
+   },
+   "tag": "V3V3",
+   "name": "Vanne 3 voies motorisée",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "lzatzr20",
+   "kind": "el",
+   "type": "pompe2",
+   "pre": "pompe2",
+   "x": 2700,
+   "y": 640,
+   "rot": 90,
+   "fh": true,
+   "p": {},
+   "tag": "P4",
+   "name": "Pompe double panneaux rayonnants",
+   "note": "Lowara XL D32-120F",
+   "st": true,
+   "sn": false,
+   "sv": true,
+   "lx": -110,
+   "ly": 0
+  },
+  {
+   "id": "z9t1er7f",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 2700,
+   "y": 600,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "rob": true,
+    "siphon": false
+   },
+   "tag": "M10",
+   "name": "Manomètre différentiel",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "lomov7he",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2700,
+   "y": 565,
+   "rot": 270,
+   "fh": false,
+   "p": {},
+   "tag": "T13",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "44w5c7m9",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2700,
+   "y": 530,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V29",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "snyuilmt",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 2700,
+   "y": 495,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "T"
+   },
+   "tag": "ST6",
+   "name": "Sonde de départ",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "uxdvvltc",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2780,
+     "y": 460
+    },
+    {
+     "x": 2780,
+     "y": 840
+    }
+   ],
+   "dn": "40/49",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "ds2sf3la",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur_e",
+   "x": 2780,
+   "y": 500,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "txt": "kWh"
+   },
+   "tag": "CE4",
+   "name": "Compteur d’énergie panneaux rayonnants",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "90nqk4uo",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2780,
+   "y": 545,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V30",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ot1nwkpw",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2780,
+   "y": 580,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "T14",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "dp17sm6f",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2780,
+   "y": 620,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "VE5",
+   "name": "Vanne d’équilibrage TA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kh3o3cwl",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2780,
+   "y": 750,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V31",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kg0fxchw",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2780,
+     "y": 700
+    },
+    {
+     "x": 2710,
+     "y": 700
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "eokm4090",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2745,
+   "y": 700,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VE6",
+   "name": "Vanne d’équilibrage du by-pass",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "15w7tsgv",
+   "kind": "el",
+   "type": "echangeur",
+   "pre": "prep_inst",
+   "x": 2400,
+   "y": 230,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "ECH4",
+   "name": "Préparateur ECS Atlantic RUBIS EVO SI 220",
+   "note": "P = 127 kW",
+   "st": true,
+   "sn": true,
+   "sv": true,
+   "lx": -60,
+   "ly": -64
+  },
+  {
+   "id": "fdx6hrgj",
+   "kind": "el",
+   "type": "ballon",
+   "pre": "ballon_st",
+   "x": 2620,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "coil": "none",
+    "txt": "750 L"
+   },
+   "tag": "B1",
+   "name": "Ballon ECS 750 L Corhydro Atlantic",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -170,
+   "ly": -92
+  },
+  {
+   "id": "vfx6iab6",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": 2060,
+     "y": 790
+    },
+    {
+     "x": 2060,
+     "y": 210
+    },
+    {
+     "x": 2380,
+     "y": 210
+    }
+   ],
+   "dn": "40/49",
+   "lab": true,
+   "lp": 0.3,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "jj7ryd74",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2060,
+   "y": 750,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V32",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5khyd4c4",
+   "kind": "el",
+   "type": "sonde",
+   "pre": "sonde",
+   "x": 2060,
+   "y": 560,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "T"
+   },
+   "tag": "ST7",
+   "name": "Sonde départ du compteur ECS CPCU",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "b7t98p2u",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2295,
+   "y": 210,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V33",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "22rgrh79",
+   "kind": "el",
+   "type": "v3v",
+   "pre": "v3v",
+   "x": 2340,
+   "y": 210,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "act": "mot"
+   },
+   "tag": "V3V4",
+   "name": "Vanne 3 voies motorisée (primaire ECS)",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "82wkbfk2",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2380,
+     "y": 250
+    },
+    {
+     "x": 2120,
+     "y": 250
+    },
+    {
+     "x": 2120,
+     "y": 850
+    }
+   ],
+   "dn": "40/49",
+   "lab": true,
+   "lp": 0.45,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "5ewxixj1",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 2340,
+     "y": 220
+    },
+    {
+     "x": 2340,
+     "y": 250
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "6zyfq7pz",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 2280,
+   "y": 250,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VE7",
+   "name": "Vanne d’équilibrage TA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "0vdtaddv",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2230,
+   "y": 250,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V34",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "24azs5qe",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur_e",
+   "x": 2120,
+   "y": 560,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "txt": "kWh"
+   },
+   "tag": "CE5",
+   "name": "Compteur d’énergie ECS CPCU",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "s5poivqa",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2120,
+   "y": 820,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V35",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "sfk9zc77",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 2420,
+     "y": 210
+    },
+    {
+     "x": 2590,
+     "y": 210
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "i7rl1z84",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2455,
+   "y": 210,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T15",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jt6h8bhq",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2540,
+   "y": 210,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V36",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ig3vgf3l",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 2590,
+     "y": 270
+    },
+    {
+     "x": 2460,
+     "y": 270
+    },
+    {
+     "x": 2460,
+     "y": 250
+    },
+    {
+     "x": 2420,
+     "y": 250
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "bx852zrw",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2550,
+   "y": 270,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V37",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "0imjsj5v",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2510,
+   "y": 270,
+   "rot": 180,
+   "fh": false,
+   "p": {},
+   "tag": "T16",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "uw2uo1fx",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 2450,
+   "y": 100,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "Départ ECS – DN 52 Cu",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "4hh1l430",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 2650,
+     "y": 190
+    },
+    {
+     "x": 2680,
+     "y": 190
+    },
+    {
+     "x": 2680,
+     "y": 100
+    },
+    {
+     "x": 2450,
+     "y": 100
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "wjbozi2p",
+   "kind": "el",
+   "type": "purgeur",
+   "pre": "purgeur",
+   "x": 2680,
+   "y": 150,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "PA2",
+   "name": "Purgeur automatique",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gfb5n6wz",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2650,
+   "y": 100,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T17",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "hn9u6m1c",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2610,
+   "y": 100,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V38",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "zr6dmhph",
+   "kind": "el",
+   "type": "tube_temoin",
+   "pre": "tube_temoin",
+   "x": 2550,
+   "y": 100,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "TT1",
+   "name": "Manchette témoin (tube témoin)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "aejc57tk",
+   "kind": "el",
+   "type": "echantillon",
+   "pre": "echantillon",
+   "x": 2515,
+   "y": 100,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PE1",
+   "name": "Prise d’échantillon (PE)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "4kzx3lmn",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2480,
+   "y": 100,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V39",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "b8f8scf2",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 2990,
+   "y": 230,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "Retour bouclage ECS – DN 40 Cu",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "smtl3z2x",
+   "kind": "pipe",
+   "net": "becs",
+   "pts": [
+    {
+     "x": 2990,
+     "y": 230
+    },
+    {
+     "x": 2650,
+     "y": 230
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "jwxzdv2d",
+   "kind": "pipe",
+   "net": "becs",
+   "pts": [
+    {
+     "x": 2840,
+     "y": 230
+    },
+    {
+     "x": 2840,
+     "y": 180
+    },
+    {
+     "x": 2740,
+     "y": 180
+    },
+    {
+     "x": 2740,
+     "y": 230
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "q2d5muvg",
+   "kind": "el",
+   "type": "tube_temoin",
+   "pre": "tube_temoin",
+   "x": 2950,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "TT2",
+   "name": "Manchette témoin (tube témoin)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5lhnqm5j",
+   "kind": "el",
+   "type": "echantillon",
+   "pre": "echantillon",
+   "x": 2915,
+   "y": 230,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PE2",
+   "name": "Prise d’échantillon (PE)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rbwtomv5",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2880,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V40",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "4kbwk7lm",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2815,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V41",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "42zvguwz",
+   "kind": "el",
+   "type": "pompe",
+   "pre": "pompe",
+   "x": 2785,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "P5",
+   "name": "Pompe de bouclage ECS",
+   "note": "Lowara XL-N 32-120",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1lesrf77",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 2757,
+   "y": 230,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "CL3",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "je3m5os6",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2815,
+   "y": 180,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V42",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "me9t6aka",
+   "kind": "el",
+   "type": "pompe",
+   "pre": "pompe",
+   "x": 2785,
+   "y": 180,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "P6",
+   "name": "Pompe de bouclage ECS",
+   "note": "Lowara XL-N 32-120",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rfvdrlzy",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 2757,
+   "y": 180,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "CL4",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "zptp946s",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 2700,
+   "y": 230,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T18",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "w74x42z8",
+   "kind": "el",
+   "type": "grille",
+   "pre": "grille_an",
+   "x": 60,
+   "y": 1100,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "pan"
+   },
+   "tag": "",
+   "name": "Ventilation basse naturelle (hors lot)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ildjywfw",
+   "kind": "text",
+   "x": 90,
+   "y": 1092,
+   "txt": "VB (hors lot) – ventilation basse naturelle",
+   "size": 8,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "tq65n13c",
+   "kind": "el",
+   "type": "caisson",
+   "pre": "caisson",
+   "x": 460,
+   "y": 1100,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "VH",
+   "name": "Caisson VH 750 m³/h (hors lot)",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "z4hnoeru",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 540,
+   "y": 1040,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "txt": "Vers terrasse",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "muqwc7p8",
+   "kind": "pipe",
+   "net": "aj",
+   "pts": [
+    {
+     "x": 490,
+     "y": 1100
+    },
+    {
+     "x": 540,
+     "y": 1100
+    },
+    {
+     "x": 540,
+     "y": 1040
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "v5ugjfdw",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 100,
+   "y": 1560,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "Arrivée EF – DN 52 Cu",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2usy5lm5",
+   "kind": "el",
+   "type": "echangeur",
+   "pre": "prep_inst",
+   "x": 800,
+   "y": 1540,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "ECH5",
+   "name": "Préparateur ECS instantané Vimatherm Dune 8121",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -60,
+   "ly": -64
+  },
+  {
+   "id": "cqy8dkcc",
+   "kind": "pipe",
+   "net": "ef",
+   "pts": [
+    {
+     "x": 100,
+     "y": 1560
+    },
+    {
+     "x": 450,
+     "y": 1560
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "xx22syru",
+   "kind": "pipe",
+   "net": "ea",
+   "pts": [
+    {
+     "x": 450,
+     "y": 1560
+    },
+    {
+     "x": 780,
+     "y": 1560
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "ph0p224w",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 140,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V43",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rrmvwaiv",
+   "kind": "el",
+   "type": "clapet_ap",
+   "pre": "clapet_ea",
+   "x": 185,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "code": "EA"
+   },
+   "tag": "CL5",
+   "name": "Clapet anti-pollution EA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3n51dg4t",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre_y",
+   "x": 230,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "purge": true
+   },
+   "tag": "F7",
+   "name": "Filtre à tamis avec robinet de rinçage",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jo12m5mi",
+   "kind": "el",
+   "type": "echantillon",
+   "pre": "echantillon",
+   "x": 270,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PE3",
+   "name": "Prise d’échantillon (PE)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "6zigrrqe",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": 390,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": true
+   },
+   "tag": "V44",
+   "name": "Vanne de by-pass adoucisseur (normalement fermée)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3nz31b0f",
+   "kind": "el",
+   "type": "adoucisseur",
+   "pre": "adoucisseur",
+   "x": 370,
+   "y": 1720,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "ADO1",
+   "name": "Adoucisseur Fleck 2850 1\"1/2",
+   "note": "150 L de résines – bac à sels",
+   "st": true,
+   "sn": true,
+   "sv": true,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1umm80fx",
+   "kind": "pipe",
+   "net": "ef",
+   "pts": [
+    {
+     "x": 330,
+     "y": 1560
+    },
+    {
+     "x": 330,
+     "y": 1660
+    },
+    {
+     "x": 350,
+     "y": 1660
+    },
+    {
+     "x": 350,
+     "y": 1680
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "10hgcd45",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 330,
+   "y": 1585,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V45",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1wivyxlu",
+   "kind": "pipe",
+   "net": "ea",
+   "pts": [
+    {
+     "x": 370,
+     "y": 1680
+    },
+    {
+     "x": 370,
+     "y": 1640
+    },
+    {
+     "x": 450,
+     "y": 1640
+    },
+    {
+     "x": 450,
+     "y": 1560
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "f5p0xmt0",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 450,
+   "y": 1625,
+   "rot": 90,
+   "fh": true,
+   "p": {},
+   "tag": "CL6",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mw2ipx6l",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 450,
+   "y": 1585,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V46",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "phs6n9rs",
+   "kind": "pipe",
+   "net": "ef",
+   "pts": [
+    {
+     "x": 330,
+     "y": 1610
+    },
+    {
+     "x": 450,
+     "y": 1610
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "1ouhyot1",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 390,
+   "y": 1610,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "VE8",
+   "name": "Vanne de mixage (réglage de la dureté)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jhbozizn",
+   "kind": "text",
+   "x": 462,
+   "y": 1632,
+   "txt": "Th 0 °F",
+   "size": 8,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "omp8qyj4",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 300,
+   "y": 1690,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "txt": "Égout",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2rqhtump",
+   "kind": "pipe",
+   "net": "eu",
+   "pts": [
+    {
+     "x": 340,
+     "y": 1690
+    },
+    {
+     "x": 300,
+     "y": 1690
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "a5pzks2q",
+   "kind": "el",
+   "type": "echantillon",
+   "pre": "echantillon",
+   "x": 480,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "PE4",
+   "name": "Prise d’échantillon (PE)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gq8fql8e",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 510,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": false
+   },
+   "tag": "M11",
+   "name": "Manomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "g4j4fsgg",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur",
+   "x": 560,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "m³"
+   },
+   "tag": "C1",
+   "name": "Compteur d’eau",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "y23qtnd1",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 650,
+   "y": 1560,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V47",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gmlcz1qm",
+   "kind": "pipe",
+   "net": "ea",
+   "pts": [
+    {
+     "x": 700,
+     "y": 1560
+    },
+    {
+     "x": 700,
+     "y": 1620
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "jlmwuzqy",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 700,
+   "y": 1590,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V48",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1feibwgv",
+   "kind": "el",
+   "type": "vase",
+   "pre": "vase_san",
+   "x": 700,
+   "y": 1620,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "VXS1",
+   "name": "Vase d’expansion sanitaire 50 L",
+   "note": "Gonflé à 1,7 bar",
+   "st": true,
+   "sn": true,
+   "sv": true,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2dzz0rpq",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 780,
+     "y": 1520
+    },
+    {
+     "x": 760,
+     "y": 1520
+    },
+    {
+     "x": 760,
+     "y": 700
+    },
+    {
+     "x": 790,
+     "y": 700
+    },
+    {
+     "x": 790,
+     "y": 680
+    }
+   ],
+   "dn": "",
+   "lab": true,
+   "lp": 0.45,
+   "arr": true,
+   "txt": "ECS préchauffée DN 52 Cu"
+  },
+  {
+   "id": "waepiwhn",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 770,
+   "y": 1440,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "SS5",
+   "name": "Soupape de sécurité",
+   "note": "7 bar",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "n67inf3e",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 760,
+   "y": 1405,
+   "rot": 270,
+   "fh": false,
+   "p": {},
+   "tag": "T19",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5gsyr7gp",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 760,
+   "y": 1370,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V49",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "x7dflhhs",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 830,
+     "y": 680
+    },
+    {
+     "x": 830,
+     "y": 700
+    },
+    {
+     "x": 880,
+     "y": 700
+    },
+    {
+     "x": 880,
+     "y": 1300
+    },
+    {
+     "x": 3060,
+     "y": 1300
+    },
+    {
+     "x": 3060,
+     "y": 270
+    },
+    {
+     "x": 2650,
+     "y": 270
+    }
+   ],
+   "dn": "",
+   "lab": true,
+   "lp": 0.5,
+   "arr": true,
+   "txt": "ECS préchauffée vers ballon DN 52 Cu"
+  },
+  {
+   "id": "2qo5sth2",
+   "kind": "pipe",
+   "net": "ecs",
+   "pts": [
+    {
+     "x": 760,
+     "y": 745
+    },
+    {
+     "x": 880,
+     "y": 745
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "45wsi87n",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 820,
+   "y": 745,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V50",
+   "name": "Vanne de by-pass",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "k8fmh1ls",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 2775,
+   "y": 270,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V51",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "lmxy7n4c",
+   "kind": "el",
+   "type": "soupape",
+   "pre": "soupape",
+   "x": 2720,
+   "y": 280,
+   "rot": 180,
+   "fh": false,
+   "p": {},
+   "tag": "SS6",
+   "name": "Soupape de sécurité",
+   "note": "7 bar",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "6jnwir9c",
+   "kind": "el",
+   "type": "ballon",
+   "pre": "ballon_tampon",
+   "x": 1060,
+   "y": 1540,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "coil": "none",
+    "txt": "2500 L"
+   },
+   "tag": "BT1",
+   "name": "Bâche tampon 2500 L Corprimo Atlantic",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": -100,
+   "ly": -75
+  },
+  {
+   "id": "nhqc8qn9",
+   "kind": "pipe",
+   "net": "pac_a",
+   "pts": [
+    {
+     "x": 1030,
+     "y": 1500
+    },
+    {
+     "x": 920,
+     "y": 1500
+    },
+    {
+     "x": 920,
+     "y": 1520
+    },
+    {
+     "x": 820,
+     "y": 1520
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "74a3cwkv",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 980,
+   "y": 1500,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V52",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "wqtu0wsm",
+   "kind": "pipe",
+   "net": "pac_r",
+   "pts": [
+    {
+     "x": 820,
+     "y": 1560
+    },
+    {
+     "x": 920,
+     "y": 1560
+    },
+    {
+     "x": 920,
+     "y": 1580
+    },
+    {
+     "x": 1030,
+     "y": 1580
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "25ilvi2w",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 980,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V53",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "e3qfh0b6",
+   "kind": "el",
+   "type": "vidange",
+   "pre": "vidange",
+   "x": 1060,
+   "y": 1600,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "RV2",
+   "name": "Robinet de vidange (normalement fermé)",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "nryq50nl",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi_arr",
+   "x": 1400,
+   "y": 1520,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "Depuis PAC Soraya",
+    "sens": "arr"
+   },
+   "tag": "",
+   "name": "Renvoi d'arrivée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "mpksf83z",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 1400,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "Vers PAC Soraya (local VMC)",
+    "sens": "dep"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1ssc0j8o",
+   "kind": "pipe",
+   "net": "pac_a",
+   "pts": [
+    {
+     "x": 1400,
+     "y": 1520
+    },
+    {
+     "x": 1090,
+     "y": 1520
+    }
+   ],
+   "dn": "40/49",
+   "lab": true,
+   "lp": 0.12,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "7u8dgu8m",
+   "kind": "el",
+   "type": "equil",
+   "pre": "equil",
+   "x": 1290,
+   "y": 1520,
+   "rot": 0,
+   "fh": true,
+   "p": {},
+   "tag": "VE9",
+   "name": "Vanne d’équilibrage TA",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pu4tb9hc",
+   "kind": "el",
+   "type": "v3v",
+   "pre": "v3v",
+   "x": 1200,
+   "y": 1520,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "act": "mot"
+   },
+   "tag": "V3V5",
+   "name": "Vanne 3 voies de régulation",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "s4q26lxb",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1160,
+   "y": 1520,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "V54",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3rloajbc",
+   "kind": "el",
+   "type": "thermo",
+   "pre": "thermo",
+   "x": 1125,
+   "y": 1520,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "T20",
+   "name": "Thermomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "7fppwln0",
+   "kind": "pipe",
+   "net": "pac_r",
+   "pts": [
+    {
+     "x": 1200,
+     "y": 1530
+    },
+    {
+     "x": 1200,
+     "y": 1580
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "x7rimu67",
+   "kind": "pipe",
+   "net": "pac_r",
+   "pts": [
+    {
+     "x": 1090,
+     "y": 1580
+    },
+    {
+     "x": 1400,
+     "y": 1580
+    }
+   ],
+   "dn": "40/49",
+   "lab": true,
+   "lp": 0.93,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "lj6zdh9i",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1120,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V55",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "77jw1t5w",
+   "kind": "el",
+   "type": "filtre",
+   "pre": "filtre",
+   "x": 1160,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "purge": false
+   },
+   "tag": "F8",
+   "name": "Filtre à tamis",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "czkc8tto",
+   "kind": "el",
+   "type": "pompe2",
+   "pre": "pompe2",
+   "x": 1260,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "P7",
+   "name": "Pompe de charge ECS Lowara XL D40-120F",
+   "note": "",
+   "st": true,
+   "sn": true,
+   "sv": false,
+   "lx": 0,
+   "ly": 40
+  },
+  {
+   "id": "iyhzm0ym",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 1305,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": true,
+    "siphon": false
+   },
+   "tag": "M12",
+   "name": "Manomètre différentiel",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "s60wue7u",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 1335,
+   "y": 1580,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V56",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "com82efb",
+   "kind": "pipe",
+   "net": "ea",
+   "pts": [
+    {
+     "x": 610,
+     "y": 1560
+    },
+    {
+     "x": 610,
+     "y": 1780
+    },
+    {
+     "x": 2920,
+     "y": 1780
+    },
+    {
+     "x": 2920,
+     "y": 850
+    },
+    {
+     "x": 2880,
+     "y": 850
+    }
+   ],
+   "dn": "",
+   "lab": true,
+   "lp": 0.2,
+   "arr": true,
+   "txt": "Remplissage réseau chauffage Ø20/27"
+  },
+  {
+   "id": "p89so87n",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 660,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V57",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "lzowj2rr",
+   "kind": "el",
+   "type": "compteur",
+   "pre": "compteur",
+   "x": 720,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "txt": "m³"
+   },
+   "tag": "C2",
+   "name": "Compteur d’eau (remplissage)",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "akba6y9y",
+   "kind": "el",
+   "type": "clapet",
+   "pre": "clapet",
+   "x": 780,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "CL7",
+   "name": "Clapet anti-retour",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bi9cu9ik",
+   "kind": "el",
+   "type": "disco",
+   "pre": "disco",
+   "x": 850,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "code": "BA"
+   },
+   "tag": "DIS1",
+   "name": "Disconnecteur (remplissage chauffage)",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "fpsn4pqb",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": 920,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "V58",
+   "name": "Vanne d’isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "a4c0g9xg",
+   "kind": "el",
+   "type": "mano",
+   "pre": "mano",
+   "x": 960,
+   "y": 1780,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "rob": false,
+    "siphon": false
+   },
+   "tag": "M13",
+   "name": "Manomètre",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "gf9dhfb9",
+   "kind": "legend",
+   "x": -40,
+   "y": 1870,
+   "title": "LÉGENDE",
+   "rows": 16,
+   "nets": true,
+   "syms": true
+  },
+  {
+   "id": "vos5uy6y",
+   "kind": "nomen",
+   "x": 690,
+   "y": 1870,
+   "title": "NOMENCLATURE"
+  },
+  {
+   "id": "d6wycqjz",
+   "kind": "cart",
+   "x": 2740,
+   "y": 2730,
+   "f": {
+    "ent": "ITE Climatic (installateur)",
+    "ope": "Sous-station CPCU – Rue du Bessin, 75015 Paris",
+    "titre": "Schéma de principe sous-station CPCU",
+    "lot": "Chauffage – ECS",
+    "phase": "",
+    "ind": "B",
+    "date": "01/06/2026",
+    "ech": "Sans échelle",
+    "auteur": ""
+   }
+  }
+ ],
+ "opts": {
+  "hops": true,
+  "real": true
+ }
+}

@@ -12,6 +12,7 @@
 - **Mise en page** : légende et nomenclature générées automatiquement, cartouche (lot, phase, indice, date).
 - **Exports** PNG, SVG, PDF A4/A3 et JSON. Le travail en cours est gardé dans le navigateur.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
+- **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin (ind. B).
 
 ## Utiliser en local
 
@@ -28,7 +29,10 @@ open dist/index.html   # ou double-clic sur le fichier
 | `src/10-symboles-et-rendu.js` | Symboles, réseaux, modèle de données, rendu SVG, légende, nomenclature, cartouche |
 | `src/20-interactions.js` | Tracé, pose, aimantation sur les tuyaux, orientation, déplacements, historique |
 | `src/30-interface.js` | Panneau de propriétés, bibliothèque, menus, exports, sauvegarde, exemples |
-| `build.sh` | Assemble `dist/index.html` |
+| `modeles/*.json` | Modèles proposés dans Fichier > Modèles (schémas enregistrés depuis l'outil) |
+| `build.sh` | Assemble `dist/index.html` et y intègre les modèles |
+
+Pour ajouter un modèle : enregistrer le schéma en `.json` (Fichier > Enregistrer en fichier .json), le déposer dans `modeles/`, puis relancer `build.sh`. Le nom affiché dans le menu est celui du schéma.
 
 Pour ajouter un symbole : déclarer son dessin dans l'objet `S` (boîte, points de raccordement, fonction `draw`), puis l'ajouter à `PRE_ADD` pour qu'il apparaisse dans la bibliothèque.
 
