@@ -296,7 +296,7 @@ const PRE_ADD = [
   ['te_reglage', 'equil', 'Té de réglage', null, 'TR'], ['clapet_ea', 'clapet_ap', 'Clapet anti-pollution EA (contrôlable)', { code: 'EA' }], ['clapet_eb', 'clapet_ap', 'Clapet anti-pollution EB (non contrôlable)', { code: 'EB' }], ['clapet2'],
   ['compensateur'], ['manch_cpt'], ['puisage'], ['echantillon'], ['purg_vap'],
   ['v3v_therm', 'v3v', 'Vanne 3 voies thermostatique', { act: 'therm' }], ['v3v_mix', 'v3v', 'Vanne de mixage (adoucisseur)', { act: 'none' }, 'VMX'], ['vanne_auto', 'reducteur', 'Vanne automotrice de détente', null, 'VAD'],
-  ['antibelier'], ['purge_man'], ['pot_intro'], ['reserve_vessie', 'vase', 'Réservoir à vessie', null, 'RES'], ['raccord_pomp', 'pompier', 'Raccord pompier (alimentation colonne sèche)'], ['prise_pomp', 'pompier', 'Prise pompier d’étage', null, 'PIN'],
+  ['antibelier'], ['purge_man'], ['pot_intro'], ['reserve_vessie', 'vase', 'Réservoir à vessie', null, 'RES'], ['reserve_diaph', 'vase', 'Réservoir à diaphragme', null, 'RES'], ['raccord_pomp', 'pompier', 'Raccord pompier (alimentation colonne sèche)'], ['prise_pomp', 'pompier', 'Prise pompier d’étage', null, 'PIN'],
   ['prise_p'], ['sonde_ext'], ['aquastat', 'sonde', 'Aquastat', { txt: 'AQ' }, 'AQ'], ['sonde_p', 'sonde', 'Sonde de pression', { txt: 'P' }, 'SP'], ['armoire'], ['coffret', 'armoire', 'Coffret de commande', null, 'CC'],
   ['pompe_charge', 'pompe', 'Pompe de charge'], ['relevage'], ['bache_cond', 'relevage', 'Bâche de relevage des condensats', { np: '2' }, 'BRC'], ['pompe_cond'],
   ['squid'], ['echangeur_vap', 'echangeur', 'Échangeur vapeur / eau'], ['prep_inst', 'echangeur', 'Préparateur ECS instantané à plaques'], ['panneau', 'emetteur', 'Panneaux rayonnants'], ['cuve_ep', 'reservoir', 'Bâche de rétention des eaux pluviales', null, 'BR', 'ep'],
@@ -352,6 +352,33 @@ PRE_ADD.push(
 );
 
 const limH = el => Math.max(40, Math.round((+el.p.h || 120) / 20) * 20);
+const spN = el => Math.max(2, Math.min(4, Math.round(+el.p.np || 3))), spL = el => (spN(el) - 1) * 20 + 30;
+const spX = el => { const n = spN(el); return Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * 40); };
+const BOWVx = (x, y0, y1) => `<g transform="translate(${x},0)">${BOWV(y0, y1, 4)}</g>`;
+const surpReal = (el, c) => { const L = spL(el);
+  let g = stub(c, 0, -L, 20, -L + 2, 20) + stub(c, 1, L - 2, -50, L, -50);
+  g += Re(-L + 6, 30, 2 * L - 12, 4) + Re(-L + 10, 34, 7, 3, FILLED) + Re(L - 17, 34, 7, 3, FILLED);
+  g += Re(-L, 17, 2 * L, 6, ' rx="3"') + Re(L - 4, 15.5, 4, 9, ' rx="1"') + Re(-L, -53, 2 * L, 6, ' rx="3"') + Re(-L, -54.5, 4, 9, ' rx="1"');
+  for (const x of spX(el)) {
+    g += P(`M${x + 6},20L${x + 14},20L${x + 14},-47`, NOF + ' stroke-width="2.2"') + P(`M${x + 10},9L${x + 18},9L${x + 14},1Z`) + Ln(x + 10, 0.5, x + 18, 0.5, ' stroke-width="1.6"') + BOWVx(x + 14, -40, -32);
+    g += Re(x - 9, 25, 18, 5, ' rx="1"') + Re(x - 6, -10, 12, 35); for (let y = -5; y <= 20; y += 5) g += Ln(x - 6, y, x + 6, y, THIN);
+    g += Re(x - 8, -40, 16, 30, ' rx="2"') + Re(x - 6, -44, 12, 4, ' rx="1.5"'); for (const dx of [-4.5, 0, 4.5]) g += Ln(x + dx, -38, x + dx, -12, THIN);
+    if (el.p.var !== false) g += Re(x - 7, -34, 14, 13, ' rx="1.5"') + Re(x - 4.5, -32, 9, 4, FILLED) + Ci(x - 3, -25, 1, FILLED) + Ci(x, -25, 1, FILLED) + Ci(x + 3, -25, 1, FILLED);
+  }
+  g += Ln(-L + 12, -53, -L + 12, -59) + Ci(-L + 12, -64.5, 5.5) + Ln(-L + 12, -64.5, -L + 15, -67.5, ' stroke-width="1.1"');
+  g += Ln(-14, -62, -14, -53) + Ln(14, -62, 14, -53) + Re(-20, -86, 40, 24, ' rx="2"') + Re(-16, -82, 32, 8); for (const x of [-12, -6, 0, 6, 12]) g += Ln(x, -71, x, -66, THIN);
+  if (el.p.res !== false) g += Ln(L - 16, -53, L - 16, -58) + Re(L - 23, -86, 14, 28, ' rx="7" ry="5"') + Ln(L - 23, -72, L - 9, -72, THIN);
+  return { g }; };
+const surpSch = (el, c) => { const L = spL(el), t = [];
+  let g = stub(c, 0, -L, 20, L - 4, 20) + Ln(L - 4, 16, L - 4, 24, ' stroke-width="2"') + stub(c, 1, -L + 4, -50, L, -50) + Ln(-L + 4, -54, -L + 4, -46, ' stroke-width="2"');
+  for (const x of spX(el)) {
+    g += Ln(x, 20, x, -50) + Ci(x, -2, 9) + P(`M${x - 6.5},2L${x + 6.5},2L${x},-9Z`, FILLED) + P(`M${x - 4},-20L${x + 4},-20L${x},-27Z`) + Ln(x - 4, -28, x + 4, -28, ' stroke-width="1.6"') + BOWVx(x, -42, -34);
+    if (el.p.var !== false) { g += Re(x + 10, -8, 10, 9, ' rx="1"'); t.push([x + 15, -2.6, '≈', 7, 700]); }
+  }
+  g += Ln(-L + 12, -50, -L + 12, -58) + Ci(-L + 12, -63.5, 5.5) + Ln(-L + 12, -63.5, -L + 15, -66.5, ' stroke-width="1.1"');
+  g += Ln(-12, -66, -12, -50, THIN) + Ln(12, -66, 12, -50, THIN) + Re(-18, -84, 36, 18, ' rx="2"'); t.push([0, -73.5, 'COFFRET', 5.5, 700]);
+  if (el.p.res !== false) g += Ln(L - 16, -50, L - 16, -58) + Re(L - 23, -86, 14, 28, ' rx="7" ry="5"') + Ln(L - 23, -72, L - 9, -72, THIN);
+  return { g, t }; };
 /* ===== Organes relevés en local eau : filtre à rinçage (type Braukmann F76S), filtre Y à purge, réducteur avec manomètre ===== */
 Object.assign(S, {
   filtre_rc: { cat: 'rob', name: 'Filtre à rinçage à contre-courant', prefix: 'F', inline: true, tagOn: true, ports: [[-20, 0], [20, 0], [0, 30]], pn: ['Entrée', 'Sortie', 'Rinçage (vers égout)'],
@@ -370,6 +397,15 @@ Object.assign(S, {
         + P(`M-44,${ya - 2.5}L-12,${ya - 2.5}L-12,${ya - 5}L-3,${ya}L-12,${ya + 5}L-12,${ya + 2.5}L-44,${ya + 2.5}Z`, THIN)
         + P(`M44,${ya - 2.5}L12,${ya - 2.5}L12,${ya - 5}L3,${ya}L12,${ya + 5}L12,${ya + 2.5}L44,${ya + 2.5}Z`, THIN),
         t: [[-24, y0 - 12, el.p.txtL || '', 7, 700], [24, y0 - 12, el.p.txtR || '', 7, 700]] }; } },
+  /* Surpresseur multipompes à variation de vitesse (type DAB KVC AD) : collecteur d'aspiration en bas, de refoulement en haut,
+     pompes verticales multicellulaires avec variateur, clapet et vanne par pompe, coffret, manomètre et réservoir à diaphragme */
+  surp_mp: { cat: 'pompes', name: 'Surpresseur multipompes à variateurs', prefix: 'SUR', tagOn: true,
+    params: { np: { label: 'Nombre de pompes', type: 'select', options: [['2', '2 pompes'], ['3', '3 pompes'], ['4', '4 pompes']], def: '3' },
+      var: { label: 'Variateur de vitesse sur chaque pompe', type: 'check', def: true },
+      res: { label: 'Réservoir à diaphragme sur le refoulement', type: 'check', def: true } },
+    box: el => { const L = spL(el); return [-L, -88, 2 * L, 126]; },
+    ports: el => { const L = spL(el); return [[-L, 20], [L, -50]]; }, pn: ['Aspiration', 'Refoulement'],
+    draw: (el, c) => REAL() ? surpReal(el, c) : surpSch(el, c) },
 });
 
 /* ===== Organes relevés côté gestionnaire EP : filtre à cartouche (type Cintropur NW), stérilisateur UV (type Cintropur UV) ===== */
@@ -452,7 +488,7 @@ const PRE_LIST = [
   ['reducteur'], ['reducteur_m', 'reducteur', 'Réducteur de pression avec manomètre', { mano: true }], ['equil'], ['vanne_mot'], ['electrovanne'], ['v3v'], ['mitigeur'], ['vidange'], ['reduction'], ['manchette'], ['tube_temoin'], ['dielec'], ['bouchon'],
   ['disco', 'disco', 'Disconnecteur BA', { code: 'BA' }], ['disco_ca', 'disco', 'Disconnecteur CA', { code: 'CA' }], ['gs'], ['soupape'], ['vase'], ['vase_san', 'vase', "Vase d'expansion sanitaire", null, 'VXS'], ['purgeur'], ['desemb'], ['doseur'], ['entonnoir'],
   ['mano'], ['thermo'], ['thmano'], ['sonde'], ['pressostat', 'sonde', 'Pressostat', { txt: 'P' }, 'PS'], ['compteur'], ['compteur_e', 'compteur', "Compteur d'énergie", { txt: 'kWh' }, 'CE'], ['compteur_g', 'compteur', 'Compteur gaz', { txt: 'Gaz' }, 'CG'], ['regul'],
-  ['pompe'], ['pompe2'], ['surpresseur'],
+  ['pompe'], ['pompe2'], ['surpresseur'], ['surp_mp'],
   ['chaudiere'], ['pac'], ['ballon'], ['ballon_st', 'ballon', 'Ballon de stockage ECS', { coil: 'none' }], ['cumulus', 'ballon', 'Chauffe-eau électrique', { coil: 'res' }], ['ballon_tampon', 'ballon', 'Ballon tampon', { coil: 'none', txt: 'TAMPON' }, 'BT'], ['echangeur'], ['bouteille'], ['bouteille_hp', 'bouteille', 'Bouteille vapeur HP (nourrice)', null, 'BV'], ['collecteur'], ['adoucisseur'], ['reservoir'], ['emetteur'], ['bloc'],
   ['renvoi'], ['renvoi_arr', 'renvoi', "Renvoi d'arrivée", { sens: 'arr', txt: 'Arrivée…' }], ['limite'],
 ];
@@ -538,6 +574,9 @@ const RACC = {
     RP('ef', ISO + ' et filtre.'), RP('ef', ISO + '.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
   filtre_rc: { c: 'En tête d’installation, juste après le compteur, entre deux vannes d’isolement et à une hauteur accessible pour le rinçage.', p: [
     RP('ef', ISO + '.'), RP('ef', ISO + ', puis protections et réducteur de pression.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
+  surp_mp: { c: 'Groupe posé sur son socle à silent-blocs. Aspiration en bas à gauche, refoulement en haut à droite.', p: [
+    RP('ef', 'Vanne d’isolement, manchette antivibratile et sécurité manque d’eau (pressostat ou bâche de disconnexion).'),
+    RP('ef', 'Vanne d’isolement et manchette antivibratile. Réservoir à diaphragme prégonflé environ 0,2 bar sous la pression d’enclenchement.')] },
   ballon_tampon: { c: 'Le générateur (PAC) se raccorde à droite, l’utilisation à gauche. Chaud en haut, froid en bas.',
     n: ['Départ vers l’utilisation', 'Piquage intermédiaire', 'Retour de l’utilisation', 'Arrivée du générateur', 'Retour vers le générateur', 'Vidange'],
     p: [RP('', ISO + '.'), RP('', 'Libre, ou sonde de température.'), RP('', ISO + '.'), RP('', ISO + ' et thermomètre.'), RP('', 'Filtre, pompe de charge et vanne d’isolement.'), RP('eu', 'Robinet de vidange au point bas.')] },
@@ -550,6 +589,7 @@ const RACC = {
   vase: { p: [RP('', 'Piquage sur le retour, avec une vanne cadenassable.')] },
   vase_san: { p: [RP('ef', 'Piquage sur l’arrivée d’eau froide du ballon.')] },
   reserve_vessie: { p: [RP('ef', 'Piquage sur le refoulement du surpresseur, avec vanne d’isolement.')] },
+  reserve_diaph: { p: [RP('ef', 'Piquage sur le refoulement du surpresseur, avec vanne d’isolement. Prégonflage environ 0,2 bar sous la pression d’enclenchement.')] },
   desemb: { c: 'Sur le retour, en amont du générateur.', p: [RP('', 'Arrivée du retour des circuits.'), RP('', 'Vers le générateur.'), RP('eu', 'Vidange des boues vers l’évacuation.')] },
   pot_intro: { c: 'En dérivation, entre deux vannes, pour injecter le produit de traitement.', p: [RP('', ''), RP('', ''), RP('eu', 'Vidange.')] },
   mitigeur: { c: 'En tête de la distribution d’eau chaude.', p: [RP('ecs', 'Arrivée d’eau chaude du ballon.'), RP('ecs', 'Départ d’eau mitigée vers la distribution.'), RP('ef', 'Arrivée d’eau froide, avec clapet anti-retour.')] },
