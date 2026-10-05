@@ -56,7 +56,7 @@ const NOCTX = { pc: () => 'currentColor', pw: () => 1.5 };
 const IN2 = [[-10, 0], [10, 0]];
 const actOf = el => el.p.act || (el.p.mot === false ? 'none' : 'mot');
 const colN = el => clamp(Math.round(+el.p.n || 1), 1, 12);
-const colE = el => [20, 40, 60, 80].includes(+el.p.esp) ? +el.p.esp : 40;
+const colE = el => [20, 40, 60, 80, 100, 120, 160, 200].includes(+el.p.esp) ? +el.p.esp : 40;
 const colH = el => colN(el) * colE(el) / 2;
 const blocW = el => Math.max(40, Math.round((+el.p.w || 80) / 20) * 20);
 const blocH = el => Math.max(40, Math.round((+el.p.h || 40) / 20) * 20);
@@ -64,7 +64,9 @@ const renvoiW = el => Math.max(40, Math.ceil((tw(el.p.txt || '', 7, 700) + 24) /
 
 /* ===== Symboles : cat, nom, préfixe de repère, boîte locale, ports, dessin ===== */
 const S = {
-  vanne: { cat: 'rob', name: "Vanne d'isolement", prefix: 'V', inline: true, box: [-10, -8, 20, 16], ports: IN2, draw: () => ({ g: BOW }) },
+  vanne: { cat: 'rob', name: "Vanne d'isolement", prefix: 'V', inline: true, box: [-10, -8, 20, 16], ports: IN2,
+    params: { nf: { label: 'Normalement fermée (NF)', type: 'check', def: false } },
+    draw: el => ({ g: el.p.nf ? P('M-10,-7L-10,7L10,-7L10,7Z', FILLED) : BOW }) },
   vanne_bs: { cat: 'rob', name: 'Vanne ¼ de tour', prefix: 'V', inline: true, box: [-10, -8, 20, 16], ports: IN2, draw: () => ({ g: BOW + Ci(0, 0, 3.6) }) },
   papillon: { cat: 'rob', name: 'Vanne papillon', prefix: 'V', inline: true, box: [-11, -8, 22, 16], ports: IN2,
     draw: (el, c) => ({ g: stub(c, 0, -10, 0, 10, 0) + Ln(-10, -7, -10, 7, ' stroke-width="1.8"') + Ln(10, -7, 10, 7, ' stroke-width="1.8"') + Ln(-4.5, 6, 4.5, -6, ' stroke-width="1.8"') + Ci(0, 0, 1.9, FILLED) }) },
@@ -167,7 +169,7 @@ const S = {
   bouteille: { cat: 'equip', name: 'Bouteille de découplage', prefix: 'BD', tagOn: true, box: [-10, -60, 20, 120], ports: [[-10, -30], [-10, 30], [10, -30], [10, 30], [0, -60], [0, 60]],
     pn: ['Primaire départ', 'Primaire retour', 'Secondaire départ', 'Secondaire retour', 'Purge', 'Vidange'], draw: () => ({ g: Re(-10, -60, 20, 120, ' rx="10" ry="8"') }) },
   collecteur: { cat: 'equip', name: 'Collecteur / nourrice', prefix: 'COL', tagOn: true,
-    params: { n: { label: 'Nombre de départs', type: 'number', def: 3, min: 1, max: 12 }, esp: { label: 'Entraxe des départs', type: 'select', options: [['20', '20'], ['40', '40'], ['60', '60'], ['80', '80']], def: '40' } },
+    params: { n: { label: 'Nombre de départs', type: 'number', def: 3, min: 1, max: 12 }, esp: { label: 'Entraxe des départs', type: 'select', options: [['20', '20'], ['40', '40'], ['60', '60'], ['80', '80'], ['100', '100'], ['120', '120'], ['160', '160'], ['200', '200']], def: '40' } },
     box: el => { const H = colH(el); return [-H, -10, 2 * H, 15]; },
     ports: el => { const H = colH(el), n = colN(el), e = colE(el), a = [[-H, 0], [H, 0]]; for (let i = 0; i < n; i++) a.push([(i - (n - 1) / 2) * e, -10]); return a; },
     draw: (el, c) => { const H = colH(el), n = colN(el), e = colE(el); let g = Re(-H, -5, 2 * H, 10, ' rx="2"'); for (let i = 0; i < n; i++) { const x = (i - (n - 1) / 2) * e; g += stub(c, i + 2, x, -5, x, -10); } return { g }; } },
@@ -349,6 +351,7 @@ PRE_ADD.push(
   ['tampon_ev', 'reservoir', 'Réservoir tampon eau de ville', null, 'RT', 'ep']
 );
 
+const limH = el => Math.max(40, Math.round((+el.p.h || 120) / 20) * 20);
 /* ===== Organes relevés en local eau : filtre à rinçage (type Braukmann F76S), filtre Y à purge, réducteur avec manomètre ===== */
 Object.assign(S, {
   filtre_rc: { cat: 'rob', name: 'Filtre à rinçage à contre-courant', prefix: 'F', inline: true, tagOn: true, ports: [[-20, 0], [20, 0], [0, 30]], pn: ['Entrée', 'Sortie', 'Rinçage (vers égout)'],
@@ -356,6 +359,17 @@ Object.assign(S, {
     box: el => el.p.mano ? [-20, -20, 40, 50] : [-20, -10, 40, 40],
     draw: (el, c) => ({ g: stub(c, 0, -20, 0, -10, 0) + stub(c, 1, 10, 0, 20, 0) + (el.p.mano ? MANO_S(c, 0, -15) + MANO_S(c, 1, 15) : '')
       + P('M-10,0L0,-9L10,0L0,9Z') + Ln(0, -7.5, 0, 7.5, THIN + ' stroke-dasharray="2 1.5"') + Ln(0, 9, 0, 12) + BOWV(12, 21, 4) + stub(c, 2, 0, 21, 0, 30) }) },
+  /* Organes du schéma de sous-station CPCU : manchette témoin ECS et limite de prestation entre lots */
+  tube_temoin: { cat: 'rob', name: 'Manchette témoin (tube témoin)', prefix: 'TT', inline: true, box: [-20, -7, 40, 14], ports: [[-20, 0], [20, 0]],
+    draw: (el, c) => ({ g: stub(c, 0, -20, 0, -13, 0) + stub(c, 1, 13, 0, 20, 0) + Re(-12, -3.5, 24, 7, ' rx="1"') + Ln(-13, -6, -13, 6, ' stroke-width="1.8"') + Ln(13, -6, 13, 6, ' stroke-width="1.8"') }) },
+  limite: { cat: 'annot', name: 'Limite de prestation', prefix: '', nolegend: true, nonomen: true, ports: [],
+    params: { txtL: { label: 'Lot à gauche', type: 'text', def: 'Lot A', max: 24 }, txtR: { label: 'Lot à droite', type: 'text', def: 'Lot B', max: 24 }, h: { label: 'Hauteur', type: 'number', def: 120, min: 40, max: 2000, step: 20 } },
+    box: el => { const hh = limH(el); return [-50, -hh / 2 - 22, 100, hh + 22]; },
+    draw: el => { const hh = limH(el), y0 = -hh / 2, ya = y0 + 4;
+      return { g: Ln(0, y0, 0, hh / 2, ' stroke-width="1.2" stroke-dasharray="10 3 2 3"')
+        + P(`M-44,${ya - 2.5}L-12,${ya - 2.5}L-12,${ya - 5}L-3,${ya}L-12,${ya + 5}L-12,${ya + 2.5}L-44,${ya + 2.5}Z`, THIN)
+        + P(`M44,${ya - 2.5}L12,${ya - 2.5}L12,${ya - 5}L3,${ya}L12,${ya + 5}L12,${ya + 2.5}L44,${ya + 2.5}Z`, THIN),
+        t: [[-24, y0 - 12, el.p.txtL || '', 7, 700], [24, y0 - 12, el.p.txtR || '', 7, 700]] }; } },
 });
 
 /* ===== Organes relevés côté gestionnaire EP : filtre à cartouche (type Cintropur NW), stérilisateur UV (type Cintropur UV) ===== */
@@ -381,13 +395,13 @@ PRE_ADD.push(
 
 /* ===== Préréglages de la bibliothèque ===== */
 const PRE_LIST = [
-  ['vanne'], ['vanne_bs'], ['papillon'], ['clapet'], ['filtre'], ['filtre_y', 'filtre', 'Filtre à tamis en Y avec purge', { purge: true }], ['filtre_rc'],
-  ['reducteur'], ['reducteur_m', 'reducteur', 'Réducteur de pression avec manomètre', { mano: true }], ['equil'], ['vanne_mot'], ['electrovanne'], ['v3v'], ['mitigeur'], ['vidange'], ['reduction'], ['manchette'], ['dielec'], ['bouchon'],
+  ['vanne'], ['vanne_nf', 'vanne', "Vanne d'isolement normalement fermée", { nf: true }], ['vanne_bs'], ['papillon'], ['clapet'], ['filtre'], ['filtre_y', 'filtre', 'Filtre à tamis en Y avec purge', { purge: true }], ['filtre_rc'],
+  ['reducteur'], ['reducteur_m', 'reducteur', 'Réducteur de pression avec manomètre', { mano: true }], ['equil'], ['vanne_mot'], ['electrovanne'], ['v3v'], ['mitigeur'], ['vidange'], ['reduction'], ['manchette'], ['tube_temoin'], ['dielec'], ['bouchon'],
   ['disco', 'disco', 'Disconnecteur BA', { code: 'BA' }], ['disco_ca', 'disco', 'Disconnecteur CA', { code: 'CA' }], ['gs'], ['soupape'], ['vase'], ['vase_san', 'vase', "Vase d'expansion sanitaire", null, 'VXS'], ['purgeur'], ['desemb'], ['doseur'], ['entonnoir'],
   ['mano'], ['thermo'], ['thmano'], ['sonde'], ['pressostat', 'sonde', 'Pressostat', { txt: 'P' }, 'PS'], ['compteur'], ['compteur_e', 'compteur', "Compteur d'énergie", { txt: 'kWh' }, 'CE'], ['compteur_g', 'compteur', 'Compteur gaz', { txt: 'Gaz' }, 'CG'], ['regul'],
   ['pompe'], ['pompe2'], ['surpresseur'],
-  ['chaudiere'], ['pac'], ['ballon'], ['ballon_st', 'ballon', 'Ballon de stockage ECS', { coil: 'none' }], ['cumulus', 'ballon', 'Chauffe-eau électrique', { coil: 'res' }], ['echangeur'], ['bouteille'], ['collecteur'], ['adoucisseur'], ['reservoir'], ['emetteur'], ['bloc'],
-  ['renvoi'], ['renvoi_arr', 'renvoi', "Renvoi d'arrivée", { sens: 'arr', txt: 'Arrivée…' }],
+  ['chaudiere'], ['pac'], ['ballon'], ['ballon_st', 'ballon', 'Ballon de stockage ECS', { coil: 'none' }], ['cumulus', 'ballon', 'Chauffe-eau électrique', { coil: 'res' }], ['ballon_tampon', 'ballon', 'Ballon tampon', { coil: 'none', txt: 'TAMPON' }, 'BT'], ['echangeur'], ['bouteille'], ['bouteille_hp', 'bouteille', 'Bouteille vapeur HP (nourrice)', null, 'BV'], ['collecteur'], ['adoucisseur'], ['reservoir'], ['emetteur'], ['bloc'],
+  ['renvoi'], ['renvoi_arr', 'renvoi', "Renvoi d'arrivée", { sens: 'arr', txt: 'Arrivée…' }], ['limite'],
 ];
 PRE_LIST.push(...PRE_ADD);
 const PRE = {};
@@ -395,7 +409,7 @@ for (const [k, type, name, p, prefix, cat] of PRE_LIST) { const t = type || k; P
 const CATS = [['rob', 'Robinetterie'], ['secu', 'Sécurité et protection'], ['mes', 'Mesure et régulation'], ['pompes', 'Pompes'], ['equip', 'Équipements'], ['sani', 'Appareils sanitaires et évacuations'], ['ep', 'Eaux pluviales'], ['aero', 'Ventilation et désenfumage'], ['annot', 'Annotations et mise en page']];
 const CAT_IDX = Object.fromEntries(CATS.map(([k], i) => [k, i]));
 const PALETTE = Object.values(PRE).filter(p => p.cat !== 'annot').map(p => ({ k: p.k, name: p.name, cat: p.cat })).concat([
-  { k: '@text', name: 'Texte', cat: 'annot' }, { k: '@zone', name: 'Zone / local', cat: 'annot' }, { k: 'renvoi', name: PRE.renvoi.name, cat: 'annot' }, { k: 'renvoi_arr', name: PRE.renvoi_arr.name, cat: 'annot' },
+  { k: '@text', name: 'Texte', cat: 'annot' }, { k: '@zone', name: 'Zone / local', cat: 'annot' }, { k: 'renvoi', name: PRE.renvoi.name, cat: 'annot' }, { k: 'renvoi_arr', name: PRE.renvoi_arr.name, cat: 'annot' }, { k: 'limite', name: PRE.limite.name, cat: 'annot' },
   { k: '@legend', name: 'Légende', cat: 'annot' }, { k: '@nomen', name: 'Nomenclature', cat: 'annot' }, { k: '@cart', name: 'Cartouche', cat: 'annot' }]);
 
 /* ===== Raccordements : réseau attendu et conseils, point par point (onglet « Raccordement ») ===== */
@@ -408,7 +422,7 @@ const RACC = {
     RP(/gaz/i.test(el.p.txt || 'Gaz') ? 'gaz' : '', 'Robinet de barrage accessible au plus près de l’appareil.'),
     RP('', 'Conduit de fumée : il ne se trace pas avec un réseau d’eau. Indiquez-le par un texte ou un renvoi.')] }),
   pac: { c: 'Départ en haut, retour en bas, côté droit.', p: [RP('dch', ISO + ' et manchette antivibratile.'), RP('rch', 'Filtre à tamis pour protéger l’échangeur, vanne d’isolement et manchette antivibratile. Vase d’expansion et soupape s’ils ne sont pas intégrés.')] },
-  ballon: el => { const serp = el.p.coil === 'serp', off = RP('', 'Inutilisé sans serpentin : laissez ce point libre.'); return { c: 'Eau froide en bas, eau chaude en haut, retour de bouclage en partie médiane. ' + (serp ? 'Primaire (serpentin) à droite : entrée en haut, sortie en bas.' : 'Sans serpentin, les raccordements primaires restent libres.'), p: [
+  ballon: el => { const serp = el.p.coil === 'serp', off = RP('', 'Sans serpentin : charge par un échangeur extérieur, ou point laissé libre.'); return { c: 'Eau froide en bas, eau chaude en haut, retour de bouclage en partie médiane. ' + (serp ? 'Primaire (serpentin) à droite : entrée en haut, sortie en bas.' : 'Sans serpentin, les raccordements de droite servent à la charge par un échangeur extérieur ou restent libres.'), p: [
     RP('ecs', 'Thermomètre en sortie, puis mitigeur thermostatique si la distribution l’exige.'),
     RP('becs', 'Retour de boucle : vanne d’équilibrage, clapet anti-retour, circulateur de bouclage et vanne d’isolement.'),
     RP('ef', 'Vanne d’isolement et clapet anti-retour, puis groupe de sécurité raccordé directement sur le ballon, sans vanne entre les deux.'),
@@ -471,6 +485,12 @@ const RACC = {
     RP('ef', ISO + ' et filtre.'), RP('ef', ISO + '.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
   filtre_rc: { c: 'En tête d’installation, juste après le compteur, entre deux vannes d’isolement et à une hauteur accessible pour le rinçage.', p: [
     RP('ef', ISO + '.'), RP('ef', ISO + ', puis protections et réducteur de pression.'), RP('eu', 'Vers un entonnoir siphonné, avec garde d’air visible.')] },
+  ballon_tampon: { c: 'Le générateur (PAC) se raccorde à droite, l’utilisation à gauche. Chaud en haut, froid en bas.',
+    n: ['Départ vers l’utilisation', 'Piquage intermédiaire', 'Retour de l’utilisation', 'Arrivée du générateur', 'Retour vers le générateur', 'Vidange'],
+    p: [RP('', ISO + '.'), RP('', 'Libre, ou sonde de température.'), RP('', ISO + '.'), RP('', ISO + ' et thermomètre.'), RP('', 'Filtre, pompe de charge et vanne d’isolement.'), RP('eu', 'Robinet de vidange au point bas.')] },
+  bouteille_hp: { c: 'Arrivée de vapeur en haut, purge des condensats au point bas.',
+    n: ['Arrivée vapeur', 'Piquage (manomètre)', 'Départ vapeur', 'Purge des condensats', 'Évent', 'Purge basse'],
+    p: [RP('vap', 'Depuis l’arrivée CPCU, après la vanne d’arrêt.'), RP('', 'Manomètre avec siphon.'), RP('vap', 'Vers les échangeurs.'), RP('cond', 'Robinet et purgeur vers la bâche de relevage.'), RP('', ''), RP('cond', 'Robinet de purge vers la bâche de relevage.')] },
   gs: { c: 'Toujours sur l’arrivée d’eau froide du ballon.', p: [RP('ef', 'Arrivée d’eau froide.'),
     RP('ef', 'Directement sur l’entrée eau froide du ballon, sans vanne ni clapet intermédiaire.'), RP('eu', 'Vers un entonnoir siphonné, écoulement visible.')] },
   soupape: { p: [RP('', 'Sur le départ du générateur, sans organe d’isolement en amont.'), RP('eu', 'Échappement vers un entonnoir siphonné, écoulement visible.')] },
