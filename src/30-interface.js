@@ -367,15 +367,19 @@ let pdfVecP = null;
 function pdfVecLibs() {
   if (!pdfVecP) pdfVecP = (async () => {
     await loadFirst(PDF_LIBS.svg2pdf, hasSvg2pdf);
-    const [reg, bold] = await Promise.all([fetchFirst(PDF_LIBS.reg), fetchFirst(PDF_LIBS.bold)]);
-    return { reg: abToB64(reg), bold: abToB64(bold) };
+    /* Police Arimo facultative : si elle ne se charge pas (page hébergée qui interdit ces téléchargements), le PDF reste
+       vectoriel en Helvetica (même chasse qu'Arial) et les quelques caractères hors de cette police sont dessinés. */
+    try { const [reg, bold] = await Promise.all([fetchFirst(PDF_LIBS.reg), fetchFirst(PDF_LIBS.bold)]); return { reg: abToB64(reg), bold: abToB64(bold) }; }
+    catch (e) { return { reg: null, bold: null }; }
   })().catch(e => { pdfVecP = null; throw e; });
   return pdfVecP;
 }
 async function pdfVector(pdf, e, ox, oy, dw, dh) {
-  const libs = await pdfVecLibs();
-  pdf.addFileToVFS('Arimo-Regular.ttf', libs.reg); pdf.addFont('Arimo-Regular.ttf', 'Arimo', 'normal');
-  pdf.addFileToVFS('Arimo-Bold.ttf', libs.bold); pdf.addFont('Arimo-Bold.ttf', 'Arimo', 'bold');
+  const libs = await pdfVecLibs(), arimo = !!libs.reg;
+  if (arimo) {
+    pdf.addFileToVFS('Arimo-Regular.ttf', libs.reg); pdf.addFont('Arimo-Regular.ttf', 'Arimo', 'normal');
+    pdf.addFileToVFS('Arimo-Bold.ttf', libs.bold); pdf.addFont('Arimo-Bold.ttf', 'Arimo', 'bold');
+  }
   const el = new DOMParser().parseFromString(e.svg, 'image/svg+xml').documentElement;
   const host = h('div', { style: 'position:fixed;left:-99999px;top:0;width:4000px;height:4000px;overflow:hidden', 'aria-hidden': 'true' }); host.append(document.importNode(el, true)); document.body.append(host);
   try {
@@ -389,9 +393,45 @@ async function pdfVector(pdf, e, ox, oy, dw, dh) {
       if (t.getAttribute('transform')) r.setAttribute('transform', t.getAttribute('transform'));
       t.replaceWith(r);
     }
-    for (const n of [sv, ...sv.querySelectorAll('[font-family]')]) n.setAttribute('font-family', 'Arimo');
+    /* Texte centré verticalement (dominant-baseline central) : svg2pdf le place trop haut ; on le ramène sur sa ligne de base
+       (centre de la boîte d'Arial / Helvetica / Arimo à 0,3465 em au-dessus de la ligne de base). */
+    for (const t of sv.querySelectorAll('text[dominant-baseline="central"]')) {
+      const fs = parseFloat(t.getAttribute('font-size')) || 9; t.removeAttribute('dominant-baseline'); t.setAttribute('y', r2((parseFloat(t.getAttribute('y')) || 0) + fs * 0.3465));
+    }
+    if (!arimo) pdfGlyphs(sv);
+    for (const n of [sv, ...sv.querySelectorAll('[font-family]')]) n.setAttribute('font-family', arimo ? 'Arimo' : 'helvetica');
     await window.svg2pdf.svg2pdf(sv, pdf, { x: ox, y: oy, width: dw, height: dh });
   } finally { host.remove(); }
+}
+/* Sans police intégrée (Helvetica, jeu WinAnsi) : θ, Δ, ≈ et ≤ sont dessinés en traits. Chaque texte qui en contient est
+   recomposé caractère par caractère, à la position mesurée par le navigateur dans la police d'origine. */
+const PDF_GLYPH = /[θΔ≈≤]/;
+function pdfGlyphPath(ch, x, base, em, w) {
+  const l = x + w * 0.12, r = x + w * 0.88, top = base - em * 0.72, mid = base - em * 0.36, cx = (l + r) / 2;
+  if (ch === 'θ') { const rx = (r - l) / 2; return `M${cx},${top}C${cx + rx * 1.33},${top} ${cx + rx * 1.33},${base} ${cx},${base}C${cx - rx * 1.33},${base} ${cx - rx * 1.33},${top} ${cx},${top}ZM${l},${mid}L${r},${mid}`; }
+  if (ch === 'Δ') return `M${l},${base}L${cx},${top}L${r},${base}Z`;
+  if (ch === '≈') { const a = em * 0.09, y1 = base - em * 0.47, y2 = base - em * 0.25, q = (r - l) / 4; return [y1, y2].map(y => `M${l},${y}Q${l + q},${y - a * 2} ${cx},${y}T${r},${y}`).join(''); }
+  return `M${r},${top + em * 0.05}L${l},${base - em * 0.36}L${r},${base - em * 0.18}M${l},${base}L${r},${base}`;
+}
+function pdfGlyphs(sv) {
+  const NS = 'http://www.w3.org/2000/svg';
+  for (const t of [...sv.querySelectorAll('text')]) {
+    const str = t.textContent; if (!PDF_GLYPH.test(str)) continue;
+    const fs = parseFloat(t.getAttribute('font-size')) || 9, bold = +(t.getAttribute('font-weight') || 400) >= 600;
+    const st = t.getAttribute('style') || '', col = (st.match(/fill:\s*([^;]+)/) || [])[1] || t.getAttribute('fill') || '#16191b';
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i], b = t.getExtentOfChar(i); if (ch === ' ') continue;
+      if (PDF_GLYPH.test(ch)) {
+        const base = b.y + b.height * 0.81, p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', pdfGlyphPath(ch, b.x, base, fs, b.width)); p.setAttribute('fill', 'none'); p.setAttribute('stroke', col);
+        p.setAttribute('stroke-width', r2(fs * (bold ? 0.12 : 0.085))); p.setAttribute('stroke-linejoin', 'round'); p.setAttribute('stroke-linecap', 'round');
+        if (t.getAttribute('transform')) p.setAttribute('transform', t.getAttribute('transform'));
+        frag.append(p);
+      } else { const n = t.cloneNode(false); n.textContent = ch; n.setAttribute('x', r2(b.x)); n.setAttribute('text-anchor', 'start'); frag.append(n); }
+    }
+    t.replaceWith(frag);
+  }
 }
 async function pdfRaster(pdf, e, ox, oy, s) {
   const k = Math.max(1, s * PDF_PXMM), tu = PDF_TILE / k, ov = 2 / k; /* k : pixels par unité du schéma ; tu : côté d'une tuile ; ov : recouvrement contre les liserés */
