@@ -265,11 +265,11 @@ function toggleMenu(id, anchor) { if (menuEl && menuEl.dataset.for === id) { clo
 document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target) && !e.target.closest('[data-menu]')) closeMenu(); }, true);
 function fileMenu(a) {
   openMenu(a, [{ label: 'Nouveau schéma', run: newSchema }, { label: 'Ouvrir un fichier .json…', run: () => $('#file-in').click() }, { label: 'Enregistrer en fichier .json', run: saveJSON, disabled: !canDownload() }, '-',
-    { head: 'Mes schémas' }, { label: lib.ok ? 'Enregistrer dans Mes schémas' : 'Indisponible dans cette vue', kbd: lib.ok ? 'Ctrl+S' : null, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes schémas…', run: openLib, disabled: !lib.ok }, '-',
+    { head: 'Mes projets' }, { label: lib.ok ? 'Enregistrer dans Mes projets' : 'Indisponible dans cette vue', kbd: lib.ok ? 'Ctrl+S' : null, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes projets…', run: openLib, disabled: !lib.ok }, '-',
     { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }]
     .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : []), 'file');
 }
-function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }], 'exp'); }
+function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }, { label: 'PDF A0', run: () => exportPDF('a0'), disabled: d }], 'exp'); }
 function netMenu(a) { openMenu(a, doc.nets.map((n, i) => ({ label: netLabel(n), sw: n.color, kbd: i < 9 ? String(i + 1) : null, on: n.id === state.activeNet, run: () => { setActiveNet(n.id); setTool('pipe'); } })), 'net'); }
 function modal(title, body, actions) {
   closeModal(); const bg = h('div', { class: 'modal-bg' }); bg.addEventListener('pointerdown', e => { if (e.target === bg) closeModal(); });
@@ -288,7 +288,7 @@ function promptModal(title, label, value) {
 }
 
 /* ===== Fichiers, exports, sauvegarde ===== */
-let saveT = 0, dl = null; const lib = { ok: false, db: null, uid: null };
+let saveT = 0, dl = null; const lib = { ok: false, kind: '', db: null, uid: null, idb: null };
 function scheduleSave() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify({ doc, libId: state.libId, net: state.activeNet })); } catch (e) { /* stockage indisponible */ } }, 400); }
 function sanitize(d) {
   if (!d || !Array.isArray(d.items) || !Array.isArray(d.nets)) throw new Error('format');
@@ -331,8 +331,10 @@ const fileBase = () => (doc.name || 'schema').normalize('NFD').replace(/[\u0300-
 function buildExport() {
   const ctx = buildCtx(), b = contentBBox(ctx); if (!b) { toast('Le schéma est vide.'); return null; }
   const m = 20, x = Math.floor(b.x0 - m), y = Math.floor(b.y0 - m), w = Math.ceil(b.x1 - b.x0 + 2 * m), hh = Math.ceil(b.y1 - b.y0 + 2 * m);
-  const s = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${hh}" viewBox="${x} ${y} ${w} ${hh}" font-family='${FONT}'><rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="#ffffff"/>${contentSVG({ exp: true })}</svg>`;
-  return { svg: s.replace(/var\((--[\w-]+)\)/g, (_, v) => EXPORT_VARS[v] || '#16191b').replace(/ data-(?:id|hit)="[^"]*"/g, ''), w, h: hh };
+  const inner = contentSVG({ exp: true }).replace(/var\((--[\w-]+)\)/g, (_, v) => EXPORT_VARS[v] || '#16191b').replace(/ data-(?:id|hit)="[^"]*"/g, '');
+  /* wrap : SVG d'une zone du schéma (vx, vy, vw, vh) rendue en pw × ph pixels — sert aussi au découpage en tuiles du PDF */
+  const wrap = (vx, vy, vw, vh, pw, ph) => `<svg xmlns="http://www.w3.org/2000/svg" width="${pw}" height="${ph}" viewBox="${r2(vx)} ${r2(vy)} ${r2(vw)} ${r2(vh)}" font-family='${FONT}'><rect x="${r2(vx)}" y="${r2(vy)}" width="${r2(vw)}" height="${r2(vh)}" fill="#ffffff"/>${inner}</svg>`;
+  return { svg: wrap(x, y, w, hh, w, hh), w, h: hh, x, y, wrap };
 }
 function svgToPng(str, w, hh, scale) {
   return new Promise((res, rej) => {
@@ -343,47 +345,120 @@ function svgToPng(str, w, hh, scale) {
 }
 function exportSVG() { const e = buildExport(); if (e) saveFile(fileBase() + '.svg', '<?xml version="1.0" encoding="UTF-8"?>\n' + e.svg); }
 async function exportPNG() { const e = buildExport(); if (!e) return; try { saveFile(fileBase() + '.png', await svgToPng(e.svg, e.w, e.h, clamp(Math.sqrt(16e6 / (e.w * e.h)), 1, 4))); } catch (err) { toast('Création de l’image impossible.'); } }
+/* Formats PDF (mm, paysage) et marge. Le schéma est rendu à environ 200 dpi, découpé en tuiles de 3000 px au plus :
+   un A0 dépasse la taille maximale d'image que certains navigateurs savent dessiner d'un seul tenant. */
+const PDF_FMT = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] }, PDF_PXMM = 8, PDF_TILE = 3000;
+const blobToURL = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
 async function exportPDF(fmt) {
   const J = window.jspdf && window.jspdf.jsPDF; if (!J) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
   const e = buildExport(); if (!e) return;
-  const land = e.w >= e.h, [PW, PH] = fmt === 'a3' ? (land ? [420, 297] : [297, 420]) : (land ? [297, 210] : [210, 297]), mg = 10, s = Math.min((PW - 2 * mg) / e.w, (PH - 2 * mg) / e.h), dw = e.w * s, dh = e.h * s;
+  const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.w >= e.h, PW = land ? L : l, PH = land ? l : L;
+  const s = Math.min((PW - 2 * mg) / e.w, (PH - 2 * mg) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
+  const k = Math.max(1, s * PDF_PXMM), tu = PDF_TILE / k, ov = 2 / k; /* k : pixels par unité du schéma ; tu : côté d'une tuile ; ov : recouvrement contre les liserés */
+  if (fmt === 'a0') toast('Création du PDF A0…');
   try {
-    const blob = await svgToPng(e.svg, e.w, e.h, clamp(Math.min(dw * 9 / e.w, Math.sqrt(16e6 / (e.w * e.h))), 1, 6));
-    const url = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
-    const pdf = new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt }); pdf.addImage(url, 'PNG', (PW - dw) / 2, (PH - dh) / 2, dw, dh, undefined, 'FAST');
+    const pdf = new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt });
+    for (let ty = 0; ty < e.h; ty += tu) for (let tx = 0; tx < e.w; tx += tu) {
+      const tw = Math.min(tu + ov, e.w - tx), th = Math.min(tu + ov, e.h - ty), pw = Math.max(1, Math.round(tw * k)), ph = Math.max(1, Math.round(th * k));
+      const url = await blobToURL(await svgToPng(e.wrap(e.x + tx, e.y + ty, tw, th, pw, ph), pw, ph, 1));
+      pdf.addImage(url, 'PNG', ox + tx * s, oy + ty * s, tw * s, th * s, undefined, 'FAST');
+    }
     saveFile(fileBase() + '-' + fmt.toUpperCase() + '.pdf', pdf.output('blob'));
   } catch (err) { toast('Création du PDF impossible.'); }
 }
 function saveJSON() { saveFile(fileBase() + '.json', JSON.stringify(doc, null, 1)); }
 async function initCaps() {
-  if (!window.claude || typeof window.claude.use !== 'function') return;
-  try { dl = await window.claude.use('downloads'); } catch (e) { dl = null; }
-  try { const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]); if (db && user) { const id = await user.id(); if (id) { lib.ok = true; lib.db = db; lib.uid = id; } } } catch (e) { lib.ok = false; }
+  if (window.claude && typeof window.claude.use === 'function') {
+    try { dl = await window.claude.use('downloads'); } catch (e) { dl = null; }
+    try { const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]); if (db && user) { const id = await user.id(); if (id) { lib.ok = true; lib.kind = 'claude'; lib.db = db; lib.uid = id; } } } catch (e) { lib.ok = false; }
+  }
+  if (!lib.ok) try { lib.idb = await idbOpen(); lib.ok = true; lib.kind = 'local'; } catch (e) { lib.ok = false; }
+}
+
+/* ===== Mes projets : base du site sur claude.ai, sinon base locale du navigateur (IndexedDB) ===== */
+function idbOpen() {
+  return new Promise((res, rej) => {
+    if (!window.indexedDB) { rej(new Error('idb')); return; }
+    const r = indexedDB.open('schema-plomberie', 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('projets')) r.result.createObjectStore('projets', { keyPath: 'id' }); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+  });
+}
+function idbReq(mode, fn) {
+  return new Promise((res, rej) => {
+    const tx = lib.idb.transaction('projets', mode), r = fn(tx.objectStore('projets')); let out;
+    if (r) r.onsuccess = () => { out = r.result; };
+    tx.oncomplete = () => res(out); tx.onerror = tx.onabort = () => rej(tx.error || new Error('idb'));
+  });
 }
 const libCol = () => lib.db.collection('data/users/' + lib.uid);
+const libStore = {
+  async list() {
+    if (lib.kind === 'local') return ((await idbReq('readonly', st => st.getAll())) || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const q = await libCol().orderBy('updatedAt', 'desc').limit(200).get(); return q.docs.map(d => Object.assign({}, d.data() || {}, { id: d.id }));
+  },
+  put(id, v) { return lib.kind === 'local' ? idbReq('readwrite', st => st.put(Object.assign({}, v, { id }))) : libCol().doc(id).set(v); },
+  del(id) { return lib.kind === 'local' ? idbReq('readwrite', st => st.delete(id)) : libCol().doc(id).delete(); },
+};
+const libErr = e => e && (e.code === 'quota_exceeded' || e.name === 'QuotaExceededError') ? 'Espace plein : supprimez d’anciens projets.' : e && e.code === 'invalid_argument' ? 'Vos droits sur cette page ne permettent pas d’enregistrer.' : 'Enregistrement impossible pour le moment.';
 async function saveLib(asNew) {
-  if (!lib.ok) { toast('Mes schémas n’est pas disponible ici : utilisez Enregistrer en fichier .json.'); return; }
+  if (!lib.ok) { toast('Mes projets n’est pas disponible ici : utilisez Enregistrer en fichier .json.'); return; }
   let name = doc.name || 'Sans titre';
-  if (asNew || !state.libId) { const r = await promptModal(asNew ? 'Enregistrer une copie' : 'Enregistrer dans Mes schémas', 'Nom du schéma', asNew ? name + ' (copie)' : name); if (r == null) return; name = r.trim() || 'Sans titre'; doc.name = name; syncDocName(); }
-  const json = JSON.stringify(doc); if (json.length > 240000) { toast('Schéma trop volumineux pour Mes schémas : enregistrez-le en fichier .json.'); return; }
+  if (asNew || !state.libId) { const r = await promptModal(asNew ? 'Enregistrer une copie' : 'Enregistrer dans Mes projets', 'Nom du projet', asNew ? name + ' (copie)' : name); if (r == null) return; name = r.trim() || 'Sans titre'; doc.name = name; syncDocName(); }
+  const json = JSON.stringify(doc); if (lib.kind === 'claude' && json.length > 240000) { toast('Projet trop volumineux pour Mes projets : enregistrez-le en fichier .json.'); return; }
   const id = (!asNew && state.libId) || ('s' + Date.now().toString(36) + uid().slice(0, 4));
-  try { await libCol().doc(id).set({ name, updatedAt: Date.now(), json, n: doc.items.length }); state.libId = id; scheduleSave(); toast('Enregistré dans Mes schémas.'); }
-  catch (e) { toast(e && e.code === 'quota_exceeded' ? 'Espace plein : supprimez d’anciens schémas.' : e && e.code === 'invalid_argument' ? 'Vos droits sur cette page ne permettent pas d’enregistrer.' : 'Enregistrement impossible pour le moment.'); }
+  try {
+    await libStore.put(id, { name, updatedAt: Date.now(), json, n: doc.items.length }); state.libId = id; scheduleSave();
+    if (lib.kind === 'local' && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    toast('Enregistré dans Mes projets.');
+  } catch (e) { toast(libErr(e)); }
+}
+async function backupLib() {
+  try {
+    const all = await libStore.list(); if (!all.length) { toast('Aucun projet à sauvegarder.'); return; }
+    const data = { format: 'schema-plomberie/projets', v: 1, date: new Date().toISOString(), projets: all.map(p => ({ id: p.id, name: p.name, updatedAt: p.updatedAt, n: p.n, json: p.json })) };
+    saveFile('mes-projets-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data));
+  } catch (e) { toast('Sauvegarde impossible pour le moment.'); }
+}
+function restoreLib() {
+  const inp = h('input', { type: 'file', accept: '.json,application/json' });
+  inp.addEventListener('change', async () => {
+    const f = inp.files[0]; if (!f) return; let o;
+    try { o = JSON.parse(await f.text()); } catch (e) { toast('Fichier illisible.'); return; }
+    if (!o || !Array.isArray(o.projets)) { toast('Ce fichier n’est pas une sauvegarde de Mes projets. Pour un seul schéma, utilisez Fichier > Ouvrir un fichier .json.'); return; }
+    try {
+      const have = new Map((await libStore.list()).map(p => [p.id, p.updatedAt || 0])); let n = 0;
+      for (const p of o.projets) {
+        if (!p || typeof p.json !== 'string' || !p.id) continue;
+        try { JSON.parse(p.json); } catch (e) { continue; }
+        if (have.has(p.id) && have.get(p.id) >= (p.updatedAt || 0)) continue;
+        await libStore.put(String(p.id), { name: p.name || 'Sans titre', updatedAt: p.updatedAt || Date.now(), json: p.json, n: p.n || 0 }); n++;
+      }
+      toast(n ? n + (n > 1 ? ' projets restaurés.' : ' projet restauré.') : 'Rien à restaurer : vos projets sont déjà à jour.'); openLib();
+    } catch (e) { toast(libErr(e)); }
+  });
+  inp.click();
 }
 async function openLib() {
   const body = h('div', null, h('p', { class: 'hint' }, 'Chargement…'));
-  modal('Mes schémas', body, [h('button', { class: 'btn ghost', type: 'button', onclick: closeModal }, 'Fermer')]);
+  const acts = [h('button', { class: 'btn ghost', type: 'button', onclick: backupLib, disabled: !canDownload() }, 'Sauvegarder tout (.json)'), h('button', { class: 'btn ghost', type: 'button', onclick: restoreLib }, 'Restaurer…'), h('button', { class: 'btn ghost', type: 'button', onclick: closeModal }, 'Fermer')];
+  modal('Mes projets', body, acts);
   try {
-    const snapq = await libCol().orderBy('updatedAt', 'desc').limit(200).get(); body.innerHTML = '';
-    if (snapq.empty) { body.append(h('p', { class: 'hint' }, 'Aucun schéma enregistré. Utilisez Fichier, puis Enregistrer dans Mes schémas.')); return; }
-    for (const d of snapq.docs) {
-      const v = d.data() || {}, del = btn('Supprimer', null, 'danger');
-      const row = h('div', { class: 'lib-row' }, h('div', { class: 'nm' }, h('b', null, v.name || 'Sans titre'), h('small', null, new Date(v.updatedAt || 0).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) + (v.n ? ', ' + v.n + ' objets' : ''))),
-        h('button', { class: 'btn sm primary', type: 'button', onclick: () => { try { loadDocObj(JSON.parse(v.json)); state.libId = d.id; scheduleSave(); closeModal(); toast('Schéma ouvert : ' + (v.name || 'Sans titre')); } catch (e) { toast('Ce schéma est illisible.'); } } }, 'Ouvrir'), del);
-      del.addEventListener('click', async () => { if (del.dataset.arm !== '1') { del.dataset.arm = '1'; del.textContent = 'Confirmer'; setTimeout(() => { del.dataset.arm = ''; del.textContent = 'Supprimer'; }, 3000); return; } try { await libCol().doc(d.id).delete(); row.remove(); if (state.libId === d.id) state.libId = null; toast('Schéma supprimé.'); } catch (e) { toast('Suppression impossible.'); } });
-      body.append(row);
+    const all = await libStore.list(); body.innerHTML = '';
+    if (lib.kind === 'local') body.append(h('p', { class: 'hint' }, 'Vos projets sont enregistrés dans ce navigateur, sur cet appareil. Pour les retrouver ailleurs ou ne pas les perdre si les données du navigateur sont effacées, utilisez « Sauvegarder tout » de temps en temps.'));
+    if (!all.length) { body.append(h('p', { class: 'hint' }, 'Aucun projet enregistré. Utilisez Fichier, puis Enregistrer dans Mes projets (Ctrl+S).')); return; }
+    const list = h('div'), q = h('input', { class: 'search', type: 'search', placeholder: 'Rechercher un projet', 'aria-label': 'Rechercher un projet', autocomplete: 'off', style: 'margin:4px 0 6px' });
+    q.addEventListener('input', () => { const t = q.value.trim().toLowerCase(); for (const r of list.children) r.hidden = !!t && !r.dataset.nm.includes(t); });
+    if (all.length > 6) body.append(q);
+    body.append(list);
+    for (const v of all) {
+      const del = btn('Supprimer', null, 'danger');
+      const row = h('div', { class: 'lib-row', 'data-nm': String(v.name || '').toLowerCase() }, h('div', { class: 'nm' }, h('b', null, v.name || 'Sans titre'), h('small', null, new Date(v.updatedAt || 0).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) + (v.n ? ', ' + v.n + ' objets' : '') + (v.id === state.libId ? ' · ouvert' : ''))),
+        h('button', { class: 'btn sm primary', type: 'button', onclick: () => { try { loadDocObj(JSON.parse(v.json)); state.libId = v.id; scheduleSave(); closeModal(); toast('Projet ouvert : ' + (v.name || 'Sans titre')); } catch (e) { toast('Ce projet est illisible.'); } } }, 'Ouvrir'), del);
+      del.addEventListener('click', async () => { if (del.dataset.arm !== '1') { del.dataset.arm = '1'; del.textContent = 'Confirmer'; setTimeout(() => { del.dataset.arm = ''; del.textContent = 'Supprimer'; }, 3000); return; } try { await libStore.del(v.id); row.remove(); if (state.libId === v.id) state.libId = null; toast('Projet supprimé.'); } catch (e) { toast('Suppression impossible.'); } });
+      list.append(row);
     }
-  } catch (e) { body.innerHTML = ''; body.append(h('p', { class: 'hint' }, 'Impossible de lire Mes schémas pour le moment.')); }
+  } catch (e) { body.innerHTML = ''; body.append(h('p', { class: 'hint' }, 'Impossible de lire Mes projets pour le moment.')); }
 }
 
 /* ===== Aide contextuelle ===== */
