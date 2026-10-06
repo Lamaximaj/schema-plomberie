@@ -153,8 +153,13 @@ const S = {
   chaudiere: { cat: 'equip', name: 'Chaudière', prefix: 'CH', tagOn: true, box: [-30, -40, 60, 80], ports: [[30, -30], [30, 30], [0, 40], [0, -40]], pn: ['Départ', 'Retour', 'Combustible', 'Conduit de fumée'],
     params: { txt: { label: 'Énergie', type: 'text', def: 'Gaz', max: 14 } },
     draw: el => ({ g: Re(-30, -40, 60, 80, ' rx="3"') + P(FLAME, ' transform="translate(0,1)"'), t: [[0, -27, 'CHAUDIÈRE', 7, 700], [0, 28, el.p.txt || '', 7, 400]] }) },
+  /* Groupe extérieur monobloc air / eau : carrosserie sur pieds, grille de ventilateur hélicoïde, panneau de service et raccords d'eau à droite */
   pac: { cat: 'equip', name: 'Pompe à chaleur', prefix: 'PAC', tagOn: true, box: [-30, -30, 60, 60], ports: [[30, -20], [30, 20]], pn: ['Départ', 'Retour'],
-    draw: () => { let g = Re(-30, -30, 60, 60, ' rx="3"') + Ci(0, 5, 15); for (const a of [0, 120, 240]) g += P('M0,5C-3,-1 -2,-8 3,-9.5C6,-4 4.5,1 0,5Z', ` transform="rotate(${a} 0 5)"`); return { g: g + Ci(0, 5, 2.2, FILLED), t: [[0, -21, 'PAC', 7, 700]] }; } },
+    draw: (el, c) => {
+      let g = PIED(-24, -12, 24, 29) + PIED(4, 16, 24, 29) + stub(c, 0, 24, -20, 30, -20) + stub(c, 1, 24, 20, 30, 20) + FL(27, -20) + FL(27, 20) + Re(-28, -28, 52, 52, ' rx="2"');
+      g += Ci(-8, -2, 16) + PROP(-8, -2, 13) + Ci(-8, -2, 13, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 9.5, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 6, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 2.2, FILLED);
+      g += Ln(10, -28, 10, 24, THIN) + Re(14, 0, 6, 10, ' rx="1"' + THIN) + Ln(15.5, 3, 18.5, 3, THIN) + Ln(15.5, 5, 18.5, 5, THIN) + Ln(15.5, 7, 18.5, 7, THIN);
+      return { g, t: [[17, -8, 'PAC', 5.5, 700]] }; } },
   ballon: { cat: 'equip', name: 'Préparateur ECS', prefix: 'B', tagOn: true, box: [-30, -60, 60, 120], ports: [[-30, -40], [-30, 0], [-30, 40], [30, -20], [30, 40], [0, 60]],
     pn: ['Eau chaude (départ)', 'Bouclage', 'Eau froide', 'Primaire entrée', 'Primaire sortie', 'Vidange'],
     params: { coil: { label: 'Type', type: 'select', options: [['serp', 'Serpentin (préparateur)'], ['res', 'Résistance électrique'], ['none', 'Stockage seul']], def: 'serp' }, txt: { label: 'Inscription', type: 'text', def: 'ECS', max: 10 } },
@@ -201,6 +206,26 @@ const S = {
 const ACTT = Ln(0, 0, 0, -10) + Ci(0, -15.5, 5.5);
 const FAN = (cx, cy, r) => Ci(cx, cy, r) + P(`M${cx},${cy}C${r2(cx + r * 0.35)},${r2(cy - r * 0.85)} ${r2(cx + r * 0.85)},${r2(cy - r * 0.35)} ${cx},${cy}ZM${cx},${cy}C${r2(cx - r * 0.35)},${r2(cy + r * 0.85)} ${r2(cx - r * 0.85)},${r2(cy + r * 0.35)} ${cx},${cy}Z`, FILLED);
 const BLADE = ' stroke-width="1.8"';
+/* Éléments des centrales et caissons dessinés comme sur site (notices Aldes VEX, France Air SIRIUS X et SORAYA) */
+const PIED = (x0, x1, y0, y1) => P(`M${x0},${y0}L${x0 + 2},${y1}L${x1 - 2},${y1}L${x1},${y0}Z`);
+/* Piquage vu de côté : virole de demi-hauteur r entre la paroi (xi) et le raccordement (xo), bride côté gaine */
+const PIQ = (xo, xi, cy, r) => Re(Math.min(xo, xi), cy - r, Math.abs(xi - xo), 2 * r) + Ln(r2((xo + xi) / 2), cy - r, r2((xo + xi) / 2), cy + r, THIN) + Ln(xo, r2(cy - r - 1.5), xo, r2(cy + r + 1.5), ' stroke-width="1.8"');
+/* Filtre plissé et batterie à ailettes */
+const FILT = (x, y, w, hh) => { const n = Math.max(2, Math.round(hh / 5)); let d = `M${x},${y}`; for (let i = 1; i <= n; i++) d += `L${i % 2 ? x + w : x},${r2(y + i * hh / n)}`; return Re(x, y, w, hh) + P(d, NOF + THIN); };
+const FINS = (x, y, w, hh) => { let g = Re(x, y, w, hh); for (let xx = x + 2; xx < x + w - 0.5; xx += 2) g += Ln(xx, y, xx, y + hh, ' stroke-width="0.6"'); return g; };
+/* Ventilateur centrifuge : volute de rayon r, bouche tangente de hauteur hv en haut (sy = 1) ou en bas (sy = -1),
+   vers la droite (sx = 1) ou la gauche (sx = -1) jusqu'en x = ex, turbine à aubes au centre */
+const VOLUTE = (cx, cy, r, hv, sx, sy, ex) => {
+  const y0 = cy - sy * r, y1 = y0 + sy * hv, px = r2(cx + sx * Math.sqrt(r * r - (r - hv) * (r - hv))), ri = r2(r * 0.64);
+  let g = P(`M${cx},${y0}L${ex},${y0}L${ex},${y1}L${px},${y1}A${r},${r} 0 1 ${sx * sy > 0 ? 1 : 0} ${cx},${y0}Z`) + Ci(cx, cy, ri, THIN);
+  for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, b = a + sx * sy * 0.6; g += Ln(r2(cx + ri * 0.4 * Math.cos(a)), r2(cy + ri * 0.4 * Math.sin(a)), r2(cx + ri * Math.cos(b)), r2(cy + ri * Math.sin(b)), ' stroke-width="0.7"'); }
+  return g + Ci(cx, cy, 1.2, FILLED); };
+/* Hélice à trois pales de rayon r */
+const PROP = (cx, cy, r) => { const k = r / 14.5, q = (x, y) => `${r2(cx + x * k)},${r2(cy + y * k)}`; let g = '';
+  for (const a of [0, 120, 240]) g += P(`M${q(0, 0)}C${q(-3, -6)} ${q(-2, -13)} ${q(3, -14.5)}C${q(6, -9)} ${q(4.5, -4)} ${q(0, 0)}Z`, ` transform="rotate(${a} ${cx} ${cy})" stroke-width="1.1"`);
+  return g; };
+/* Sectionneur de proximité (poignée rotative) */
+const SECT = (x, y) => Ci(x, y, 2.8, THIN) + Ln(r2(x - 2.2), r2(y + 2.2), r2(x + 2.2), r2(y - 2.2), ' stroke-width="1.4"');
 Object.assign(S, {
   vanne_sp: { cat: 'rob', name: 'Robinet à soupape', prefix: 'V', inline: true, box: [-10, -8, 20, 16], ports: IN2, draw: () => ({ g: BOW + Ci(0, 0, 2.6, FILLED) }) },
   vtherm: { cat: 'rob', name: 'Vanne thermostatique', prefix: 'VT', inline: true, box: [-10, -22, 20, 30], ports: IN2, draw: () => ({ g: BOW + ACTT, t: [[0, -15.3, 'θ', 7.5, 700]] }) },
@@ -260,15 +285,30 @@ Object.assign(S, {
   siphon_sol: { cat: 'sani', name: 'Siphon de sol', prefix: 'SDS', box: [-9, -9, 18, 19], ports: [[0, 10]],
     params: { kind: { label: 'Type', type: 'select', options: [['siphon', 'Siphon de sol'], ['puisard', 'Puisard']], def: 'siphon' } },
     draw: (el, c) => ({ g: (el.p.kind === 'puisard' ? Re(-9, -9, 18, 17) + Ln(-9, -9, 9, 8, THIN) + Ln(9, -9, -9, 8, THIN) : Ci(0, 0, 8) + Ln(-5.6, -5.6, 5.6, 5.6, THIN) + Ln(5.6, -5.6, -5.6, 5.6, THIN)) + stub(c, 0, 0, 8, 0, 10) }) },
-  cta: { cat: 'aero', name: 'Centrale de traitement d’air double flux', prefix: 'CTA', tagOn: true, box: [-60, -30, 120, 60], ports: [[-60, -20], [-60, 20], [60, -20], [60, 20], [0, -30], [20, -30], [10, 30]],
+  /* Centrale double flux (type Aldes VEX) : caisson sur pieds, piquages à cadre, filtres, échangeur à plaques à contre-courant
+     avec son bac à condensats, batterie à eau, ventilateurs centrifuges de soufflage et de rejet, régulation en façade */
+  cta: { cat: 'aero', name: 'Centrale de traitement d’air double flux', prefix: 'CTA', tagOn: true, box: [-60, -30, 120, 66], ports: [[-60, -20], [-60, 20], [60, -20], [60, 20], [0, -30], [20, -30], [10, 30]],
     pn: ['Air neuf', 'Air rejeté', 'Air soufflé', 'Air repris', 'Batterie aller', 'Batterie retour', 'Évacuation des condensats'],
-    draw: (el, c) => ({ g: Re(-60, -30, 120, 60, ' rx="2"') + Ln(-60, 0, 60, 0, THIN) + Re(-53, -27, 7, 24) + Ln(-53, -27, -46, -3, THIN) + Re(-32, -27, 24, 54) + Ln(-32, -27, -8, 27, THIN) + Ln(-8, -27, -32, 27, THIN)
-      + stub(c, 4, 0, -30, 0, -27) + stub(c, 5, 20, -30, 20, -27) + Re(-2, -27, 24, 24) + P('M1,-6L5,-24L9,-6L13,-24L17,-6L21,-24', NOF + THIN) + FAN(42, -15, 10) + FAN(-45, 15, 10) + Re(46, 3, 7, 24) + Ln(46, 3, 53, 27, THIN)
-      + stub(c, 6, 10, 0, 10, 30) + Re(-2, -3, 24, 3, THIN), t: [] }) },
+    draw: (el, c) => {
+      let g = PIED(-52, -38, 30, 35) + PIED(38, 52, 30, 35) + PIQ(-60, -55, -20, 6) + PIQ(-60, -55, 20, 6) + PIQ(60, 55, -20, 6) + PIQ(60, 55, 20, 6) + Re(-55, -30, 110, 60, ' rx="1.5"');
+      g += Ln(-55, 0, -38, 0, THIN) + Ln(-8, 0, 55, 0, THIN) + FILT(-52, -27, 6, 24) + FILT(46, 3, 6, 24) + VOLUTE(-45, 14, 7, 5, -1, -1, -55) + VOLUTE(37, -14, 8, 6, 1, 1, 55);
+      g += P('M-38,0L-31,-26L-15,-26L-8,0L-15,22L-31,22Z') + Ln(-34.5, -13, -11.5, 11, THIN) + Ln(-34.5, 11, -11.5, -13, THIN) + P('M-35,23.5L-35,27.5L-11,27.5L-11,23.5', NOF + THIN);
+      g += stub(c, 4, 0, -30, 0, -26) + stub(c, 5, 20, -30, 20, -26) + FINS(-3, -26, 26, 22) + P('M-11,25.5L10,25.5L10,30', NOF + ` stroke="${c.pc(6)}" stroke-width="${Math.min(c.pw(6), 1.5)}"`);
+      g += Re(16, 6, 18, 13, ' rx="1"') + Re(18.5, 8.5, 13, 4, THIN) + Ci(20.5, 15.5, 1, THIN) + Ci(25, 15.5, 1, THIN) + Ci(29.5, 15.5, 1, THIN);
+      return { g }; } },
+  /* Caisson d'extraction VMC (type France Air SIRIUS X) : caisson sur pieds, piquages circulaires, volute et turbine, sectionneur de proximité */
   caisson: { cat: 'aero', name: 'Caisson d’extraction', prefix: 'CE', tagOn: true, box: [-30, -20, 60, 40], ports: [[-30, 0], [30, 0]], pn: ['Aspiration', 'Refoulement'],
-    draw: () => ({ g: Re(-30, -20, 60, 40, ' rx="2"') + FAN(0, 0, 12) }) },
+    draw: () => ({ g: PIED(-23, -13, 15, 19) + PIED(13, 23, 15, 19) + PIQ(-30, -25, 0, 9) + PIQ(30, 25, 0, 9) + Re(-25, -18, 50, 33, ' rx="1.5"')
+      + VOLUTE(-3, 5, 8, 6, 1, 1, 25) + Re(-22, -15, 8, 10, ' rx="1"' + THIN) + SECT(-18, -10) }) },
+  /* PAC sur air extrait (type France Air SORAYA), sans ventilateur : l'air est mis en mouvement par le caisson d'extraction.
+     Filtre, évaporateur, compresseur, condenseur à plaques raccordé à l'eau par le dessous, coffret électrique avec sectionneur */
   pac_air: { cat: 'aero', name: 'PAC sur air extrait', prefix: 'PAC', tagOn: true, box: [-40, -30, 80, 60], ports: [[-40, 0], [40, 0], [-10, 30], [10, 30]], pn: ['Air extrait (entrée)', 'Air rejeté', 'Eau chaude départ', 'Eau chaude retour'],
-    draw: () => ({ g: Re(-40, -30, 80, 60, ' rx="3"') + FAN(-17, 2, 11) + Re(4, -10, 26, 24, ' rx="2"') + Ln(8, -4, 26, -4, THIN) + Ln(8, 2, 26, 2, THIN) + Ln(8, 8, 26, 8, THIN), t: [[0, -21, 'PAC AIR EXTRAIT', 6, 700]] }) },
+    draw: (el, c) => {
+      let g = PIED(-31, -19, 18, 25) + PIED(19, 31, 18, 25) + PIQ(-40, -34, 0, 10) + PIQ(40, 34, 0, 10) + stub(c, 2, -10, 18, -10, 30) + stub(c, 3, 10, 18, 10, 30) + FL(-10, 23, true) + FL(10, 23, true) + Re(-34, -24, 68, 42, ' rx="1.5"');
+      g += FILT(-31, -14, 5, 28) + FINS(-24, -14, 9, 28) + Ln(-15, -6, -10, -6, THIN) + Re(-10, -13, 10, 14, ' rx="5" ry="3"') + Ln(-5, 1, -5, 5, THIN);
+      g += Re(-13, 5, 26, 8, ' rx="1"'); for (let x = -10; x <= 10; x += 2.5) g += Ln(x, 5, x, 13, ' stroke-width="0.6"');
+      g += Ln(-10, 13, -10, 18, THIN) + Ln(10, 13, 10, 18, THIN) + Re(18, -14, 12, 18, ' rx="1"') + Re(20, -12, 8, 4, THIN) + SECT(24, -1.5);
+      return { g, t: [[0, -19.5, 'PAC AIR EXTRAIT', 5.5, 700], [-5, -6, 'Cp', 5, 700]] }; } },
   ventilo: { cat: 'aero', name: 'Ventilateur de désenfumage', prefix: 'VDF', tagOn: true, inline: true, box: [-20, -14, 40, 28], ports: [[-20, 0], [20, 0]],
     draw: (el, c) => ({ g: stub(c, 0, -20, 0, -13, 0) + stub(c, 1, 13, 0, 20, 0) + FAN(0, 0, 13) }) },
   batterie: { cat: 'aero', name: 'Batterie à eau chaude', prefix: 'BC', inline: true, tagOn: true, box: [-20, -10, 40, 30], ports: [[-20, 0], [20, 0], [-10, 20], [10, 20]], pn: ['Air amont', 'Air aval', 'Eau aller', 'Eau retour'],
