@@ -145,7 +145,7 @@ const FONC = {
   /* Ventilation et désenfumage */
   cta: ['Renouveler et traiter l’air du bâtiment : filtrer, chauffer ou refroidir, en récupérant la chaleur de l’air extrait.', 'Réseaux de soufflage et de reprise ; batterie à eau raccordée au chauffage avec protection antigel.'],
   caisson: ['Extraire l’air vicié des locaux (ventilation simple flux).', 'En toiture ou en combles, sur plots antivibratiles, avec rejet loin des prises d’air.'],
-  pac_air: ['Récupérer la chaleur de l’air extrait pour produire de l’eau chaude ou chauffer.', 'Sur le réseau d’extraction, avec évacuation des condensats.'],
+  pac_air: ['Récupérer la chaleur de l’air extrait pour produire de l’eau chaude ou chauffer.', 'Sur le réseau d’extraction, en amont ou en aval du caisson qui fait circuler l’air, avec manchettes souples et évacuation des condensats.'],
   ventilo: ['Extraire les fumées en cas d’incendie.', 'Résistant au feu (par exemple 400 °C pendant 2 h) et alimenté par une source secourue.'],
   batterie: ['Chauffer l’air soufflé avec l’eau chaude du chauffage.', 'Vanne de régulation, protection antigel, purgeur et vidange.'],
   filtre_air: ['Retenir les poussières de l’air.', 'Pressostat d’encrassement et remplacement périodique.'],

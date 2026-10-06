@@ -4,7 +4,7 @@
 
 ## Ce que fait l'outil
 
-- **Bibliothèque de 143 symboles** : robinetterie, sécurité, mesure et régulation, pompes, équipements (chaudière, sous-station vapeur, préparateur ECS, échangeur, bouteille de découplage…), appareils sanitaires, eaux pluviales (dont filtre à cartouche et stérilisateur UV), ventilation et désenfumage.
+- **Bibliothèque de 143 symboles** : robinetterie, sécurité, mesure et régulation, pompes, équipements (chaudière, sous-station vapeur, préparateur ECS, échangeur, bouteille de découplage…), appareils sanitaires, eaux pluviales (dont filtre à cartouche et stérilisateur UV), ventilation et désenfumage. CTA double flux, caisson d’extraction VMC et pompes à chaleur sont dessinés comme les appareils : caisson sur pieds, piquages, filtres, échangeur, batterie, ventilateurs centrifuges ou hélice, coffret électrique.
 - **Vue réaliste des équipements** (Affichage > « Équipements en vue réaliste ») : échangeurs, bouteilles, ballons, vases, relevage, désemboueur, filtre, thermomètre et détendeur dessinés comme sur site, sans changer les raccordements.
 - **Orientation comme sur le terrain** : un symbole lâché sur un tuyau s'aligne dans le sens d'écoulement. `R` tourne de 90°, `F` inverse le sens, `Maj+F` passe le corps de l'autre côté du tuyau.
 - **Onglet « Raccordement »** sur chaque équipement : points numérotés sur le plan, réseau attendu, état (libre ou raccordé, et vers quoi), accessoires à prévoir, et bouton pour tracer le tuyau depuis le point choisi.
