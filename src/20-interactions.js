@@ -280,7 +280,7 @@ function dragEnd(d) {
 /* Blocs de mise en page redimensionnables par leurs coins, et leur taille à 100 % */
 const SCALED = { cart: 1, legend: 1, nomen: 1 };
 function baseSize(it) {
-  if (it.kind === 'cart') return [CART_W, CART_H];
+  if (it.kind === 'cart') { const L = cartLayout(it); return [L.W, L.H]; }
   const L = it.kind === 'legend' ? legendLayout(it, buildCtx()) : nomenLayout(it, buildCtx()); return [Math.max(1, L.W), Math.max(1, L.H)];
 }
 function startHandle(e, w, t) {

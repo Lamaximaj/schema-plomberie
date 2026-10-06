@@ -194,7 +194,9 @@ function inspCart(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="6" y="11" width="52" height="24" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M6 19H58M6 27H58M24 11V19M18 27V35M30 27V35M44 27V35" stroke="#16191b" stroke-width=".8"/></svg>', 'Cartouche'));
   const keep = () => { try { localStorage.setItem(LS_CART, JSON.stringify({ ent: it.f.ent, auteur: it.f.auteur })); } catch (e) { /* stockage indisponible */ } };
   const fld = (k, label) => F(label, fText(() => it.f[k], v => { it.f[k] = v; }, { k: 'f-' + k, max: 120, after: keep }));
-  IB.append(SEC(null, sizeField(it, 'Taille du cartouche (%)'), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
+  const wField = F('Largeur du cartouche', h('div', null, fNum(() => cartW(it), v => { it.w = clamp(Math.round((+v || 300) / 10) * 10, 240, 600); }, { min: 240, max: 600, step: 10 }),
+    h('p', { class: 'hint' }, 'De 240 à 600. En dessous de 400, les cases du bas passent sur deux lignes.')));
+  IB.append(SEC(null, sizeField(it, 'Taille du cartouche (%)'), wField, fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
   IB.append(actionsSec());
 }
 function inspMulti(items) {
@@ -657,7 +659,7 @@ function frameExample(title, zoneTitle, cartTitle, ope) {
   const yB = z.y + z.h + 30, lg = makeLegend(z.x, yB); lg.rows = 10; doc.items.push(lg);
   const LL = legendLayout(lg, buildCtx()), nm = makeNomen(snap(z.x + LL.W + 30), yB); doc.items.push(nm);
   const NL = nomenLayout(nm, buildCtx()), ct = makeCart(0, 0); ct.f.titre = cartTitle; ct.f.ope = ct.f.ope || ope;
-  ct.x = snap(Math.max(z.x + z.w - CART_W, nm.x + NL.W + 30)); ct.y = snap(yB + Math.max(LL.H, NL.H) - CART_H); doc.items.push(ct);
+  const CL = cartLayout(ct); ct.x = snap(Math.max(z.x + z.w - CL.W, nm.x + NL.W + 30)); ct.y = snap(yB + Math.max(LL.H, NL.H) - CL.H); doc.items.push(ct);
   doc.name = title;
 }
 function exLocalEau() {

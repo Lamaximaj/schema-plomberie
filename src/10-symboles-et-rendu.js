@@ -749,7 +749,7 @@ function makeText(x, y, txt) { return { id: uid(), kind: 'text', x, y, txt: txt 
 function makeZone(x, y, w, hh) { return { id: uid(), kind: 'zone', x, y, w: w || 200, h: hh || 120, title: 'Local technique', color: '#5c656b', style: 'dash', fill: false }; }
 function makeLegend(x, y) { return { id: uid(), kind: 'legend', x, y, title: 'LÉGENDE', rows: 12, nets: true, syms: true }; }
 function makeNomen(x, y) { return { id: uid(), kind: 'nomen', x, y, title: 'NOMENCLATURE' }; }
-function makeCart(x, y) { let last = null; try { last = JSON.parse(localStorage.getItem(LS_CART) || 'null'); } catch (e) { /* stockage indisponible */ } return { id: uid(), kind: 'cart', x, y, f: Object.assign({ ent: '', ope: '', titre: 'Schéma de principe', lot: 'Plomberie', phase: 'EXE', ind: 'A', date: today(), ech: 'Sans échelle', auteur: '' }, last || {}, { date: today() }) }; }
+function makeCart(x, y) { let last = null; try { last = JSON.parse(localStorage.getItem(LS_CART) || 'null'); } catch (e) { /* stockage indisponible */ } return { id: uid(), kind: 'cart', x, y, w: 300, f: Object.assign({ ent: '', ope: '', titre: 'Schéma de principe', lot: 'Plomberie', phase: 'EXE', ind: 'A', date: today(), ech: 'Sans échelle', auteur: '' }, last || {}, { date: today() }) }; }
 
 /* ===== Géométrie ===== */
 function rotv(x, y, deg) { const d = norm360(deg); if (d === 0) return [x, y]; if (d === 90) return [-y, x]; if (d === 180) return [-x, -y]; if (d === 270) return [y, -x]; const a = d * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [x * c - y * s, x * s + y * c]; }
@@ -1000,16 +1000,23 @@ function nomenSVG(it, ctx) {
   if (!L.cells.length) s += `<text x="${x0 + 8}" y="${r2(yT + L.rh + 10)}" font-size="7" font-style="italic" style="fill:var(--muted-ink)">Aucun symbole</text>`;
   return s + '</g>';
 }
-const CART_W = 420, CART_H = 88;
+/* Cartouche : largeur réglable (420 par défaut pour les anciens schémas) ; en dessous de 400, les six cases du bas passent sur deux lignes */
+const cartW = it => clamp(Math.round((+it.w || 420) / 10) * 10, 240, 600);
+function cartLayout(it) {
+  const W = cartW(it), e = Math.round(W * 170 / 420), C = [[0, 0, e, 30, 'Entreprise', 'ent', 10, 700], [e, 0, W - e, 30, 'Opération', 'ope', 9, 400], [0, 30, W, 30, 'Titre du document', 'titre', 11, 700]];
+  const row = (y, defs) => { let cx = 0; defs.forEach(([cap, k, p], i) => { const w = i === defs.length - 1 ? W - cx : Math.round(W * p); C.push([cx, y, w, 28, cap, k, 8, 400]); cx += w; }); };
+  if (W >= 400) { row(60, [['Lot', 'lot', 90 / 420], ['Phase', 'phase', 60 / 420], ['Indice', 'ind', 50 / 420], ['Date', 'date', 80 / 420], ['Échelle', 'ech', 70 / 420], ['Dessiné par', 'auteur', 70 / 420]]); return { W, H: 88, C }; }
+  row(60, [['Lot', 'lot', 0.4], ['Phase', 'phase', 0.32], ['Indice', 'ind', 0.28]]); row(88, [['Date', 'date', 0.36], ['Échelle', 'ech', 0.32], ['Dessiné par', 'auteur', 0.32]]);
+  return { W, H: 116, C };
+}
 /* Taille des blocs de mise en page (cartouche, légende, nomenclature) : agrandissement ancré en haut à gauche */
 const cartSc = it => clamp(+it.sc || 1, 0.5, 4);
 const scTf = it => { const k = cartSc(it); return k === 1 ? '' : ` transform="matrix(${k} 0 0 ${k} ${r2(it.x * (1 - k))} ${r2(it.y * (1 - k))})"`; };
 function cartSVG(it) {
-  const f = it.f || {}, x = it.x, y = it.y;
+  const f = it.f || {}, x = it.x, y = it.y, L = cartLayout(it);
   const cell = (cx, cy, w, hh, cap, val, vs, vw) => `<rect x="${cx}" y="${cy}" width="${w}" height="${hh}" fill="none" style="stroke:var(--ink)" stroke-width="0.8"/><text x="${cx + 4}" y="${cy + 8}" font-size="5.5" style="fill:var(--muted-ink)">${esc(cap)}</text><text x="${cx + 4}" y="${cy + hh - 7}" font-size="${vs}" font-weight="${vw}" style="fill:var(--ink)">${esc(fitText(val, w - 8, vs, vw))}</text>`;
-  let s = `<g data-id="${it.id}" data-hit="item"${scTf(it)}><rect x="${x}" y="${y}" width="${CART_W}" height="${CART_H}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1.4"/>`;
-  s += cell(x, y, 170, 30, 'Entreprise', f.ent, 10, 700) + cell(x + 170, y, 250, 30, 'Opération', f.ope, 9, 400) + cell(x, y + 30, CART_W, 30, 'Titre du document', f.titre, 11, 700);
-  let cx = x; for (const [cap, val, w] of [['Lot', f.lot, 90], ['Phase', f.phase, 60], ['Indice', f.ind, 50], ['Date', f.date, 80], ['Échelle', f.ech, 70], ['Dessiné par', f.auteur, 70]]) { s += cell(cx, y + 60, w, 28, cap, val, 8, 400); cx += w; }
+  let s = `<g data-id="${it.id}" data-hit="item"${scTf(it)}><rect x="${x}" y="${y}" width="${L.W}" height="${L.H}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1.4"/>`;
+  for (const [cx, cy, w, hh, cap, k, vs, vw] of L.C) s += cell(x + cx, y + cy, w, hh, cap, f[k], vs, vw);
   return s + '</g>';
 }
 function bboxOf(it, ctx) {
@@ -1020,7 +1027,7 @@ function bboxOf(it, ctx) {
     case 'zone': return { x0: it.x, y0: it.y, x1: it.x + it.w, y1: it.y + it.h };
     case 'legend': { const L = legendLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
     case 'nomen': { const L = nomenLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
-    case 'cart': return { x0: it.x, y0: it.y, x1: it.x + CART_W * cartSc(it), y1: it.y + CART_H * cartSc(it) };
+    case 'cart': { const L = cartLayout(it), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
   }
   return null;
 }
