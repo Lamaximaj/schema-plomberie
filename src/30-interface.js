@@ -26,6 +26,18 @@ function orientPad(group) {
   return h('div', { class: 'orient' }, b('rl', '−90°', () => rotateCmd(-90), 'Tourner de −90° (Maj+R)'), b('rr', '+90°', () => rotateCmd(90), 'Tourner de +90° (R)'),
     b('fh', group ? 'Miroir' : 'Sens', () => flipCmd('h'), group ? 'Symétrie gauche-droite (F)' : 'Inverser le sens (F)'), b('fv', group ? 'Miroir' : 'Côté', () => flipCmd('v'), group ? 'Symétrie haut-bas (Maj+F)' : 'Passer de l’autre côté du tuyau (Maj+F)'));
 }
+const AL_ICO = { l: 'M4 3v18M8 6h11v4H8zM8 14h7v4H8z', c: 'M12 3v18M6 6h12v4H6zM8.5 14h7v4h-7z', r: 'M20 3v18M5 6h11v4H5zM9 14h7v4H9z',
+  t: 'M3 4h18M6 8h4v11H6zM14 8h4v7h-4z', m: 'M3 12h18M6 6h4v12H6zM14 8.5h4v7h-4z', b: 'M3 20h18M6 5h4v11H6zM14 9h4v7h-4z', x: 'M4 4v16M20 4v16M9.5 8h5v8h-5z', y: 'M4 4h16M4 20h16M8 9.5h8v5H8z' };
+/* Alignement et répartition des blocs de mise en page sélectionnés */
+function alignSec(L) {
+  const b = (m, label, fn, title) => h('button', { class: 'btn', type: 'button', title, onclick: fn, html: `<svg class="ico" viewBox="0 0 24 24"><path d="${AL_ICO[m]}"/></svg><span>${label}</span>` });
+  const ref = L.ref !== L.mov, n = L.mov.length;
+  return SEC('Aligner la mise en page',
+    h('div', { class: 'align' }, b('l', 'Gauche', () => alignLayout('l'), 'Aligner les bords gauches'), b('c', 'Centre', () => alignLayout('c'), 'Centrer horizontalement'), b('r', 'Droite', () => alignLayout('r'), 'Aligner les bords droits'),
+      b('t', 'Haut', () => alignLayout('t'), 'Aligner les bords hauts'), b('m', 'Milieu', () => alignLayout('m'), 'Centrer verticalement'), b('b', 'Bas', () => alignLayout('b'), 'Aligner les bords bas')),
+    n > 2 ? h('div', { class: 'btnrow' }, btn('Répartir en largeur', () => distributeLayout('x')), btn('Répartir en hauteur', () => distributeLayout('y'))) : null,
+    h('p', { class: 'hint' }, (ref ? 'Les blocs s’alignent sur la zone sélectionnée, qui ne bouge pas.' : 'Les blocs s’alignent entre eux, sur les bords de l’ensemble sélectionné.') + ' En les faisant glisser un par un, ils s’aimantent aussi aux bords des autres blocs et des zones.'));
+}
 const actionsSec = () => SEC(null, h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Premier plan', () => zorder(true)), btn('Arrière-plan', () => zorder(false)), btn('Supprimer', deleteSel, 'danger', 'Suppr')));
 function buildInspector() {
   IB.innerHTML = '';
@@ -188,7 +200,8 @@ function inspCart(it) {
 function inspMulti(items) {
   const nE = items.filter(i => i.kind === 'el').length, ps = items.filter(i => i.kind === 'pipe');
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="10" y="9" width="30" height="20" rx="2" fill="none" stroke="#2c9a46" stroke-dasharray="3 2"/><rect x="24" y="17" width="30" height="20" rx="2" fill="none" stroke="#2c9a46" stroke-dasharray="3 2"/></svg>', items.length + ' éléments sélectionnés', [nE ? nE + ' symbole' + (nE > 1 ? 's' : '') : '', ps.length ? ps.length + ' tuyau' + (ps.length > 1 ? 'x' : '') : ''].filter(Boolean).join(', ')));
-  IB.append(SEC('Orienter l’ensemble', orientPad(true), h('p', { class: 'hint' }, 'L’ensemble pivote autour de son centre et les tuyaux raccordés suivent.')));
+  const L = layoutSets(items); if (L) IB.append(alignSec(L));
+  if (nE || ps.length) IB.append(SEC('Orienter l’ensemble', orientPad(true), h('p', { class: 'hint' }, 'L’ensemble pivote autour de son centre et les tuyaux raccordés suivent.')));
   if (ps.length) IB.append(SEC('Tuyauteries', F('Réseau', fSelect([['', 'Inchangé'], ...doc.nets.map(x => [x.id, netLabel(x)])], () => '', v => { if (v) for (const p of ps) p.net = v; })),
     F('Diamètre', fText(() => '', v => { for (const p of ps) p.dn = v; }, { ph: 'Appliquer à tous', list: 'dn-list' })),
     h('div', { class: 'btnrow' }, btn('Afficher les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = true; commit(b); }), btn('Masquer les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = false; commit(b); }), btn('Flèches de sens', () => { const b = snapshot(), v = !ps.every(p => p.arr); for (const p of ps) p.arr = v; commit(b); }))));

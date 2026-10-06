@@ -22,6 +22,7 @@ function renderUI() {
     for (const q of d.pts) s += `<circle cx="${q.x}" cy="${q.y}" r="${r2(2.6 / k)}" fill="${n.color}"/>`;
   }
   if (showPorts && state.snap && state.snap.kind !== 'grid') s += `<circle cx="${state.snap.x}" cy="${state.snap.y}" r="${r2(7 / k)}" fill="none" style="stroke:${state.snap.kind === 'port' ? 'var(--sel)' : '#0b7285'}" stroke-width="${r2(2 / k)}"/>`;
+  if (drag && drag.guides) for (const [x1, y1, x2, y2] of drag.guides) s += `<line class="guide" x1="${r2(x1)}" y1="${r2(y1)}" x2="${r2(x2)}" y2="${r2(y2)}" stroke-width="${r2(1.2 / k)}" stroke-dasharray="${r2(5 / k)} ${r2(3 / k)}"/>`;
   if (drag && drag.kind === 'rubber') { const d = drag, cross = d.cur.x < d.start.x; s += `<rect class="rubber${cross ? ' cross' : ''}" x="${r2(Math.min(d.start.x, d.cur.x))}" y="${r2(Math.min(d.start.y, d.cur.y))}" width="${r2(Math.abs(d.cur.x - d.start.x))}" height="${r2(Math.abs(d.cur.y - d.start.y))}" stroke-width="${r2(1 / k)}"${cross ? ` stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"` : ''}/>`; }
   LU.innerHTML = s;
 }
@@ -218,7 +219,8 @@ function startMove(e, w, dup, clickSel) {
   const items = selItems(); if (!items.length) return;
   const selIds = new Set(items.map(i => i.id)), single = items.length === 1 ? items[0] : null;
   drag = { kind: 'move', before, start: w, sx: e.clientX, sy: e.clientY, items, orig: new Map(items.map(it => [it.id, geomOf(it)])), att: findAtt(items, selIds), riders: ridersOf(items.filter(i => i.kind === 'pipe'), selIds),
-    single: single && single.kind === 'el' ? single : null, anchor: single ? (single.kind === 'pipe' ? { x: single.pts[0].x, y: single.pts[0].y } : { x: single.x, y: single.y }) : null, moved: false, dup, clickSel };
+    single: single && single.kind === 'el' ? single : null, anchor: single ? (single.kind === 'pipe' ? { x: single.pts[0].x, y: single.pts[0].y } : { x: single.x, y: single.y }) : null, moved: false, dup, clickSel,
+    lay: single && (BLOCKS[single.kind] || single.kind === 'zone') ? { it: single, targets: edgeTargets(single) } : null, guides: null };
 }
 function dragMove(e, w) {
   const d = drag;
@@ -227,10 +229,11 @@ function dragMove(e, w) {
   if (d.kind === 'label') { if (!d.moved && Math.hypot(w.x - d.start.x, w.y - d.start.y) * view.k < 3) return; d.moved = true; d.el.lx = r2(d.ox + w.x - d.start.x); d.el.ly = r2(d.oy + w.y - d.start.y); render(); return; }
   if (d.kind === 'move') {
     if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return; d.moved = true;
-    let dx = w.x - d.start.x, dy = w.y - d.start.y;
-    if (e.shiftKey) { if (Math.abs(dx) >= Math.abs(dy)) dy = 0; else dx = 0; }
+    let dx = w.x - d.start.x, dy = w.y - d.start.y, lockX = false, lockY = false;
+    if (e.shiftKey) { if (Math.abs(dx) >= Math.abs(dy)) { dy = 0; lockY = true; } else { dx = 0; lockX = true; } }
     if (d.anchor) { dx = snap(d.anchor.x + dx) - d.anchor.x; dy = snap(d.anchor.y + dy) - d.anchor.y; } else { dx = snap(dx); dy = snap(dy); }
     for (const it of d.items) setGeom(it, d.orig.get(it.id), dx, dy);
+    if (d.lay) { const g = edgeSnap(d.lay.it, d.lay.targets, lockX, lockY); if (g.dx || g.dy) { dx += g.dx; dy += g.dy; setGeom(d.lay.it, d.orig.get(d.lay.it.id), dx, dy); } d.guides = g.guides; }
     if (d.single && !d.att.length && magnetize(d.single, d.orig.get(d.single.id))) { dx = d.single.x - d.anchor.x; dy = d.single.y - d.anchor.y; }
     for (const r of d.riders) { r.el.x = r2(r.ox + dx); r.el.y = r2(r.oy + dy); }
     for (const a of d.att) applyAtt(a, dx, dy);
@@ -450,6 +453,56 @@ function renumber() {
   commit(before); buildInspector(); toast('Repères renumérotés de gauche à droite.');
 }
 function alignEls(axis) { const es = selItems().filter(i => i.kind === 'el'); if (es.length < 2) return; const before = snapshot(), v = es[0][axis]; for (const e of es) e[axis] = v; commit(before); }
+/* ===== Alignement des blocs de mise en page : légende, nomenclature, cartouche et textes ; les zones sélectionnées servent de repère ===== */
+const BLOCKS = { legend: 1, nomen: 1, cart: 1, text: 1 };
+function layoutSets(items) {
+  const blocks = items.filter(i => BLOCKS[i.kind]), zones = items.filter(i => i.kind === 'zone');
+  if (blocks.length && zones.length) return { mov: blocks, ref: zones };
+  if (blocks.length > 1) return { mov: blocks, ref: blocks };
+  if (!blocks.length && zones.length > 1) return { mov: zones, ref: zones };
+  return null;
+}
+const unionBox = bs => bs.reduce((a, b) => ({ x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1) }));
+/* mode : l, c, r (verticales) ou t, m, b (horizontales) */
+function alignLayout(mode) {
+  const L = layoutSets(selItems()); if (!L) return;
+  const ctx = buildCtx(), R = unionBox(L.ref.map(i => bboxOf(i, ctx))), before = snapshot();
+  for (const it of L.mov) {
+    const b = bboxOf(it, ctx);
+    const dx = mode === 'l' ? R.x0 - b.x0 : mode === 'r' ? R.x1 - b.x1 : mode === 'c' ? (R.x0 + R.x1 - b.x0 - b.x1) / 2 : 0;
+    const dy = mode === 't' ? R.y0 - b.y0 : mode === 'b' ? R.y1 - b.y1 : mode === 'm' ? (R.y0 + R.y1 - b.y0 - b.y1) / 2 : 0;
+    it.x = r2(it.x + dx); it.y = r2(it.y + dy);
+  }
+  commit(before);
+}
+/* Espaces égaux entre les blocs, le premier et le dernier restant en place */
+function distributeLayout(axis) {
+  const L = layoutSets(selItems()); if (!L || L.mov.length < 3) { toast('Sélectionnez au moins trois blocs à répartir.'); return; }
+  const ctx = buildCtx(), h0 = axis === 'x' ? 'x0' : 'y0', h1 = axis === 'x' ? 'x1' : 'y1';
+  const rows = L.mov.map(it => ({ it, b: bboxOf(it, ctx) })).sort((a, b) => a.b[h0] - b.b[h0]);
+  const span = rows[rows.length - 1].b[h1] - rows[0].b[h0], used = rows.reduce((a, r) => a + r.b[h1] - r.b[h0], 0), gap = (span - used) / (rows.length - 1);
+  const before = snapshot(); let pos = rows[0].b[h1] + gap;
+  for (const r of rows.slice(1, -1)) { r.it[axis] = r2(r.it[axis] + pos - r.b[h0]); pos += r.b[h1] - r.b[h0] + gap; }
+  commit(before);
+}
+/* Aimantage d'un bloc déplacé sur les bords et les centres des autres blocs et des zones ; renvoie la correction et les repères à dessiner */
+function edgeTargets(it) { const ctx = buildCtx(); return doc.items.filter(o => o !== it && (BLOCKS[o.kind] || o.kind === 'zone')).map(o => bboxOf(o, ctx)); }
+function edgeSnap(it, targets, lockX, lockY) {
+  const b = bboxOf(it), tol = Math.max(5.5, 8 / view.k), mid = (p, q) => (p + q) / 2, PAIRS = [[0, 0], [0, 2], [2, 0], [2, 2], [1, 1]];
+  let bx = null, by = null;
+  for (const t of targets) {
+    const mx = [b.x0, mid(b.x0, b.x1), b.x1], my = [b.y0, mid(b.y0, b.y1), b.y1], tx = [t.x0, mid(t.x0, t.x1), t.x1], ty = [t.y0, mid(t.y0, t.y1), t.y1];
+    for (const [i, j] of PAIRS) {
+      const ddx = tx[j] - mx[i], ddy = ty[j] - my[i];
+      if (!lockX && Math.abs(ddx) <= tol && (!bx || Math.abs(ddx) < Math.abs(bx.d))) bx = { d: ddx, at: tx[j], t };
+      if (!lockY && Math.abs(ddy) <= tol && (!by || Math.abs(ddy) < Math.abs(by.d))) by = { d: ddy, at: ty[j], t };
+    }
+  }
+  const dx = bx ? bx.d : 0, dy = by ? by.d : 0, n = { x0: b.x0 + dx, y0: b.y0 + dy, x1: b.x1 + dx, y1: b.y1 + dy }, guides = [];
+  if (bx) guides.push([bx.at, Math.min(n.y0, bx.t.y0) - 8, bx.at, Math.max(n.y1, bx.t.y1) + 8]);
+  if (by) guides.push([Math.min(n.x0, by.t.x0) - 8, by.at, Math.max(n.x1, by.t.x1) + 8, by.at]);
+  return { dx, dy, guides };
+}
 function nudge(dx, dy) {
   const items = selItems(); if (!items.length) return; const before = snapshot(), selIds = new Set(items.map(i => i.id)), att = findAtt(items, selIds), riders = ridersOf(items.filter(i => i.kind === 'pipe'), selIds);
   for (const it of items) setGeom(it, geomOf(it), dx, dy);

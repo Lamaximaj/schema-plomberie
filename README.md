@@ -13,6 +13,7 @@
 - **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
 - **Exports** PNG, SVG, JSON et PDF A4, A3 et A0. Le PDF est vectoriel (trait et texte nets à toutes les échelles, police Arimo intégrée) ; si ses bibliothèques ne se chargent pas, il est produit en image d'environ 300 dpi. Le travail en cours est gardé dans le navigateur.
 - **Cartouche, légende et nomenclature** agrandissables de 50 à 400 % : glisser un coin vert du bloc sélectionné, ou saisir sa taille (%) dans son panneau.
+- **Alignement de la mise en page** : sélectionner plusieurs blocs (légende, nomenclature, cartouche, textes) puis Gauche, Centre, Droite, Haut, Milieu ou Bas ; « Répartir » égalise les espaces. Une zone sélectionnée avec eux sert de repère et ne bouge pas. En glissant un bloc, il s’aimante aux bords et aux centres des autres blocs et des zones, avec un repère en pointillés.
 - **Fonction des organes** : onglet « Fonction » d’un symbole sélectionné (à quoi il sert, où et comment le poser), bouton « Fonctions » pour la liste complète avec recherche, et rappel au survol de la bibliothèque.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
 - **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin.
