@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Occupation des logements, 5 rue du Bessin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<style id="css">
+:root{
+  --paper:#F1F3F5; --card:#FFFFFF; --ink:#16202B; --muted:#5B6674; --line:#D5DBE2; --soft:#E7EBEF;
+  --facade:#223041; --facade-2:#1A2532; --rdc:#2B3A4D;
+  --glass:#34465C; --glass-ink:#AAB9CB; --hatch:rgba(255,255,255,.14); --hatch-line:rgba(255,255,255,.36);
+  --lit:#FFCB57; --lit-ink:#3A2900; --lit-glow:rgba(255,196,64,.42);
+  --red:#E5484D; --blue:#3D8FE0; --green:#2E9E66; --focus:#3D8FE0;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1318; --card:#151C24; --ink:#E6EBF0; --muted:#9BA6B3; --line:#29333F; --soft:#1D2630;
+    --facade:#202C3B; --facade-2:#18212C; --rdc:#283546;
+    --glass:#2E3D50; --glass-ink:#93A5BA; --lit:#FFC84F; --lit-ink:#352500; --lit-glow:rgba(255,196,64,.30);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1318; --card:#151C24; --ink:#E6EBF0; --muted:#9BA6B3; --line:#29333F; --soft:#1D2630;
+  --facade:#202C3B; --facade-2:#18212C; --rdc:#283546;
+  --glass:#2E3D50; --glass-ink:#93A5BA; --lit:#FFC84F; --lit-ink:#352500; --lit-glow:rgba(255,196,64,.30);
+  color-scheme:dark;
+}
+html{ scroll-padding-top:env(safe-area-inset-top,0px); -webkit-text-size-adjust:100%; }
+*,*::before,*::after{ box-sizing:inherit; }
+[hidden]{ display:none !important; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif; font-size:15px; line-height:1.5; font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; }
+button,input,textarea{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+.sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.page{ max-width:1200px; margin:0 auto; padding:32px 24px 48px; }
+body.has-bar .page{ padding-bottom:120px; }
+
+.top{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 24px; align-items:start; }
+h1{ margin:0; font-size:clamp(32px,5vw,56px); line-height:1; font-weight:780; font-stretch:115%; letter-spacing:-0.015em; }
+.addr{ margin:10px 0 0; color:var(--muted); }
+.actions{ padding-top:6px; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+.summary{ grid-column:1 / -1; margin:20px 0 0; max-width:68ch; font-size:17px; line-height:1.55; }
+.summary b{ font-weight:720; }
+.ro{ grid-column:1 / -1; margin:12px 0 0; padding:10px 12px; border-radius:8px; background:var(--soft); font-size:14px; max-width:68ch; }
+
+.btn{ display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:8px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); font-weight:600; cursor:pointer; white-space:nowrap; }
+.btn.ghost{ background:transparent; color:inherit; border-color:currentColor; }
+.btn.small{ padding:6px 10px; font-size:14px; }
+.btn[disabled]{ opacity:.6; cursor:default; }
+
+.layout{ display:grid; gap:28px; margin-top:28px; }
+.building{ --lab:44px; min-width:0; }
+
+.mode{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 20px; }
+.mode-label{ color:var(--muted); font-size:14px; margin-right:4px; }
+.mode button{ display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:14px; cursor:pointer; }
+.mode button[aria-checked="true"]{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+.sw{ display:inline-block; width:11px; height:14px; border-radius:2px; flex:none; }
+.sw.occ{ background:var(--lit); box-shadow:inset 0 0 0 1px rgba(0,0,0,.14); }
+.sw.vac{ background:var(--glass); }
+.sw.unk{ background:repeating-linear-gradient(135deg,currentColor 0 1px,transparent 1px 4px); box-shadow:inset 0 0 0 1px currentColor; opacity:.7; }
+
+.facade{ --g:6px; --p:7px; --cols:14; }
+.floor{ display:grid; grid-template-columns:var(--lab) minmax(0,1fr); align-items:stretch; }
+.flv{ display:flex; align-items:center; font-size:13px; font-weight:650; font-stretch:75%; color:var(--muted); letter-spacing:.02em; }
+.slab{ width:calc((100% - (var(--cols) - 1) * var(--g) - 2 * var(--p)) * var(--n) / var(--cols) + (var(--n) - 1) * var(--g) + 2 * var(--p)); padding:var(--p); background:var(--facade); box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+.wins{ display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:var(--g); }
+.slab.roof{ padding:4px 10px; background:var(--facade-2); color:var(--glass-ink); font-size:12px; font-stretch:80%; border-radius:3px 3px 0 0; }
+.roofrow .flv{ font-size:12px; }
+.slab.rdc{ background:var(--rdc); color:var(--glass-ink); min-height:46px; display:flex; align-items:center; padding:0 14px; font-size:13px; font-stretch:85%; }
+.ground{ height:3px; margin-left:var(--lab); background:var(--ink); border-radius:2px; }
+
+.win{ position:relative; aspect-ratio:3/4; min-width:0; border:0; border-radius:3px; padding:0 0 5px; display:flex; align-items:flex-end; justify-content:center; font-size:13px; font-weight:650; font-stretch:75%; cursor:pointer; transition:filter .12s; }
+.win::before{ content:""; position:absolute; left:3px; right:3px; top:36%; height:1px; background:currentColor; opacity:.2; }
+.win.occ{ background:var(--lit); color:var(--lit-ink); box-shadow:0 0 16px var(--lit-glow); }
+.win.vac{ background:var(--glass); color:var(--glass-ink); }
+.win.unk{ background:repeating-linear-gradient(135deg,var(--hatch) 0 1.5px,transparent 1.5px 6px); color:var(--glass-ink); box-shadow:inset 0 0 0 1px var(--hatch-line); }
+.win:hover{ filter:brightness(1.12); }
+.win[aria-current="true"]{ outline:2px solid #fff; outline-offset:2px; }
+.win[data-dirty]::after{ content:""; position:absolute; left:4px; top:4px; width:5px; height:5px; border-radius:50%; background:currentColor; opacity:.75; }
+.facade.painting .win{ cursor:crosshair; }
+.badge{ position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--red); color:#fff; font-size:11px; line-height:18px; font-weight:750; font-stretch:90%; box-shadow:0 0 0 2px var(--facade); }
+.badge.set{ background:var(--blue); }
+.badge.done{ background:var(--green); }
+.badge.dot{ min-width:10px; width:10px; height:10px; padding:0; top:-3px; right:-3px; }
+
+.legend{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; padding-left:var(--lab); font-size:13px; color:var(--muted); }
+.legend span{ display:inline-flex; align-items:center; gap:7px; }
+.bd{ display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:8px; color:#fff; font-size:10px; font-weight:750; font-style:normal; }
+.bd.todo{ background:var(--red); } .bd.set{ background:var(--blue); } .bd.done{ background:var(--green); }
+
+.panel{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 20px 12px; min-width:0; }
+.ptitle{ margin:0 0 14px; font-size:20px; font-weight:720; font-stretch:105%; line-height:1.2; }
+.grp{ margin:0 0 18px; }
+.grp h3{ display:flex; align-items:baseline; gap:8px; margin:0 0 4px; font-size:14px; font-weight:650; color:var(--muted); }
+.cnt{ color:var(--ink); }
+.row{ display:grid; grid-template-columns:52px minmax(0,1fr) auto; gap:12px; width:100%; padding:11px 4px; border:0; border-top:1px solid var(--line); background:none; text-align:left; cursor:pointer; align-items:start; }
+.row:hover{ background:var(--soft); }
+.rnum{ font-size:22px; line-height:1.05; font-weight:720; font-stretch:72%; }
+.rmain{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.rline{ display:flex; gap:10px; align-items:center; font-size:13px; color:var(--muted); }
+.chip{ display:inline-flex; align-items:center; gap:6px; color:var(--ink); }
+.rtxt{ font-size:14px; line-height:1.35; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.more{ color:var(--muted); font-size:13px; }
+.rwhen{ text-align:right; font-size:13px; line-height:1.3; white-space:nowrap; font-weight:620; }
+.rwhen.late{ color:var(--red); }
+.rwhen em{ font-style:normal; font-weight:500; }
+.empty,.muted{ color:var(--muted); font-size:14px; margin:6px 0 10px; }
+
+.det-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.det-id h2{ margin:0; font-size:30px; line-height:1; font-weight:780; font-stretch:110%; outline:none; }
+.det-id p{ margin:5px 0 0; color:var(--muted); font-size:14px; }
+.det-nav{ display:flex; gap:6px; align-items:center; }
+.icon{ width:36px; height:36px; border-radius:8px; border:1px solid var(--line); background:var(--card); font-size:20px; line-height:1; cursor:pointer; }
+.icon[disabled]{ opacity:.35; cursor:default; }
+.seg{ display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+.seg button{ padding:11px 6px; border:0; border-left:1px solid var(--line); background:transparent; cursor:pointer; font-weight:600; }
+.seg button:first-child{ border-left:0; }
+.seg button[aria-checked="true"].occ{ background:var(--lit); color:var(--lit-ink); }
+.seg button[aria-checked="true"].vac{ background:var(--glass); color:#fff; }
+.seg button[aria-checked="true"].unk{ background:var(--soft); }
+.hint{ margin:10px 0 0; font-size:14px; color:var(--muted); }
+.hint:empty{ display:none; }
+.det-sec{ margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
+.det-sec h3{ margin:0 0 8px; font-size:14px; font-weight:650; color:var(--muted); }
+.rl{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.rl li{ display:flex; flex-direction:column; gap:2px; }
+.rt{ font-size:15px; line-height:1.35; }
+.rm{ font-size:13px; color:var(--muted); }
+.rdv-f{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
+.rdv-f .btn{ min-height:40px; }
+.rdv-f label,.note{ display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted); }
+input[type="date"],input[type="time"],textarea{ padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); font-size:15px; min-height:40px; }
+textarea{ width:100%; resize:vertical; line-height:1.4; }
+.check{ display:flex; align-items:center; gap:10px; margin-top:14px; font-size:15px; cursor:pointer; }
+.check input{ width:20px; height:20px; accent-color:var(--green); }
+
+.bar{ position:fixed; left:0; right:0; bottom:0; z-index:50; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 14px; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:var(--ink); color:var(--paper); }
+.bar .btn{ border-color:var(--paper); }
+.bar .btn.ghost{ color:var(--paper); }
+.bar .btn.primary{ background:var(--lit); color:var(--lit-ink); border-color:var(--lit); }
+.toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,12px); z-index:60; max-width:min(92%,520px); padding:10px 14px; border-radius:10px; background:var(--ink); color:var(--paper); border:1px solid rgba(255,255,255,.14); box-shadow:0 8px 28px rgba(0,0,0,.28); font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
+.toast.on{ opacity:1; transform:translate(-50%,0); }
+body.has-bar .toast{ bottom:calc(84px + env(safe-area-inset-bottom,0px)); }
+.foot{ margin-top:28px; color:var(--muted); font-size:13px; max-width:80ch; }
+
+@media (min-width:980px){
+  .layout{ grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr); align-items:start; }
+  .panel{ position:sticky; top:calc(env(safe-area-inset-top,0px) + 16px); max-height:calc(100vh - 32px); overflow:auto; }
+  .panel.has-detail #rdv{ display:none; }
+  .backdrop{ display:none !important; }
+}
+@media (max-width:979px){
+  .detail{ position:fixed; left:0; right:0; bottom:0; z-index:40; max-height:85%; overflow:auto; background:var(--card); border-radius:16px 16px 0 0; padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px)); box-shadow:0 -12px 40px rgba(0,0,0,.28); }
+  body.has-bar .detail{ padding-bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+  .backdrop{ position:fixed; inset:0; z-index:39; background:rgba(8,12,18,.45); }
+}
+@media (max-width:979px) and (prefers-reduced-motion:no-preference){
+  .detail{ animation:up .18s ease-out; }
+}
+@keyframes up{ from{ transform:translateY(24px); opacity:.6; } to{ transform:none; opacity:1; } }
+@media (max-width:639px){
+  .page{ padding:22px 14px 40px; }
+  .top{ grid-template-columns:1fr; }
+  .actions{ padding-top:12px; }
+  .summary{ font-size:16px; }
+  .building{ --lab:34px; }
+  .facade{ --g:5px; --p:6px; }
+  .slab{ width:100%; }
+  .wins{ grid-template-columns:repeat(7,minmax(0,1fr)); }
+  .win{ font-size:12px; }
+  .legend{ padding-left:0; }
+  .det-id h2{ font-size:26px; font-stretch:100%; }
+}
+@media (prefers-reduced-motion:reduce){ .toast,.win{ transition:none; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="application/json" id="state">
+{"v":1,"rev":"y8vk0my7","updated":"2026-10-06T20:28:17.405Z","snap":"2026-10-06","floors":[{"lv":"R+6","lgts":["601","602","603","604","605","606","607","608","609","610","611","612"]},{"lv":"R+5","lgts":["501","502","503","504","505","506","507","508","509","510","511","512","513"]},{"lv":"R+4","lgts":["401","402","403","404","405","406","407","408","409","410","411","412","413"]},{"lv":"R+3","lgts":["301","302","303","304","305","306","307","308","309","310","311","312","313","314"]},{"lv":"R+2","lgts":["201","202","203","204","205","206","207","208","209","210","211","212","213","214"]},{"lv":"R+1","lgts":["101","102","103","104","105","106","107","108","109","110","111","112","113","114"]}],"res":{"102":[{"id":1970,"t":"Carrelages fissuré à remplacer","p":"Salle d'eau","e":"Sinbat","s":"tr"}],"103":[{"id":1969,"t":"Carrelages fissuré à remplacer","p":"Salle d'eau","e":"Sinbat","s":"tr"}],"105":[{"id":1557,"t":"Manque grille siphon douche","p":"Salle d'eau","e":"Legendre","s":"tr"}],"107":[{"id":1576,"t":"Écart en bas de porte de placard","p":"Salle d'eau","e":"SDM","s":"tr"}],"110":[{"id":1958,"t":"Manque ampoules appliques","p":"Entrée/Cuisine","e":"SP2E","s":"le"}],"205":[{"id":136,"t":"Ajout d’un fileur peint bleu si jour de plus de 10mm entre porte de placard et cloison","p":"Entrée/Cuisine","e":"SDM","s":"tr"}],"211":[{"id":1778,"t":"Ajuster meuble GTL","p":"Pièce de vie","e":"SDM","s":"tr"}],"214":[{"id":305,"t":"Manque joint carrelage","p":"Entrée","e":"Legendre","s":"tr"}],"304":[{"id":1147,"t":"Changer portes de placard (abimée et trop basse)","p":"Salle d'eau","e":"SDM","s":"tr"}],"305":[{"id":1185,"t":"Grille bac à douche défaite (absence de vis)","p":"Salle d'eau","e":"Jean-Pierre","s":"af"}],"310":[{"id":2406,"t":"Ajouter store toile intérieur occultant teinte marron","p":"","e":"Legendre","s":"af"},{"id":2407,"t":"Ajouter store toile intérieur occultant teinte marron","p":"","e":"Legendre","s":"af"}],"311":[{"id":2408,"t":"Ajouter store toile intérieur occultant teinte marron","p":"","e":"Legendre","s":"af"},{"id":2409,"t":"Ajouter store toile intérieur occultant teinte marron","p":"","e":"Legendre","s":"af"}],"412":[{"id":1058,"t":"Écart en bas de porte de placard: ajout fileur bleu","p":"Entrée","e":"SDM","s":"co"}],"604":[{"id":643,"t":"Changer pour porte de placard plus large","p":"Entrée/Cuisine","e":"SDM","s":"co"}],"609":[{"id":758,"t":"Manque joint carrelage","p":"Salle d'eau","e":"Jean-Pierre","s":"af"}],"612":[{"id":825,"t":"Remplacer porte de placard","p":"Entrée","e":"SDM","s":"tr"},{"id":834,"t":"Porte de la chambre manquante + peinture bleu","p":"Pièce de vie","e":"SDM","s":"tr"}]},"L":{"101":{"o":"vac"},"102":{"o":"vac"},"103":{"o":"vac"},"104":{"o":"vac"},"105":{"o":"vac"},"106":{"o":"vac"},"107":{"o":"vac"},"108":{"o":"vac"},"109":{"o":"vac"},"110":{"o":"vac"},"111":{"o":"vac"},"112":{"o":"vac"},"113":{"o":"vac"},"114":{"o":"vac"},"201":{"o":"vac"},"202":{"o":"vac"},"203":{"o":"vac"},"204":{"o":"vac"},"205":{"o":"vac"},"206":{"o":"vac"},"207":{"o":"vac"},"208":{"o":"vac"},"209":{"o":"vac"},"210":{"o":"vac"},"211":{"o":"vac"},"212":{"o":"vac"},"213":{"o":"vac"},"214":{"o":"vac"},"301":{"o":"vac"},"302":{"o":"vac"},"303":{"o":"vac"},"304":{"o":"vac"},"305":{"o":"vac"},"306":{"o":"vac"},"307":{"o":"vac"},"308":{"o":"vac"},"309":{"o":"vac"},"310":{"o":"vac"},"311":{"o":"vac"},"312":{"o":"vac"},"313":{"o":"vac"},"314":{"o":"vac"},"401":{"o":"vac"},"402":{"o":"vac"},"403":{"o":"vac"},"404":{"o":"vac"},"405":{"o":"vac"},"406":{"o":"vac"},"407":{"o":"vac"},"408":{"o":"vac"},"409":{"o":"vac"},"410":{"o":"vac"},"411":{"o":"vac"},"412":{"o":"vac"},"413":{"o":"vac"},"501":{"o":"vac"},"502":{"o":"vac"},"503":{"o":"vac"},"504":{"o":"vac"},"505":{"o":"vac"},"506":{"o":"vac"},"507":{"o":"vac"},"508":{"o":"vac"},"509":{"o":"vac"},"510":{"o":"vac"},"511":{"o":"vac"},"512":{"o":"vac"},"513":{"o":"vac"},"601":{"o":"vac"},"602":{"o":"vac"},"603":{"o":"vac"},"604":{"o":"vac"},"605":{"o":"vac"},"606":{"o":"vac"},"607":{"o":"vac"},"608":{"o":"vac"},"609":{"o":"vac"},"610":{"o":"vac"},"611":{"o":"vac"},"612":{"o":"vac"}}}
+</script>
+<script id="app">
+(() => {
+'use strict';
+const HEAD = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<meta name=\"robots\" content=\"noindex, nofollow\">\n<title>Occupation des logements, 5 rue du Bessin</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap\">\n";
+const KEY_P = 'bessin-occ-pending-v1', KEY_UI = 'bessin-occ-ui-v1', KEY_SAVED = 'bessin-occ-saved-v1';
+const NB = '\u00a0';
+const DEF = { o: '', d: '', h: '', x: false, n: '' };
+const OCC = { occ: 'Occupé', vac: 'Vacant', '': 'À confirmer' };
+const STL = { af: 'à faire', tr: 'transmise', le: 'à contrôler', co: 'contestée' };
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plural = (k, one, many) => (k > 1 ? many : one);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const isWide = () => window.matchMedia('(min-width: 980px)').matches;
+const store = {
+  get(k, s) { try { const v = (s ? sessionStorage : localStorage).getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v, s) { try { (s ? sessionStorage : localStorage).setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k, s) { try { (s ? sessionStorage : localStorage).removeItem(k); } catch (e) {} }
+};
+
+let S = JSON.parse(document.getElementById('state').textContent);
+S.L = S.L || {}; S.res = S.res || {};
+const ALL = [];
+S.floors.forEach((f) => f.lgts.forEach((n) => ALL.push({ n, lv: f.lv })));
+const LV = {}; ALL.forEach((x) => { LV[x.n] = x.lv; });
+const ORDER = ALL.map((x) => x.n).sort((a, b) => Number(a) - Number(b));
+const MAXN = Math.max(...S.floors.map((f) => f.lgts.length));
+
+/* ---------- données ---------- */
+const res = (n) => S.res[n] || [];
+const baseVal = (n, f) => { const b = S.L[n]; return (b && b[f] !== undefined) ? b[f] : DEF[f]; };
+function val(n) { const o = {}; for (const f in DEF) o[f] = (P[n] && P[n][f] !== undefined) ? P[n][f] : baseVal(n, f); return o; }
+function rdvState(n) { const v = val(n); if (v.x) return 'done'; if (v.d) return 'set'; if (res(n).length) return 'todo'; return 'none'; }
+
+let P = store.get(KEY_P) || {};
+function cleanPending() {
+  if (!P || typeof P !== 'object') P = {};
+  for (const n of Object.keys(P)) {
+    if (!LV[n] || !P[n] || typeof P[n] !== 'object') { delete P[n]; continue; }
+    for (const f of Object.keys(P[n])) {
+      if (!(f in DEF) || P[n][f] === baseVal(n, f)) delete P[n][f];
+    }
+    if (!Object.keys(P[n]).length) delete P[n];
+  }
+  persistP();
+}
+function persistP() { if (Object.keys(P).length) store.set(KEY_P, P); else store.del(KEY_P); }
+function applyField(n, f, v) {
+  if (val(n)[f] === v) return false;
+  P[n] = P[n] || {};
+  if (v === baseVal(n, f)) delete P[n][f]; else P[n][f] = v;
+  if (!Object.keys(P[n]).length) delete P[n];
+  return true;
+}
+function setFields(n, obj, opts) { let ch = false; for (const f in obj) if (applyField(n, f, obj[f])) ch = true; if (ch) { persistP(); render(opts); } }
+const setField = (n, f, v, opts) => setFields(n, { [f]: v }, opts);
+function mergedState() {
+  const L = {};
+  ALL.forEach(({ n }) => { const v = val(n), c = {}; for (const f in DEF) if (v[f] !== DEF[f]) c[f] = v[f]; if (Object.keys(c).length) L[n] = c; });
+  return Object.assign({}, S, { L, rev: Math.random().toString(36).slice(2, 10), updated: new Date().toISOString() });
+}
+
+/* ---------- dates ---------- */
+const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const todayISO = () => iso(new Date());
+const parseISO = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fDay = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+const fDM = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });
+const fDMY = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+function dayLabel(s) {
+  if (!s) return '';
+  if (s === todayISO()) return 'Aujourd’hui';
+  const t = new Date(); t.setDate(t.getDate() + 1);
+  if (s === iso(t)) return 'Demain';
+  return fDay.format(parseISO(s));
+}
+const timeLabel = (h) => { if (!h) return ''; const [H, M] = h.split(':'); return Number(H) + 'h' + M; };
+const joinFr = (p) => (p.length <= 1 ? p.join('') : p.slice(0, -1).join(', ') + ' et ' + p[p.length - 1]);
+
+/* ---------- état de l'interface ---------- */
+let ui = Object.assign({ sel: null, brush: 'fiche', y: 0 }, store.get(KEY_UI, true) || {});
+if (ui.sel && !LV[ui.sel]) ui.sel = null;
+if (!['fiche', 'occ', 'vac', 'unk'].includes(ui.brush)) ui.brush = 'fiche';
+const persistUI = () => store.set(KEY_UI, { sel: ui.sel, brush: ui.brush, y: Math.round(window.scrollY) }, true);
+let ART = null, DL = null, canWrite = null, saving = false, discardArm = false, discardT = null;
+
+/* ---------- squelette ---------- */
+document.getElementById('root').innerHTML = `
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>Occupation des logements</h1>
+      <p class="addr">5 rue du Bessin, Paris 15e. ${ALL.length} logements, du R+1 au R+6.</p>
+    </div>
+    <div class="actions"><button type="button" class="btn ghost" id="imp" data-act="import" data-k="himp" hidden>Importer un tableau</button><button type="button" class="btn" id="dl" data-act="download" data-k="hdl" hidden>Télécharger le tableau</button><input type="file" id="impfile" accept=".csv,text/csv" hidden></div>
+    <p class="summary" id="summary"></p>
+    <p class="ro" id="ro" hidden></p>
+  </header>
+  <main class="layout">
+    <section class="building" aria-labelledby="bld-t">
+      <h2 class="sr" id="bld-t">Façade : une fenêtre par logement</h2>
+      <div class="mode" id="mode" role="radiogroup" aria-labelledby="mode-l"></div>
+      <div class="facade" id="facade"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw occ"></i>Occupé (fenêtre éclairée)</span>
+        <span><i class="sw vac"></i>Vacant</span>
+        <span><i class="sw unk"></i>À confirmer</span>
+        <span><i class="bd todo">2</i>Réserves, rendez-vous à prendre</span>
+        <span><i class="bd set">1</i>Rendez-vous fixé</span>
+        <span><i class="bd done">✓</i>Réserves levées</span>
+      </div>
+    </section>
+    <aside class="panel" id="panel">
+      <div id="rdv"></div>
+      <div class="backdrop" id="backdrop" data-act="close" hidden></div>
+      <div class="detail" id="detail" role="region" aria-labelledby="det-title" hidden></div>
+    </aside>
+  </main>
+  <footer class="foot" id="foot"></footer>
+</div>
+<div class="bar" id="bar" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>`;
+
+/* ---------- rendu ---------- */
+function renderMode() {
+  const opts = [['fiche', 'Ouvrir la fiche'], ['occ', 'Marquer occupé'], ['vac', 'Marquer vacant'], ['unk', 'Marquer à confirmer']];
+  $('#mode').innerHTML = '<span class="mode-label" id="mode-l">Au clic sur un logement' + NB + ':</span>' +
+    opts.map(([k, l]) => `<button type="button" role="radio" aria-checked="${ui.brush === k}" data-brush="${k}" data-k="m${k}">${k !== 'fiche' ? `<span class="sw ${k}" aria-hidden="true"></span>` : ''}${l}</button>`).join('');
+  $('#facade').classList.toggle('painting', ui.brush !== 'fiche');
+}
+
+function renderSummary() {
+  let occ = 0, vac = 0;
+  ALL.forEach(({ n }) => { const o = val(n).o; if (o === 'occ') occ++; else if (o === 'vac') vac++; });
+  const unk = ALL.length - occ - vac;
+  let s;
+  if (!occ && !vac) s = `Sur ${ALL.length} logements, aucune occupation n’est encore renseignée.`;
+  else {
+    const p = [];
+    if (occ) p.push(`<b>${occ}</b> ${plural(occ, 'est occupé', 'sont occupés')}`);
+    if (vac) p.push(`<b>${vac}</b> ${plural(vac, 'est vacant', 'sont vacants')}`);
+    if (unk) p.push(`<b>${unk}</b> ${plural(unk, 'reste', 'restent')} à confirmer`);
+    s = `Sur ${ALL.length} logements, ${joinFr(p)}.`;
+  }
+  const withRes = ALL.filter(({ n }) => res(n).length);
+  if (withRes.length) {
+    let todo = 0, set = 0, done = 0;
+    withRes.forEach(({ n }) => { const st = rdvState(n); if (st === 'todo') todo++; else if (st === 'set') set++; else if (st === 'done') done++; });
+    const p = [];
+    if (todo) p.push(`<b>${todo}</b> rendez-vous à prendre`);
+    if (set) p.push(`<b>${set}</b> ${todo ? '' : 'rendez-vous '}${plural(set, 'fixé', 'fixés')}`);
+    if (done) p.push(`<b>${done}</b> ${plural(done, 'terminé', 'terminés')}`);
+    s += ` ${withRes.length} ${plural(withRes.length, 'logement avait', 'logements avaient')} des réserves en cours au ${fDM.format(parseISO(S.snap))}${NB}: ${joinFr(p)}.`;
+  }
+  $('#summary').innerHTML = s;
+}
+
+function tile(n) {
+  const v = val(n), r = res(n), st = rdvState(n);
+  let badge = '';
+  if (st !== 'none') {
+    const t = st === 'done' ? '✓' : (r.length ? String(r.length) : '');
+    badge = `<span class="badge ${st}${t ? '' : ' dot'}" aria-hidden="true">${t}</span>`;
+  }
+  let label = `Logement ${n}, ${LV[n]}, ${OCC[v.o].toLowerCase()}`;
+  if (r.length) label += `, ${r.length} ${plural(r.length, 'réserve', 'réserves')} en cours`;
+  if (st === 'todo') label += ', rendez-vous à prendre';
+  else if (st === 'set') label += `, rendez-vous ${dayLabel(v.d).toLowerCase()}${v.h ? ' à ' + timeLabel(v.h) : ''}`;
+  else if (st === 'done') label += ', réserves levées';
+  if (P[n]) label += ', modification non enregistrée';
+  return `<button type="button" class="win ${v.o || 'unk'}" data-n="${n}" data-k="w${n}"${ui.sel === n ? ' aria-current="true"' : ''}${P[n] ? ' data-dirty=""' : ''} aria-label="${esc(label)}">${n}${badge}</button>`;
+}
+
+function renderFacade() {
+  const el = $('#facade');
+  el.style.setProperty('--cols', MAXN);
+  let h = `<div class="floor roofrow"><span class="flv">R+7</span><div class="slab roof" style="--n:${S.floors[0].lgts.length}">Terrasse</div></div>`;
+  S.floors.forEach((f) => {
+    h += `<div class="floor"><span class="flv">${esc(f.lv)}</span><div class="slab" style="--n:${f.lgts.length}"><div class="wins">${f.lgts.map(tile).join('')}</div></div></div>`;
+  });
+  h += `<div class="floor"><span class="flv">RDC</span><div class="slab rdc" style="--n:${MAXN}">Hall, crèche et cabinet médical</div></div><div class="ground" aria-hidden="true"></div>`;
+  el.innerHTML = h;
+}
+
+function renderRdv() {
+  const items = ALL.map(({ n, lv }) => ({ n, lv, v: val(n), r: res(n), st: rdvState(n) }));
+  const todo = items.filter((i) => i.st === 'todo');
+  const set = items.filter((i) => i.st === 'set').sort((a, b) => (a.v.d + (a.v.h || '99')).localeCompare(b.v.d + (b.v.h || '99')));
+  const done = items.filter((i) => i.st === 'done');
+  const today = todayISO();
+  const row = (i) => {
+    const late = i.st === 'set' && i.v.d < today;
+    const txt = i.r.length ? esc(i.r[0].t) + (i.r.length > 1 ? ` <span class="more">+${i.r.length - 1}</span>` : '') : '<span class="more">Sans réserve en cours</span>';
+    const when = i.st === 'set' ? `<span class="rwhen${late ? ' late' : ''}">${esc(dayLabel(i.v.d))}${i.v.h ? '<br>' + timeLabel(i.v.h) : ''}${late ? '<br><em>passé</em>' : ''}</span>` : '<span class="rwhen"></span>';
+    return `<button type="button" class="row" data-act="open" data-n="${i.n}" data-k="r${i.n}"><span class="rnum">${i.n}</span><span class="rmain"><span class="rline"><span class="chip"><i class="sw ${i.v.o || 'unk'}" aria-hidden="true"></i>${OCC[i.v.o]}</span><span>${esc(i.lv)}</span></span><span class="rtxt">${txt}</span></span>${when}</button>`;
+  };
+  let h = '<h2 class="ptitle">Rendez-vous de levée des réserves</h2>';
+  if (!todo.length && !set.length && !done.length) h += '<p class="muted">Aucun logement n’a de réserve en cours.</p>';
+  else {
+    h += `<section class="grp"><h3>À prendre <span class="cnt">${todo.length}</span></h3>${todo.length ? todo.map(row).join('') : '<p class="empty">Tous les rendez-vous sont fixés.</p>'}</section>`;
+    h += `<section class="grp"><h3>Fixés <span class="cnt">${set.length}</span></h3>${set.length ? set.map(row).join('') : '<p class="empty">Aucun rendez-vous fixé. Ouvrez un logement pour saisir une date.</p>'}</section>`;
+    if (done.length) h += `<section class="grp"><h3>Terminés <span class="cnt">${done.length}</span></h3>${done.map(row).join('')}</section>`;
+  }
+  $('#rdv').innerHTML = h;
+}
+
+function hintText(n) {
+  const v = val(n), r = res(n), st = rdvState(n);
+  if (st === 'done') return '';
+  if (st === 'set') return v.d < todayISO() ? `Date de rendez-vous passée${NB}: cochez «${NB}Réserves levées${NB}» ou fixez une nouvelle date.` : '';
+  if (!r.length) return '';
+  if (v.o === 'occ') return 'Rendez-vous à prendre avec l’occupant.';
+  if (v.o === 'vac') return `Logement vacant${NB}: passage à organiser avec le gestionnaire.`;
+  return 'Occupation à confirmer avec le gestionnaire avant de fixer le rendez-vous.';
+}
+
+function renderDetail() {
+  const box = $('#detail'), bd = $('#backdrop');
+  $('#panel').classList.toggle('has-detail', !!ui.sel);
+  if (!ui.sel) { box.hidden = true; bd.hidden = true; box.innerHTML = ''; return; }
+  const n = ui.sel, v = val(n), r = res(n);
+  const i = ORDER.indexOf(n), prev = ORDER[i - 1], next = ORDER[i + 1];
+  box.hidden = false; bd.hidden = false;
+  box.innerHTML = `
+    <div class="det-head">
+      <div class="det-id"><h2 id="det-title" tabindex="-1">Logement ${n}</h2><p>${esc(LV[n])}</p></div>
+      <div class="det-nav">
+        <button type="button" class="icon" data-act="go" data-to="${prev || ''}" data-k="dprev" ${prev ? '' : 'disabled'} aria-label="Logement précédent${prev ? ' (' + prev + ')' : ''}">‹</button>
+        <button type="button" class="icon" data-act="go" data-to="${next || ''}" data-k="dnext" ${next ? '' : 'disabled'} aria-label="Logement suivant${next ? ' (' + next + ')' : ''}">›</button>
+        <button type="button" class="btn ghost small" data-act="close" data-k="dclose">Fermer</button>
+      </div>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="Occupation">
+      ${['occ', 'vac', ''].map((o) => `<button type="button" role="radio" class="${o || 'unk'}" aria-checked="${v.o === o}" data-act="occ" data-o="${o}" data-k="o${o || 'unk'}">${OCC[o]}</button>`).join('')}
+    </div>
+    <p class="hint" id="det-hint">${esc(hintText(n))}</p>
+    <section class="det-sec">
+      <h3>Réserves en cours</h3>
+      ${r.length ? `<ul class="rl">${r.map((x) => `<li><span class="rt">${esc(x.t)}</span><span class="rm">n° ${x.id}${x.p ? ', ' + esc(x.p) : ''}${x.e ? ', ' + esc(x.e) : ''}${STL[x.s] ? ', ' + STL[x.s] : ''}</span></li>`).join('')}</ul>` : '<p class="muted">Aucune réserve en cours dans ce logement.</p>'}
+    </section>
+    <section class="det-sec">
+      <h3>Rendez-vous</h3>
+      <div class="rdv-f">
+        <label>Date<input type="date" id="f-date" data-k="fdate" value="${esc(v.d)}"></label>
+        <label>Heure<input type="time" id="f-time" data-k="ftime" step="900" value="${esc(v.h)}"></label>
+        <button type="button" class="btn ghost small" data-act="clear" data-k="fclear">Effacer</button>
+      </div>
+      <label class="check"><input type="checkbox" id="f-done" data-k="fdone" ${v.x ? 'checked' : ''}>Réserves levées</label>
+    </section>
+    <section class="det-sec">
+      <label class="note">Note<textarea id="f-note" data-k="fnote" rows="3" maxlength="600" placeholder="Disponibilités, contact, consignes d’accès">${esc(v.n)}</textarea></label>
+    </section>`;
+}
+
+function renderBar() {
+  const k = Object.keys(P).length, bar = $('#bar');
+  document.body.classList.toggle('has-bar', k > 0);
+  bar.hidden = !k;
+  if (!k) { bar.innerHTML = ''; return; }
+  const txt = `${k} ${plural(k, 'logement modifié', 'logements modifiés')}`;
+  const disc = `<button type="button" class="btn ghost" data-act="discard" data-k="bdisc">${discardArm ? 'Confirmer l’annulation' : 'Tout annuler'}</button>`;
+  if (canWrite === false) {
+    bar.innerHTML = `<span>${txt}, ${plural(k, 'gardé', 'gardés')} sur cet appareil.</span>${disc}${DL ? '<button type="button" class="btn primary" data-act="download" data-k="bdl">Télécharger le tableau</button>' : ''}`;
+  } else {
+    bar.innerHTML = `<span>${txt}, non ${plural(k, 'enregistré', 'enregistrés')}.</span>${disc}<button type="button" class="btn primary" data-act="save" data-k="bsave" ${saving ? 'disabled' : ''}>${saving ? 'Enregistrement…' : 'Enregistrer'}</button>`;
+  }
+}
+
+function renderRO() {
+  const el = $('#ro');
+  el.hidden = canWrite !== false;
+  if (canWrite === false) el.textContent = `Vos saisies sont gardées dans ce navigateur, elles ne sont pas partagées automatiquement.` + (DL ? ` Pour les transmettre, cliquez sur «${NB}Télécharger le tableau${NB}» et envoyez le fichier au conducteur de travaux.` : '');
+  $('#dl').hidden = !DL;
+  $('#imp').hidden = canWrite !== true;
+}
+
+function renderFoot() {
+  let t = `Réserves en cours selon l’extraction Toolkit du ${fDMY.format(parseISO(S.snap))}. `;
+  if (S.updated) { const d = new Date(S.updated); t += `Dernier enregistrement le ${fDMY.format(d)} à ${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}.`; }
+  else t += 'Aucune saisie enregistrée pour l’instant.';
+  $('#foot').textContent = t;
+}
+
+function render(opts) {
+  opts = opts || {};
+  const a = document.activeElement, k = a && a.dataset ? a.dataset.k : null;
+  renderSummary(); renderFacade(); renderRdv();
+  if (opts.detail === false) { const h = $('#det-hint'); if (h && ui.sel) h.textContent = hintText(ui.sel); }
+  else renderDetail();
+  renderBar(); renderRO(); renderFoot();
+  if (k) { const el = document.querySelector('[data-k="' + k + '"]'); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); }
+}
+
+/* ---------- actions ---------- */
+function openDetail(n) {
+  if (!LV[n]) return;
+  ui.sel = n; persistUI(); render();
+  if (!isWide()) { const t = $('#det-title'); if (t) t.focus({ preventScroll: true }); }
+}
+function closeDetail() {
+  const n = ui.sel; ui.sel = null; persistUI(); render();
+  const t = document.querySelector('[data-k="w' + n + '"]');
+  if (t) t.focus({ preventScroll: !isWide() ? false : true });
+}
+function discard() {
+  if (!discardArm) { discardArm = true; renderBar(); clearTimeout(discardT); discardT = setTimeout(() => { discardArm = false; renderBar(); }, 4000); return; }
+  clearTimeout(discardT); discardArm = false; P = {}; persistP(); render(); toast('Modifications annulées.');
+}
+
+function pageHTML(st) {
+  const css = document.getElementById('css').textContent;
+  const app = document.getElementById('app').textContent;
+  const json = JSON.stringify(st).replace(/</g, '\\u003c');
+  return '<!doctype html>\n<html lang="fr">\n<head>\n' + HEAD + '<style id="css">' + css + '</style>\n</head>\n<body>\n<div id="root"></div>\n<script type="application/json" id="state">\n' + json + '\n</scr' + 'ipt>\n<script id="app">' + app + '</scr' + 'ipt>\n</body>\n</html>\n';
+}
+
+async function save() {
+  if (saving) return;
+  await ready;
+  if (!canWrite || !ART) { canWrite = false; render(); toast(`Mode consultation${NB}: vos saisies restent sur cet appareil.`); return; }
+  const next = mergedState();
+  const html = pageHTML(next);
+  saving = true; renderBar();
+  store.set(KEY_SAVED, Date.now(), true); persistUI();
+  let err = null;
+  for (let i = 0; i < 2; i++) {
+    try { await ART.publish(html); err = null; break; }
+    catch (e) { err = e || { code: 'upstream_error' }; if (err.code === 'upstream_error' && i === 0) { await sleep(700 + Math.random() * 900); continue; } break; }
+  }
+  saving = false;
+  if (!err) { S = next; P = {}; persistP(); render(); toast('Enregistré. La mise à jour est visible par tous.'); return; }
+  const c = err.code;
+  if (c === 'conflict') { renderBar(); toast('Quelqu’un a enregistré en même temps. La page se recharge, vos modifications restent en attente.'); return; }
+  store.del(KEY_SAVED, true);
+  if (['not_writer', 'not_granted', 'consent_required', 'capability_disabled', 'capability_removed', 'not_declared'].includes(c)) {
+    canWrite = false; render(); toast(`Vous n’avez pas les droits d’enregistrement${NB}: vos saisies restent sur cet appareil.`); return;
+  }
+  renderBar();
+  toast(c === 'rate_limited' ? `Trop d’enregistrements rapprochés${NB}: réessayez dans un instant.` : `Enregistrement impossible (${c || 'erreur'}). Vos modifications sont conservées.`);
+}
+
+function csv() {
+  const rows = [['Logement', 'Étage', 'Occupation', 'Réserves en cours', 'Détail des réserves', 'Rendez-vous', 'Heure', 'Réserves levées', 'Note']];
+  ORDER.forEach((n) => {
+    const v = val(n), r = res(n);
+    rows.push([n, LV[n], OCC[v.o], r.length, r.map((x) => `n° ${x.id} ${x.t}`).join(' | '), v.d ? parseISO(v.d).toLocaleDateString('fr-FR') : '', v.h ? timeLabel(v.h) : '', v.x ? 'Oui' : (r.length ? 'Non' : ''), v.n]);
+  });
+  return '\uFEFF' + rows.map((r) => r.map((c) => { c = String(c == null ? '' : c); return /[;"\n\r]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(';')).join('\r\n');
+}
+async function download() {
+  await ready;
+  if (!DL) { toast('Téléchargement indisponible ici.'); return; }
+  try { await DL.save({ filename: `occupation-logements-5-rue-du-bessin-${todayISO()}.csv`, data: csv() }); }
+  catch (e) {
+    const c = e && e.code;
+    if (c === 'declined') return;
+    if (c === 'rate_limited') { toast('Une demande de téléchargement est déjà ouverte.'); return; }
+    if (['unavailable', 'not_granted', 'capability_disabled', 'capability_removed', 'extension_not_enabled'].includes(c)) { DL = null; render(); toast('Téléchargement indisponible ici.'); return; }
+    toast(`Téléchargement impossible (${c || 'erreur'}).`);
+  }
+}
+
+async function blobSave({ filename, data }) {
+  const url = URL.createObjectURL(new Blob([data], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return { status: 'saved' };
+}
+function parseCSV(t) {
+  t = t.replace(/^\uFEFF/, '');
+  const sep = (t.split(/\r?\n/)[0].match(/;/g) || []).length >= (t.split(/\r?\n/)[0].match(/,/g) || []).length ? ';' : ',';
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === sep) { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && t[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim() !== ''));
+}
+async function importFile(file) {
+  let rows;
+  try { rows = parseCSV(await file.text()); } catch (e) { toast('Fichier illisible.'); return; }
+  const norm = (x) => String(x || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const head = (rows.shift() || []).map(norm);
+  const col = (name) => head.findIndex((h) => h.startsWith(name));
+  const iN = col('logement'), iO = col('occupation'), iD = col('rendez-vous'), iH = col('heure'), iX = col('reserves levees'), iT = col('note');
+  if (iN < 0) { toast('Colonne «' + NB + 'Logement' + NB + '» introuvable dans le fichier.'); return; }
+  const touched = new Set();
+  rows.forEach((r) => {
+    const n = String(r[iN] || '').trim(); if (!LV[n]) return;
+    const upd = {};
+    const o = norm(r[iO]);
+    if (o.startsWith('occup')) upd.o = 'occ'; else if (o.startsWith('vacant')) upd.o = 'vac';
+    const d = String(r[iD] || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (d) upd.d = d[3] + '-' + d[2].padStart(2, '0') + '-' + d[1].padStart(2, '0');
+    const h = String(r[iH] || '').trim().match(/^(\d{1,2})\s*[h:]\s*(\d{2})?$/i);
+    if (h) upd.h = h[1].padStart(2, '0') + ':' + (h[2] || '00');
+    if (norm(r[iX]) === 'oui') upd.x = true;
+    const note = iT >= 0 ? String(r[iT] || '').trim() : '';
+    if (note) upd.n = note;
+    let ch = false; for (const k in upd) if (applyField(n, k, upd[k])) ch = true;
+    if (ch) touched.add(n);
+  });
+  persistP(); render();
+  toast(touched.size ? `Tableau importé${NB}: ${touched.size} ${plural(touched.size, 'logement mis', 'logements mis')} à jour. Vérifiez puis enregistrez.` : 'Aucune différence avec le suivi actuel.');
+}
+
+let toastT;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 4500); }
+
+/* ---------- événements ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-brush],[data-act],.win');
+  if (!t) return;
+  if (t.classList.contains('win')) {
+    const n = t.dataset.n;
+    if (ui.brush === 'fiche') openDetail(n);
+    else setField(n, 'o', ui.brush === 'unk' ? '' : ui.brush);
+    return;
+  }
+  if (t.dataset.brush) { ui.brush = t.dataset.brush; persistUI(); renderMode(); return; }
+  const a = t.dataset.act;
+  if (a === 'open') openDetail(t.dataset.n);
+  else if (a === 'go') { if (t.dataset.to) openDetail(t.dataset.to); }
+  else if (a === 'close') closeDetail();
+  else if (a === 'occ') { if (ui.sel) setField(ui.sel, 'o', t.dataset.o || ''); }
+  else if (a === 'clear') { if (ui.sel) setFields(ui.sel, { d: '', h: '' }); }
+  else if (a === 'save') save();
+  else if (a === 'discard') discard();
+  else if (a === 'download') download();
+  else if (a === 'import') $('#impfile').click();
+});
+document.addEventListener('change', (e) => { if (e.target.id === 'impfile' && e.target.files && e.target.files[0]) { importFile(e.target.files[0]); e.target.value = ''; } });
+document.addEventListener('change', (e) => {
+  const t = e.target; if (!ui.sel) return;
+  if (t.id === 'f-date') setField(ui.sel, 'd', t.value || '', { detail: false });
+  else if (t.id === 'f-time') setField(ui.sel, 'h', t.value || '', { detail: false });
+  else if (t.id === 'f-done') setField(ui.sel, 'x', !!t.checked, { detail: false });
+});
+document.addEventListener('input', (e) => { if (e.target.id === 'f-note' && ui.sel) setField(ui.sel, 'n', e.target.value, { detail: false }); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (ui.sel) closeDetail();
+  else if (ui.brush !== 'fiche') { ui.brush = 'fiche'; persistUI(); renderMode(); }
+});
+let scrollT;
+window.addEventListener('scroll', () => { clearTimeout(scrollT); scrollT = setTimeout(persistUI, 250); }, { passive: true });
+
+/* ---------- démarrage ---------- */
+cleanPending();
+renderMode();
+render();
+if (ui.y) requestAnimationFrame(() => window.scrollTo(0, ui.y));
+const savedAt = store.get(KEY_SAVED, true);
+if (savedAt) {
+  store.del(KEY_SAVED, true);
+  if (Date.now() - savedAt < 60000) toast(Object.keys(P).length ? `Quelqu’un a enregistré en même temps${NB}: vos modifications sont en attente, vérifiez puis enregistrez.` : 'Enregistré.');
+}
+
+const ready = (async () => {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') { canWrite = false; DL = { save: blobSave }; render(); return; }
+  const use = (nm) => { try { return Promise.resolve(c.use(nm)).catch(() => null); } catch (e) { return Promise.resolve(null); } };
+  const [a, d, u] = await Promise.all([use('artifact'), use('downloads'), use('user')]);
+  ART = a; DL = d;
+  if (!ART) canWrite = false;
+  else if (u && typeof u.canEdit === 'function') { try { canWrite = !!(await u.canEdit()); } catch (e) { canWrite = true; } }
+  else canWrite = true;
+  render();
+})();
+})();
+</script>
+</body>
+</html>

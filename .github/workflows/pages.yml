@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Vérifier la syntaxe JavaScript
         run: cat src/10-symboles-et-rendu.js src/15-fonctions.js src/20-interactions.js src/30-interface.js > /tmp/app.js && node --check /tmp/app.js
+      - name: Vérifier la page des logements
+        run: node -e 'const t=require("fs").readFileSync("logements-bessin/index.html","utf8");const m=t.match(/<script id="app">([\s\S]*?)<\/script>/);if(!m)throw new Error("script app introuvable");new Function(m[1]);JSON.parse(t.match(/<script type="application\/json" id="state">([\s\S]*?)<\/script>/)[1]);'
       - name: Construire la page
         run: bash build.sh
       - uses: actions/configure-pages@v5

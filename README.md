@@ -37,7 +37,8 @@ open dist/index.html   # ou double-clic sur le fichier
 | `src/30-interface.js` | Panneau de propriétés, bibliothèque, menus, exports, sauvegarde, exemples |
 | `modeles/*.json` | Modèles proposés dans Fichier > Modèles (schémas enregistrés depuis l'outil) |
 | `vendor/` | jsPDF, svg2pdf.js et police Arimo pour l'export PDF, servis avec la page (licences dans le dossier) |
-| `build.sh` | Assemble `dist/index.html`, y intègre les modèles et copie `vendor/` |
+| `logements-bessin/` | Page autonome : occupation des logements et rendez-vous de levée des réserves, 5 rue du Bessin |
+| `build.sh` | Assemble `dist/index.html`, y intègre les modèles et copie `vendor/` et `logements-bessin/` |
 
 Pour ajouter un modèle : enregistrer le schéma en `.json` (Fichier > Enregistrer en fichier .json), le déposer dans `modeles/`, puis relancer `build.sh`. Le nom affiché dans le menu est celui du schéma.
 
@@ -46,6 +47,14 @@ Pour ajouter un symbole : déclarer son dessin dans l'objet `S` (boîte, points 
 ## Publication
 
 Le workflow `.github/workflows/pages.yml` construit et publie la page sur GitHub Pages à chaque push sur `main`. À activer une fois dans le dépôt : **Settings > Pages > Source : GitHub Actions**.
+
+## Occupation des logements, 5 rue du Bessin
+
+`logements-bessin/index.html` est une page autonome, publiée avec l'éditeur à l'adresse `…/schema-plomberie/logements-bessin/`. Elle montre la façade (une fenêtre par logement), l'occupation, les réserves en cours et les rendez-vous de levée.
+
+- Les données publiées sont celles écrites dans la page (bloc `<script id="state">`). Pour les mettre à jour, remplacer le fichier par la dernière version enregistrée sur claude.ai, puis pousser sur `main`.
+- Sur GitHub Pages, la page est en consultation : les saisies de chacun restent dans son navigateur et se transmettent avec « Télécharger le tableau » (fichier CSV).
+- Le site est public ; la balise `noindex` évite seulement son référencement par les moteurs de recherche.
 
 ## Différences avec la version hébergée sur claude.ai
 
