@@ -11,6 +11,7 @@ function renderUI() {
     one.pts.forEach((q, i) => { s += `<rect class="hdl vh" data-hit="vh" data-id="${one.id}" data-i="${i}" x="${r2(q.x - hs / 2)}" y="${r2(q.y - hs / 2)}" width="${r2(hs)}" height="${r2(hs)}" stroke-width="${sw}"/>`; });
   }
   if (one && one.kind === 'zone') { const s0 = 8 / k; for (const [c, x, y] of [['nw', one.x, one.y], ['ne', one.x + one.w, one.y], ['sw', one.x, one.y + one.h], ['se', one.x + one.w, one.y + one.h]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="zh" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
+  if (one && one.kind === 'cart') { const b = bboxOf(one), s0 = 9 / k; for (const [c, x, y] of [['nw', b.x0, b.y0], ['ne', b.x1, b.y0], ['sw', b.x0, b.y1], ['se', b.x1, b.y1]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="ch" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
   if (one && one.kind === 'el' && state.itab === 'racc') s += portBadges(one, k);
   const showPorts = state.tool === 'pipe' || (drag && drag.kind === 'vertex');
   if (showPorts) { const r = r2(3.2 / k), sw = r2(1.2 / k); for (const el of els()) for (const q of portsW(el)) s += `<circle class="portmark" cx="${q.x}" cy="${q.y}" r="${r}" stroke-width="${sw}"/>`; }
@@ -200,7 +201,7 @@ function doPinch() {
 function selectDown(e, w, dbl) {
   const t = e.target.closest ? e.target.closest('[data-hit]') : null, hit = t ? t.dataset.hit : null, id = t ? t.dataset.id : null;
   if (hit === 'vh' && dbl) { deleteVertex(byId(id), +t.dataset.i); return; }
-  if (hit === 'vh' || hit === 'sh' || hit === 'zh') { startHandle(e, w, t); return; }
+  if (hit === 'vh' || hit === 'sh' || hit === 'zh' || hit === 'ch') { startHandle(e, w, t); return; }
   if (dbl && id && byId(id)) { onDouble(byId(id), w); return; }
   if (hit === 'label') { const el = byId(id); if (!el) return; if (!state.sel.has(id)) setSel([id]); drag = { kind: 'label', before: snapshot(), el, start: w, ox: el.lx || 0, oy: el.ly || 0, moved: false }; return; }
   if (id && byId(id)) {
@@ -248,6 +249,11 @@ function dragMove(e, w) {
     for (const a of d.att) applyAtt(a, dx, dy);
     render(); return;
   }
+  if (d.kind === 'cart') {
+    const k = clamp(Math.round(Math.max(Math.abs(w.x - d.ax) / CART_W, Math.abs(w.y - d.ay) / CART_H) * 20) / 20, 0.5, 4), it = d.it;
+    it.sc = k; it.x = d.c.includes('w') ? r2(d.ax - CART_W * k) : d.ax; it.y = d.c.includes('n') ? r2(d.ay - CART_H * k) : d.ay;
+    d.moved = true; render(); return;
+  }
   if (d.kind === 'zone') {
     const o = d.o, sx = snap(w.x), sy = snap(w.y); let x0 = o.x, y0 = o.y, x1 = o.x + o.w, y1 = o.y + o.h;
     if (d.c.includes('w')) x0 = Math.min(sx, x1 - 40); if (d.c.includes('e')) x1 = Math.max(sx, x0 + 40); if (d.c.includes('n')) y0 = Math.min(sy, y1 - 40); if (d.c.includes('s')) y1 = Math.max(sy, y0 + 40);
@@ -263,6 +269,7 @@ function dragEnd(d) {
   if (d.kind === 'rubber') { rubberEnd(d); return; }
   if (d.kind === 'move') { if (d.moved || d.dup) { for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); for (const it of d.items) if (it.kind === 'pipe') it.pts = simplify(it.pts); commit(d.before); } else if (d.clickSel) setSel([d.clickSel]); return; }
   if (d.kind === 'label' || d.kind === 'zone') { if (d.moved) commit(d.before); return; }
+  if (d.kind === 'cart') { if (d.moved) { commit(d.before); buildInspector(); } return; }
   if (d.kind === 'vertex') { state.snap = null; if (d.moved) { d.p.pts = simplify(d.p.pts); if (d.p.pts.length < 2) { doc.items = doc.items.filter(i => i !== d.p); state.sel.delete(d.p.id); } commit(d.before); } else renderUI(); return; }
   if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); commit(d.before); } return; }
   if (d.kind === 'zoneNew') { let z = d.z; if (!z) { z = makeZone(d.s.x, d.s.y); doc.items.unshift(z); } z.w = Math.max(40, z.w); z.h = Math.max(40, z.h); commit(d.before); setTool('select'); setSel([z.id]); focusField('title', true); }
@@ -270,6 +277,7 @@ function dragEnd(d) {
 function startHandle(e, w, t) {
   const it = byId(t.dataset.id); if (!it) return; const i = +t.dataset.i, before = snapshot();
   if (t.dataset.hit === 'vh') { drag = { kind: 'vertex', before, p: it, i, sx: e.clientX, sy: e.clientY, moved: false }; renderUI(); return; }
+  if (t.dataset.hit === 'ch') { const k0 = cartSc(it), c = t.dataset.c; drag = { kind: 'cart', before, it, ax: c.includes('w') ? it.x + CART_W * k0 : it.x, ay: c.includes('n') ? it.y + CART_H * k0 : it.y, c, moved: false }; return; }
   if (t.dataset.hit === 'zh') { drag = { kind: 'zone', before, z: it, c: t.dataset.c, o: { x: it.x, y: it.y, w: it.w, h: it.h }, moved: false }; return; }
   const a0 = it.pts[i], b0 = it.pts[i + 1]; if (!a0 || !b0) return;
   const pts = clone(it.pts); let si = i;

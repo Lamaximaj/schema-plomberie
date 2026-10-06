@@ -12,7 +12,7 @@
 - **Mise en page** : légende et nomenclature générées automatiquement, cartouche (lot, phase, indice, date).
 - **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
 - **Exports** PNG, SVG, JSON et PDF A4, A3 et A0. Le PDF est vectoriel (trait et texte nets à toutes les échelles, police Arimo intégrée) ; si ses bibliothèques ne se chargent pas, il est produit en image d'environ 300 dpi. Le travail en cours est gardé dans le navigateur.
-- **Cartouche** agrandissable de 100 à 300 % (panneau du cartouche, réglage « Taille »).
+- **Cartouche** agrandissable de 50 à 400 % : glisser un coin du cartouche sélectionné, ou saisir « Taille du cartouche (%) » dans son panneau.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
 - **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin.
 
