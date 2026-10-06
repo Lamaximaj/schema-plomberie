@@ -31,12 +31,13 @@ const AL_ICO = { l: 'M4 3v18M8 6h11v4H8zM8 14h7v4H8z', c: 'M12 3v18M6 6h12v4H6zM
 /* Alignement et répartition des blocs de mise en page sélectionnés */
 function alignSec(L) {
   const b = (m, label, fn, title) => h('button', { class: 'btn', type: 'button', title, onclick: fn, html: `<svg class="ico" viewBox="0 0 24 24"><path d="${AL_ICO[m]}"/></svg><span>${label}</span>` });
-  const ref = L.ref !== L.mov, n = L.mov.length;
+  const n = L.mov.length;
   return SEC('Aligner la mise en page',
     h('div', { class: 'align' }, b('l', 'Gauche', () => alignLayout('l'), 'Aligner les bords gauches'), b('c', 'Centre', () => alignLayout('c'), 'Centrer horizontalement'), b('r', 'Droite', () => alignLayout('r'), 'Aligner les bords droits'),
       b('t', 'Haut', () => alignLayout('t'), 'Aligner les bords hauts'), b('m', 'Milieu', () => alignLayout('m'), 'Centrer verticalement'), b('b', 'Bas', () => alignLayout('b'), 'Aligner les bords bas')),
     n > 2 ? h('div', { class: 'btnrow' }, btn('Répartir en largeur', () => distributeLayout('x')), btn('Répartir en hauteur', () => distributeLayout('y'))) : null,
-    h('p', { class: 'hint' }, (ref ? 'Les blocs s’alignent sur la zone sélectionnée, qui ne bouge pas.' : 'Les blocs s’alignent entre eux, sur les bords de l’ensemble sélectionné.') + ' En les faisant glisser un par un, ils s’aimantent aussi aux bords des autres blocs et des zones.'));
+    h('p', { class: 'hint' }, (L.ref === 'page' ? 'Le bloc se cale sur les marges de la feuille.' : L.ref !== L.mov ? 'Les blocs s’alignent sur la zone sélectionnée, qui ne bouge pas.' : 'Les blocs s’alignent entre eux, sur les bords de l’ensemble sélectionné.')
+      + ' En les faisant glisser, ils s’aimantent aussi aux bords des autres blocs, des zones' + (pageOn() ? ' et aux marges de la feuille.' : '.')));
 }
 const actionsSec = () => SEC(null, h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Premier plan', () => zorder(true)), btn('Arrière-plan', () => zorder(false)), btn('Supprimer', deleteSel, 'danger', 'Suppr')));
 function buildInspector() {
@@ -46,6 +47,7 @@ function buildInspector() {
   if (items.length > 1) return inspMulti(items);
   const it = items[0];
   ({ el: inspEl, pipe: inspPipe, text: inspText, zone: inspZone, legend: inspLegend, nomen: inspNomen, cart: inspCart })[it.kind](it);
+  if (BLOCKS[it.kind]) { const L = layoutSets([it]); if (L) IB.insertBefore(alignSec(L), IB.lastChild); }
 }
 function paramField(el, k, sp) {
   const get = () => el.p[k], set = v => { el.p[k] = v; };
@@ -210,12 +212,31 @@ function inspMulti(items) {
   if (nE > 1) IB.append(SEC('Aligner les symboles', h('div', { class: 'btnrow' }, btn('Sur une même ligne', () => alignEls('y')), btn('Sur une même colonne', () => alignEls('x')))));
   IB.append(SEC(null, h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Supprimer', deleteSel, 'danger', 'Suppr'))));
 }
+/* Cadre de la feuille : format, orientation, trait de cadre, taille des textes imprimés et éléments hors marges */
+function pageSec() {
+  const toggle = h('div', { class: 'f' }, fCheck(pageOn, v => { if (!doc.opts.page) { doc.opts.page = { on: true, fmt: 'a4', land: true, border: false, x: 0, y: 0, w: 1000 }; fitPage(doc.opts.page); } else doc.opts.page.on = v; },
+    'Cadre de la feuille', () => { buildInspector(); if (pageOn()) fitView(); }));
+  if (!pageOn()) return SEC('Feuille', toggle, h('p', { class: 'hint' }, 'Affiche la feuille sur le plan pour placer les éléments avant l’export. Sans cadre, l’export cadre le dessin automatiquement.'));
+  const pg = doc.opts.page, g = pageGeom(), ctx = buildCtx(), M = marginBox(g), fmtL = pg.fmt.toUpperCase();
+  const setLand = v => { const g0 = pageGeom(), cx = g0.x + g0.w / 2, cy = g0.y + g0.h / 2, [L, l] = SHEETS[pg.fmt]; pg.land = v === '1'; pg.w = Math.max(100, Math.round((pg.land ? L : l) * g0.u / 10) * 10); const g1 = pageGeom(); pg.x = snap(cx - g1.w / 2); pg.y = snap(cy - g1.h / 2); };
+  const out = doc.items.filter(it => { const b = bboxOf(it, ctx); return b && (b.x0 < M.x0 - 0.5 || b.y0 < M.y0 - 0.5 || b.x1 > M.x1 + 0.5 || b.y1 > M.y1 + 0.5); }).length;
+  const mm = v => (v / g.u).toFixed(1).replace('.', ','), small = 8 / g.u < 1.8;
+  return SEC('Feuille', toggle,
+    h('div', { class: 'row2' }, F('Format', fSelect([['a4', 'A4'], ['a3', 'A3'], ['a0', 'A0']], () => pg.fmt, v => { pg.fmt = v; }, buildInspector)), F('Orientation', fSelect([['1', 'Paysage'], ['0', 'Portrait']], () => pg.land ? '1' : '0', setLand, buildInspector))),
+    h('div', { class: 'f' }, fCheck(() => pg.border, v => { pg.border = v; }, 'Imprimer le trait de cadre')),
+    h('p', { class: 'hint' }, `Textes imprimés en ${fmtL} : repères ${mm(8)} mm, plus petits textes ${mm(5.5)} mm.`),
+    small ? h('p', { class: 'hint', style: 'color:var(--danger)' }, 'Repères trop petits pour être lus : réduisez la feuille par ses coins, ou passez en format plus grand.') : null,
+    h('p', { class: 'hint' }, out ? `${out} élément${out > 1 ? 's sortent' : ' sort'} des marges de la feuille (grisé sur le plan).` : 'Tout le dessin tient dans les marges.'),
+    h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajuster au dessin', () => { const b = snapshot(); fitPage(pg); commit(b); buildInspector(); fitView(); })),
+    h('p', { class: 'hint' }, 'Déplacez la feuille par son étiquette bleue, agrandissez-la ou réduisez-la par ses coins. L’export PDF, PNG ou SVG sort exactement la feuille.'));
+}
 function inspDoc() {
   IB.append(headNode('<svg viewBox="0 0 64 46"><path d="M6 23H58" stroke="#1c7ed6" stroke-width="2.5"/><path d="M22 17L22 29L32 17L32 29Z" fill="#fff" stroke="#16191b" stroke-width="1.4"/><circle cx="44" cy="23" r="6" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M41.8 19.5L41.8 26.5L48 23Z" fill="#16191b"/></svg>', doc.name || 'Sans titre', els().length + ' symboles, ' + pipes().length + ' tuyaux'));
   const list = h('div', { class: 'nets' }); doc.nets.forEach((n, i) => list.append(netRow(n, i)));
   IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9.'), list, h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet))));
   const g = h('input', { type: 'checkbox' }); g.checked = state.grid; g.addEventListener('change', () => { state.grid = g.checked; updateGrid(); });
   IB.append(SEC('Affichage', h('div', { class: 'f' }, h('label', { class: 'chk' }, g, h('span', null, 'Grille'))), h('div', { class: 'f' }, fCheck(() => doc.opts.hops !== false, v => { doc.opts.hops = v; }, 'Sauts aux croisements de tuyaux')), h('div', { class: 'f' }, fCheck(() => !!doc.opts.real, v => { doc.opts.real = v; }, 'Équipements en vue réaliste'))));
+  IB.append(pageSec());
   IB.append(SEC('Repères', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Numérote les symboles de gauche à droite, ligne par ligne.'), btn('Renuméroter les repères', renumber)));
   const keys = [['V', 'Sélection'], ['L', 'Tuyauterie'], ['T', 'Texte'], ['Z', 'Zone ou local'], ['R', 'Tourner de 90°'], ['F', 'Inverser le sens'], ['Maj+F', 'Passer de l’autre côté'], ['1 à 9', 'Réseau du tracé'], ['/', 'Autre coude pendant le tracé'], ['Maj', 'Tracé à 45°, ou déplacement droit'], ['Alt + glisser', 'Dupliquer'], ['Ctrl+Z', 'Annuler'], ['Suppr', 'Supprimer'], ['Flèches', 'Décaler d’un pas'], ['Espace + glisser', 'Déplacer la vue'], ['0', 'Ajuster à l’écran'], ['G', 'Grille']];
   IB.append(SEC('Raccourcis', h('div', { class: 'keys' }, keys.flatMap(([k, t]) => [h('kbd', null, k), h('span', null, t)]))));
@@ -348,6 +369,7 @@ function sanitize(d) {
     out.items.push(c);
   }
   out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real) };
+  const pg = d.opts && d.opts.page; if (pg && typeof pg === 'object') out.opts.page = { on: !!pg.on, fmt: SHEETS[pg.fmt] ? pg.fmt : 'a4', land: pg.land !== false, x: num(pg.x), y: num(pg.y), w: clamp(num(pg.w) || 1000, 100, 50000), border: !!pg.border };
   return out;
 }
 function restore() { try { const raw = localStorage.getItem(LS_KEY); if (!raw) return false; const o = JSON.parse(raw); doc = sanitize(o.doc); state.libId = o.libId || null; if (o.net && doc.nets.some(n => n.id === o.net)) state.activeNet = o.net; return true; } catch (e) { return false; } }
@@ -371,11 +393,12 @@ const EXPORT_VARS = { '--ink': '#16191b', '--paper': '#ffffff', '--hdr': '#ecece
 const fileBase = () => (doc.name || 'schema').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'schema';
 function buildExport() {
   const ctx = buildCtx(), b = contentBBox(ctx); if (!b) { toast('Le schéma est vide.'); return null; }
-  const m = 20, x = Math.floor(b.x0 - m), y = Math.floor(b.y0 - m), w = Math.ceil(b.x1 - b.x0 + 2 * m), hh = Math.ceil(b.y1 - b.y0 + 2 * m);
+  const g = pageOn() ? pageGeom() : null, m = 20;
+  const x = g ? g.x : Math.floor(b.x0 - m), y = g ? g.y : Math.floor(b.y0 - m), w = g ? g.w : Math.ceil(b.x1 - b.x0 + 2 * m), hh = g ? g.h : Math.ceil(b.y1 - b.y0 + 2 * m);
   const inner = contentSVG({ exp: true }).replace(/var\((--[\w-]+)\)/g, (_, v) => EXPORT_VARS[v] || '#16191b').replace(/ data-(?:id|hit)="[^"]*"/g, '');
   /* wrap : SVG d'une zone du schéma (vx, vy, vw, vh) rendue en pw × ph pixels — sert aussi au découpage en tuiles du PDF */
   const wrap = (vx, vy, vw, vh, pw, ph) => `<svg xmlns="http://www.w3.org/2000/svg" width="${pw}" height="${ph}" viewBox="${r2(vx)} ${r2(vy)} ${r2(vw)} ${r2(vh)}" font-family='${FONT}'><rect x="${r2(vx)}" y="${r2(vy)}" width="${r2(vw)}" height="${r2(vh)}" fill="#ffffff"/>${inner}</svg>`;
-  return { svg: wrap(x, y, w, hh, w, hh), w, h: hh, x, y, wrap };
+  return { svg: wrap(x, y, w, hh, w, hh), w, h: hh, x, y, wrap, page: !!g };
 }
 function svgToPng(str, w, hh, scale) {
   return new Promise((res, rej) => {
@@ -389,7 +412,7 @@ async function exportPNG() { const e = buildExport(); if (!e) return; try { save
 /* Formats PDF (mm, paysage) et marge. Export vectoriel (svg2pdf, police Arimo, de même chasse qu'Arial) : net à toutes les échelles.
    Si ces bibliothèques ne se chargent pas, repli sur un rendu image d'environ 300 dpi, découpé en tuiles de 3000 px au plus
    (un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
-const PDF_FMT = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] }, PDF_PXMM = 12, PDF_TILE = 3000;
+const PDF_FMT = SHEETS, PDF_PXMM = 12, PDF_TILE = 3000;
 /* Bibliothèques servies avec la page (dossier vendor/), CDN en secours */
 const PDF_LIBS = {
   jspdf: ['vendor/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'],
@@ -486,8 +509,9 @@ async function exportPDF(fmt) {
   try { await loadFirst(PDF_LIBS.jspdf, hasJsPDF); } catch (e) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
   const J = window.jspdf.jsPDF;
   const e = buildExport(); if (!e) return;
-  const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.w >= e.h, PW = land ? L : l, PH = land ? l : L;
-  const s = Math.min((PW - 2 * mg) / e.w, (PH - 2 * mg) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
+  /* Avec le cadre de la feuille : la feuille entière, dans son orientation (A4, A3 et A0 ont les mêmes proportions) ; sinon le dessin centré dans les marges */
+  const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.page ? doc.opts.page.land : e.w >= e.h, PW = land ? L : l, PH = land ? l : L, mm = e.page ? 0 : mg;
+  const s = Math.min((PW - 2 * mm) / e.w, (PH - 2 * mm) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
   const mk = () => new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt, compress: true });
   toast('Création du PDF ' + fmt.toUpperCase() + '…');
   let pdf = mk();
