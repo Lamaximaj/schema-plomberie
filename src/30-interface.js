@@ -156,7 +156,7 @@ function inspCart(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="6" y="11" width="52" height="24" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M6 19H58M6 27H58M24 11V19M18 27V35M30 27V35M44 27V35" stroke="#16191b" stroke-width=".8"/></svg>', 'Cartouche'));
   const keep = () => { try { localStorage.setItem(LS_CART, JSON.stringify({ ent: it.f.ent, auteur: it.f.auteur })); } catch (e) { /* stockage indisponible */ } };
   const fld = (k, label) => F(label, fText(() => it.f[k], v => { it.f[k] = v; }, { k: 'f-' + k, max: 120, after: keep }));
-  IB.append(SEC(null, F('Taille', fSelect(CART_SC.map(v => [String(v), Math.round(v * 100) + ' %']), () => String(cartSc(it)), v => { it.sc = +v; })), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
+  IB.append(SEC(null, F('Taille du cartouche (%)', fNum(() => Math.round(cartSc(it) * 100), v => { it.sc = clamp(Math.round(+v || 100), 50, 400) / 100; }, { min: 50, max: 400, step: 25 })), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
   IB.append(actionsSec());
 }
 function inspMulti(items) {

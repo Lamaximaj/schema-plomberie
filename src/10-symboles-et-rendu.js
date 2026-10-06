@@ -958,7 +958,7 @@ function nomenSVG(it, ctx) {
   if (!L.cells.length) s += `<text x="${x0 + 8}" y="${r2(yT + L.rh + 10)}" font-size="7" font-style="italic" style="fill:var(--muted-ink)">Aucun symbole</text>`;
   return s + '</g>';
 }
-const CART_W = 420, CART_H = 88, CART_SC = [1, 1.25, 1.5, 2, 2.5, 3];
+const CART_W = 420, CART_H = 88;
 const cartSc = it => clamp(+it.sc || 1, 0.5, 4);
 function cartSVG(it) {
   const f = it.f || {}, x = it.x, y = it.y;
