@@ -154,9 +154,10 @@ const S = {
     params: { txt: { label: 'Énergie', type: 'text', def: 'Gaz', max: 14 } },
     draw: el => ({ g: Re(-30, -40, 60, 80, ' rx="3"') + P(FLAME, ' transform="translate(0,1)"'), t: [[0, -27, 'CHAUDIÈRE', 7, 700], [0, 28, el.p.txt || '', 7, 400]] }) },
   /* Groupe extérieur monobloc air / eau : carrosserie sur pieds, grille de ventilateur hélicoïde, panneau de service et raccords d'eau à droite */
-  pac: { cat: 'equip', name: 'Pompe à chaleur', prefix: 'PAC', tagOn: true, box: [-30, -30, 60, 60], ports: [[30, -20], [30, 20]], pn: ['Départ', 'Retour'],
+  pac: { cat: 'equip', name: 'Pompe à chaleur', prefix: 'PAC', tagOn: true, box: [-30, -30, 60, 60], ports: [[30, -20], [30, 20], [0, 30]], pn: ['Départ', 'Retour', 'Évacuation des condensats'],
     draw: (el, c) => {
-      let g = PIED(-24, -12, 24, 29) + PIED(4, 16, 24, 29) + stub(c, 0, 24, -20, 30, -20) + stub(c, 1, 24, 20, 30, 20) + FL(27, -20) + FL(27, 20) + Re(-28, -28, 52, 52, ' rx="2"');
+      let g = PIED(-24, -12, 24, 29) + PIED(6, 18, 24, 29) + stub(c, 0, 24, -20, 30, -20) + stub(c, 1, 24, 20, 30, 20) + FL(27, -20) + FL(27, 20) + Re(-28, -28, 52, 52, ' rx="2"');
+      g += P('M-26,18L-26,21.5L4,21.5L4,18', NOF + THIN) + stub(c, 2, 0, 21.5, 0, 30);
       g += Ci(-8, -2, 16) + PROP(-8, -2, 13) + Ci(-8, -2, 13, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 9.5, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 6, NOF + ' stroke-width="0.7"') + Ci(-8, -2, 2.2, FILLED);
       g += Ln(10, -28, 10, 24, THIN) + Re(14, 0, 6, 10, ' rx="1"' + THIN) + Ln(15.5, 3, 18.5, 3, THIN) + Ln(15.5, 5, 18.5, 5, THIN) + Ln(15.5, 7, 18.5, 7, THIN);
       return { g, t: [[17, -8, 'PAC', 5.5, 700]] }; } },
@@ -302,10 +303,10 @@ Object.assign(S, {
       + VOLUTE(-3, 5, 8, 6, 1, 1, 25) + Re(-22, -15, 8, 10, ' rx="1"' + THIN) + SECT(-18, -10) }) },
   /* PAC sur air extrait (type France Air SORAYA), sans ventilateur : l'air est mis en mouvement par le caisson d'extraction.
      Filtre, évaporateur, compresseur, condenseur à plaques raccordé à l'eau par le dessous, coffret électrique avec sectionneur */
-  pac_air: { cat: 'aero', name: 'PAC sur air extrait', prefix: 'PAC', tagOn: true, box: [-40, -30, 80, 60], ports: [[-40, 0], [40, 0], [-10, 30], [10, 30]], pn: ['Air extrait (entrée)', 'Air rejeté', 'Eau chaude départ', 'Eau chaude retour'],
+  pac_air: { cat: 'aero', name: 'PAC sur air extrait', prefix: 'PAC', tagOn: true, box: [-40, -30, 80, 60], ports: [[-40, 0], [40, 0], [-10, 30], [10, 30], [-20, 30]], pn: ['Air extrait (entrée)', 'Air rejeté', 'Eau chaude départ', 'Eau chaude retour', 'Évacuation des condensats'],
     draw: (el, c) => {
-      let g = PIED(-31, -19, 18, 25) + PIED(19, 31, 18, 25) + PIQ(-40, -34, 0, 10) + PIQ(40, 34, 0, 10) + stub(c, 2, -10, 18, -10, 30) + stub(c, 3, 10, 18, 10, 30) + FL(-10, 23, true) + FL(10, 23, true) + Re(-34, -24, 68, 42, ' rx="1.5"');
-      g += FILT(-31, -14, 5, 28) + FINS(-24, -14, 9, 28) + Ln(-15, -6, -10, -6, THIN) + Re(-10, -13, 10, 14, ' rx="5" ry="3"') + Ln(-5, 1, -5, 5, THIN);
+      let g = PIED(-33, -24, 18, 25) + PIED(19, 31, 18, 25) + PIQ(-40, -34, 0, 10) + PIQ(40, 34, 0, 10) + stub(c, 2, -10, 18, -10, 30) + stub(c, 3, 10, 18, 10, 30) + FL(-10, 23, true) + FL(10, 23, true) + Re(-34, -24, 68, 42, ' rx="1.5"');
+      g += FILT(-31, -14, 5, 26) + FINS(-24, -14, 9, 26) + P('M-25,12.5L-25,15.5L-14,15.5L-14,12.5', NOF + THIN) + stub(c, 4, -20, 15.5, -20, 30) + Ln(-15, -6, -10, -6, THIN) + Re(-10, -13, 10, 14, ' rx="5" ry="3"') + Ln(-5, 1, -5, 5, THIN);
       g += Re(-13, 5, 26, 8, ' rx="1"'); for (let x = -10; x <= 10; x += 2.5) g += Ln(x, 5, x, 13, ' stroke-width="0.6"');
       g += Ln(-10, 13, -10, 18, THIN) + Ln(10, 13, 10, 18, THIN) + Re(18, -14, 12, 18, ' rx="1"') + Re(20, -12, 8, 4, THIN) + SECT(24, -1.5);
       return { g, t: [[0, -19.5, 'PAC AIR EXTRAIT', 5.5, 700], [-5, -6, 'Cp', 5, 700]] }; } },
@@ -571,7 +572,7 @@ const RACC = {
     RP('rch', 'Vanne d’isolement, pot à boue ou désemboueur, et piquage du vase d’expansion.'),
     RP(/gaz/i.test(el.p.txt || 'Gaz') ? 'gaz' : '', 'Robinet de barrage accessible au plus près de l’appareil.'),
     RP('', 'Conduit de fumée : il ne se trace pas avec un réseau d’eau. Indiquez-le par un texte ou un renvoi.')] }),
-  pac: { c: 'Départ en haut, retour en bas, côté droit.', p: [RP('dch', ISO + ' et manchette antivibratile.'), RP('rch', 'Filtre à tamis pour protéger l’échangeur, vanne d’isolement et manchette antivibratile. Vase d’expansion et soupape s’ils ne sont pas intégrés.')] },
+  pac: { c: 'Départ en haut, retour en bas, côté droit. Condensats de dégivrage par le dessous.', p: [RP('dch', ISO + ' et manchette antivibratile.'), RP('rch', 'Filtre à tamis pour protéger l’échangeur, vanne d’isolement et manchette antivibratile. Vase d’expansion et soupape s’ils ne sont pas intégrés.'), RP('cond eu', 'Évacuation des condensats de dégivrage, protégée du gel (cordon chauffant si besoin), vers un regard ou un réseau d’évacuation.')] },
   ballon: el => { const serp = el.p.coil === 'serp', off = RP('', 'Sans serpentin : charge par un échangeur extérieur, ou point laissé libre.'); return { c: 'Eau froide en bas, eau chaude en haut, retour de bouclage en partie médiane. ' + (serp ? 'Primaire (serpentin) à droite : entrée en haut, sortie en bas.' : 'Sans serpentin, les raccordements de droite servent à la charge par un échangeur extérieur ou restent libres.'), p: [
     RP('ecs', 'Thermomètre en sortie, puis mitigeur thermostatique si la distribution l’exige.'),
     RP('becs', 'Retour de boucle : vanne d’équilibrage, clapet anti-retour, circulateur de bouclage et vanne d’isolement.'),
@@ -623,8 +624,9 @@ const RACC = {
     RP('dch', ISO + ' sur l’aller de la batterie.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.'),
     RP('cond eu', 'Siphon dimensionné selon la pression de la CTA, puis évacuation avec rupture de charge (entonnoir siphonné) ou pompe de relevage des condensats.')] },
   caisson: { c: 'Aspiration à gauche, refoulement à droite.', p: [RP('ar', 'Réseau d’extraction, avec manchette souple.'), RP('aj', 'Vers le rejet extérieur, avec manchette souple.')] },
-  pac_air: { c: 'Air à gauche et à droite, eau par le dessous.', p: [RP('ar', 'Air extrait des logements.'), RP('aj', 'Rejet vers l’extérieur.'),
-    RP('dch ecs', 'Vers le primaire du ballon ou le circuit à alimenter, avec vanne d’isolement.'), RP('rch ef', 'Retour, avec vanne d’isolement et filtre.')] },
+  pac_air: { c: 'Air à gauche et à droite, eau et condensats par le dessous.', p: [RP('ar', 'Air extrait des logements.'), RP('aj', 'Rejet vers l’extérieur.'),
+    RP('dch ecs', 'Vers le primaire du ballon ou le circuit à alimenter, avec vanne d’isolement.'), RP('rch ef', 'Retour, avec vanne d’isolement et filtre.'),
+    RP('cond eu', 'Siphon en sortie, dimensionné selon la dépression du réseau d’extraction, puis évacuation gravitaire vers un entonnoir siphonné ou une pompe de relevage des condensats.')] },
   batterie: { p: [RP('', 'Gaine amont.'), RP('', 'Gaine aval.'), RP('dch', ISO + ' sur l’aller.'), RP('rch', 'Vanne 3 voies motorisée et vanne d’équilibrage sur le retour.')] },
   sanitaire: el => ({ c: 'Alimentations en partie haute, évacuation par le dessous.', p: [
     RP('ef', 'Robinet d’arrêt en attente de l’appareil.'),
