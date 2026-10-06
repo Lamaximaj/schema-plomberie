@@ -1040,9 +1040,31 @@ function contentBBox(ctx) {
   }
   return b;
 }
+/* ===== Cadre de la feuille, un par schéma (doc.opts.page) : x, y, largeur w en unités du plan, hauteur selon le format et l'orientation.
+   Formats en mm (paysage) avec leur marge d'impression. u : unités du plan par millimètre imprimé. ===== */
+const SHEETS = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] };
+const pageOn = () => !!(doc.opts.page && doc.opts.page.on);
+function pageGeom(pg) {
+  pg = pg || doc.opts.page; const [L, l, mg] = SHEETS[pg.fmt] || SHEETS.a4, PW = pg.land ? L : l, PH = pg.land ? l : L, u = pg.w / PW;
+  return { x: pg.x, y: pg.y, w: pg.w, h: r2(PH * u), PW, PH, u, m: mg * u };
+}
+const pageBox = g => ({ x0: g.x, y0: g.y, x1: g.x + g.w, y1: g.y + g.h });
+const marginBox = g => ({ x0: g.x + g.m, y0: g.y + g.m, x1: g.x + g.w - g.m, y1: g.y + g.h - g.m });
+/* Cadre ajusté autour du dessin (dans les marges), dans l'orientation choisie */
+function fitPage(pg) {
+  const b = contentBBox(buildCtx()) || { x0: 0, y0: 0, x1: 400, y1: 280 }, [L, l, mg] = SHEETS[pg.fmt] || SHEETS.a4, PW = pg.land ? L : l, PH = pg.land ? l : L;
+  const cw = b.x1 - b.x0 + 20, ch = b.y1 - b.y0 + 20, w = Math.ceil(Math.max(cw * PW / (PW - 2 * mg), ch * PW / (PH - 2 * mg)) / 10) * 10;
+  pg.w = w; pg.x = snap((b.x0 + b.x1 - w) / 2); pg.y = snap((b.y0 + b.y1 - w * PH / PW) / 2);
+}
+/* Trait de cadre (option) : à la marge d'impression, 0,5 mm d'épaisseur */
+function pageBorderSVG() {
+  if (!pageOn() || !doc.opts.page.border) return '';
+  const g = pageGeom(), m = marginBox(g);
+  return `<rect x="${r2(m.x0)}" y="${r2(m.y0)}" width="${r2(m.x1 - m.x0)}" height="${r2(m.y1 - m.y0)}" fill="none" style="stroke:var(--ink)" stroke-width="${r2(0.5 * g.u)}"/>`;
+}
 function contentSVG(o) {
   const ctx = buildCtx(), hops = doc.opts.hops !== false ? computeHops(ctx.pipes) : null, sel = o.exp ? null : state.sel;
-  let z = '', p = '', e = '', l = '', a = '';
+  let z = pageBorderSVG(), p = '', e = '', l = '', a = '';
   for (const it of doc.items) {
     if (it.kind === 'zone') z += zoneSVG(it, o);
     else if (it.kind === 'pipe') { p += pipeSVG(it, ctx, hops && hops.get(it.id), o, sel && sel.has(it.id)); l += pipeLabelSVG(it, ctx); }

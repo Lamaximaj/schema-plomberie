@@ -3,7 +3,7 @@
 const svg = $('#cv'), VP = $('#vp'), LC = $('#lc'), LU = $('#lu'), app = $('#app');
 function render() { if (palReal !== null && palReal !== REAL()) buildPalette(); LC.innerHTML = contentSVG({}); renderUI(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select'; }
 function renderUI() {
-  const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = '', ctx = null;
+  const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = pageUI(k), ctx = null;
   for (const it of items) { if (it.kind === 'pipe') continue; ctx = ctx || buildCtx(); const b = bboxOf(it, ctx), pd = 3 / k; s += `<rect class="selbox" x="${r2(b.x0 - pd)}" y="${r2(b.y0 - pd)}" width="${r2(b.x1 - b.x0 + 2 * pd)}" height="${r2(b.y1 - b.y0 + 2 * pd)}" stroke-width="${r2(1.3 / k)}" stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"/>`; }
   if (one && one.kind === 'pipe') {
     const hs = 7 / k, r = 4.2 / k, sw = r2(1.3 / k);
@@ -25,6 +25,24 @@ function renderUI() {
   if (drag && drag.guides) for (const [x1, y1, x2, y2] of drag.guides) s += `<line class="guide" x1="${r2(x1)}" y1="${r2(y1)}" x2="${r2(x2)}" y2="${r2(y2)}" stroke-width="${r2(1.2 / k)}" stroke-dasharray="${r2(5 / k)} ${r2(3 / k)}"/>`;
   if (drag && drag.kind === 'rubber') { const d = drag, cross = d.cur.x < d.start.x; s += `<rect class="rubber${cross ? ' cross' : ''}" x="${r2(Math.min(d.start.x, d.cur.x))}" y="${r2(Math.min(d.start.y, d.cur.y))}" width="${r2(Math.abs(d.cur.x - d.start.x))}" height="${r2(Math.abs(d.cur.y - d.start.y))}" stroke-width="${r2(1 / k)}"${cross ? ` stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"` : ''}/>`; }
   LU.innerHTML = s;
+}
+/* Cadre de la feuille à l'écran : extérieur grisé, bord de feuille, marge d'impression, étiquette pour le déplacer, coins pour le redimensionner */
+function pageUI(k) {
+  if (!pageOn()) return '';
+  const pg = doc.opts.page, g = pageGeom(), m = marginBox(g), B = 1e6, sw = r2(1.2 / k), fs = r2(11 / k);
+  let s = `<path class="pg-dim" fill-rule="evenodd" d="M${-B},${-B}H${B}V${B}H${-B}ZM${g.x},${g.y}V${r2(g.y + g.h)}H${r2(g.x + g.w)}V${g.y}Z"/>`;
+  s += `<rect class="pg-edge" x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" stroke-width="${sw}"/>`;
+  if (!pg.border) s += `<rect class="pg-margin" x="${r2(m.x0)}" y="${r2(m.y0)}" width="${r2(m.x1 - m.x0)}" height="${r2(m.y1 - m.y0)}" stroke-width="${r2(1 / k)}" stroke-dasharray="${r2(6 / k)} ${r2(4 / k)}"/>`;
+  if (state.tool !== 'select') return s;
+  const lab = (pg.fmt || 'a4').toUpperCase() + (pg.land ? ' paysage' : ' portrait'), lw = r2(tw(lab, 11, 700) / k + 16 / k), lh = r2(18 / k);
+  s += `<g class="pg-tab" data-hit="pg"><rect x="${g.x}" y="${r2(g.y - lh - 3 / k)}" width="${lw}" height="${lh}" rx="${r2(3 / k)}"/><text x="${r2(g.x + 8 / k)}" y="${r2(g.y - 3 / k - lh / 2)}" font-size="${fs}" font-weight="700" dominant-baseline="central">${lab}</text></g>`;
+  const s0 = 9 / k; for (const [c, x, y] of [['nw', g.x, g.y], ['ne', g.x + g.w, g.y], ['sw', g.x, g.y + g.h], ['se', g.x + g.w, g.y + g.h]]) s += `<rect class="hdl pg-hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="pgh" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`;
+  return s;
+}
+function startPage(w, t) {
+  const pg = doc.opts.page, g = pageGeom(), before = snapshot();
+  if (t.dataset.hit === 'pg') { drag = { kind: 'pageMove', before, start: w, o: { x: pg.x, y: pg.y }, moved: false }; return; }
+  const c = t.dataset.c; drag = { kind: 'pageSize', before, c, ax: c.includes('w') ? g.x + g.w : g.x, ay: c.includes('n') ? g.y + g.h : g.y, r: g.h / g.w, moved: false };
 }
 /* Pastilles numérotées des raccordements (onglet « Raccordement ») ; k : échelle d'affichage */
 function portBadges(el, k, ctx, hi) {
@@ -54,7 +72,8 @@ function toWorld(cx, cy) { const r = svg.getBoundingClientRect(); return { x: (c
 function zoomAt(cx, cy, f) { const r = svg.getBoundingClientRect(), px = cx - r.left, py = cy - r.top, k = clamp(view.k * f, 0.15, 6), wx = (px - view.tx) / view.k, wy = (py - view.ty) / view.k; view.k = k; view.tx = px - wx * k; view.ty = py - wy * k; applyView(); }
 function zoomCenter(f) { const r = svg.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, f); }
 function fitView() {
-  const r = svg.getBoundingClientRect(), b = contentBBox(buildCtx());
+  const r = svg.getBoundingClientRect(); let b = contentBBox(buildCtx());
+  if (pageOn()) b = b ? unionBox([b, pageBox(pageGeom())]) : pageBox(pageGeom());
   if (!b || r.width < 10) { view.k = 1.5; view.tx = 60; view.ty = 60; applyView(); return; }
   const pad = 36, k = clamp(Math.min((r.width - pad * 2) / Math.max(b.x1 - b.x0, 1), (r.height - pad * 2) / Math.max(b.y1 - b.y0, 1)), 0.2, 2.5);
   view.k = k; view.tx = r.width / 2 - (b.x0 + b.x1) / 2 * k; view.ty = r.height / 2 - (b.y0 + b.y1) / 2 * k; applyView();
@@ -202,6 +221,7 @@ function doPinch() {
 function selectDown(e, w, dbl) {
   const t = e.target.closest ? e.target.closest('[data-hit]') : null, hit = t ? t.dataset.hit : null, id = t ? t.dataset.id : null;
   if (hit === 'vh' && dbl) { deleteVertex(byId(id), +t.dataset.i); return; }
+  if (hit === 'pg' || hit === 'pgh') { startPage(w, t); return; }
   if (hit === 'vh' || hit === 'sh' || hit === 'zh' || hit === 'ch') { startHandle(e, w, t); return; }
   if (dbl && id && byId(id)) { onDouble(byId(id), w); return; }
   if (hit === 'label') { const el = byId(id); if (!el) return; if (!state.sel.has(id)) setSel([id]); drag = { kind: 'label', before: snapshot(), el, start: w, ox: el.lx || 0, oy: el.ly || 0, moved: false }; return; }
@@ -257,6 +277,11 @@ function dragMove(e, w) {
     it.sc = k; it.x = d.c.includes('w') ? r2(d.ax - d.bw * k) : d.ax; it.y = d.c.includes('n') ? r2(d.ay - d.bh * k) : d.ay;
     d.moved = true; render(); return;
   }
+  if (d.kind === 'pageMove') { const pg = doc.opts.page; pg.x = snap(d.o.x + w.x - d.start.x); pg.y = snap(d.o.y + w.y - d.start.y); d.moved = true; render(); return; }
+  if (d.kind === 'pageSize') {
+    const pg = doc.opts.page, W = Math.max(100, Math.round(Math.max(Math.abs(w.x - d.ax), Math.abs(w.y - d.ay) / d.r) / 10) * 10), H = W * d.r;
+    pg.w = W; pg.x = r2(d.c.includes('w') ? d.ax - W : d.ax); pg.y = r2(d.c.includes('n') ? d.ay - H : d.ay); d.moved = true; render(); return;
+  }
   if (d.kind === 'zone') {
     const o = d.o, sx = snap(w.x), sy = snap(w.y); let x0 = o.x, y0 = o.y, x1 = o.x + o.w, y1 = o.y + o.h;
     if (d.c.includes('w')) x0 = Math.min(sx, x1 - 40); if (d.c.includes('e')) x1 = Math.max(sx, x0 + 40); if (d.c.includes('n')) y0 = Math.min(sy, y1 - 40); if (d.c.includes('s')) y1 = Math.max(sy, y0 + 40);
@@ -272,7 +297,7 @@ function dragEnd(d) {
   if (d.kind === 'rubber') { rubberEnd(d); return; }
   if (d.kind === 'move') { if (d.moved || d.dup) { for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); for (const it of d.items) if (it.kind === 'pipe') it.pts = simplify(it.pts); commit(d.before); } else if (d.clickSel) setSel([d.clickSel]); return; }
   if (d.kind === 'label' || d.kind === 'zone') { if (d.moved) commit(d.before); return; }
-  if (d.kind === 'cart') { if (d.moved) { commit(d.before); buildInspector(); } return; }
+  if (d.kind === 'cart' || d.kind === 'pageMove' || d.kind === 'pageSize') { if (d.moved) { commit(d.before); buildInspector(); } return; }
   if (d.kind === 'vertex') { state.snap = null; if (d.moved) { d.p.pts = simplify(d.p.pts); if (d.p.pts.length < 2) { doc.items = doc.items.filter(i => i !== d.p); state.sel.delete(d.p.id); } commit(d.before); } else renderUI(); return; }
   if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); commit(d.before); } return; }
   if (d.kind === 'zoneNew') { let z = d.z; if (!z) { z = makeZone(d.s.x, d.s.y); doc.items.unshift(z); } z.w = Math.max(40, z.w); z.h = Math.max(40, z.h); commit(d.before); setTool('select'); setSel([z.id]); focusField('title', true); }
@@ -459,6 +484,7 @@ function layoutSets(items) {
   const blocks = items.filter(i => BLOCKS[i.kind]), zones = items.filter(i => i.kind === 'zone');
   if (blocks.length && zones.length) return { mov: blocks, ref: zones };
   if (blocks.length > 1) return { mov: blocks, ref: blocks };
+  if (blocks.length === 1 && pageOn()) return { mov: blocks, ref: 'page' };
   if (!blocks.length && zones.length > 1) return { mov: zones, ref: zones };
   return null;
 }
@@ -466,7 +492,7 @@ const unionBox = bs => bs.reduce((a, b) => ({ x0: Math.min(a.x0, b.x0), y0: Math
 /* mode : l, c, r (verticales) ou t, m, b (horizontales) */
 function alignLayout(mode) {
   const L = layoutSets(selItems()); if (!L) return;
-  const ctx = buildCtx(), R = unionBox(L.ref.map(i => bboxOf(i, ctx))), before = snapshot();
+  const ctx = buildCtx(), R = L.ref === 'page' ? marginBox(pageGeom()) : unionBox(L.ref.map(i => bboxOf(i, ctx))), before = snapshot();
   for (const it of L.mov) {
     const b = bboxOf(it, ctx);
     const dx = mode === 'l' ? R.x0 - b.x0 : mode === 'r' ? R.x1 - b.x1 : mode === 'c' ? (R.x0 + R.x1 - b.x0 - b.x1) / 2 : 0;
@@ -486,7 +512,7 @@ function distributeLayout(axis) {
   commit(before);
 }
 /* Aimantage d'un bloc déplacé sur les bords et les centres des autres blocs et des zones ; renvoie la correction et les repères à dessiner */
-function edgeTargets(it) { const ctx = buildCtx(); return doc.items.filter(o => o !== it && (BLOCKS[o.kind] || o.kind === 'zone')).map(o => bboxOf(o, ctx)); }
+function edgeTargets(it) { const ctx = buildCtx(), t = doc.items.filter(o => o !== it && (BLOCKS[o.kind] || o.kind === 'zone')).map(o => bboxOf(o, ctx)); if (pageOn()) t.push(marginBox(pageGeom())); return t; }
 function edgeSnap(it, targets, lockX, lockY) {
   const b = bboxOf(it), tol = Math.max(5.5, 8 / view.k), mid = (p, q) => (p + q) / 2, PAIRS = [[0, 0], [0, 2], [2, 0], [2, 2], [1, 1]];
   let bx = null, by = null;
