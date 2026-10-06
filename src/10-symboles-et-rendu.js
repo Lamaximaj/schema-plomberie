@@ -902,7 +902,7 @@ function legendLayout(it, ctx) {
 }
 function legendSVG(it, ctx) {
   const L = legendLayout(it, ctx);
-  let s = `<g data-id="${it.id}" data-hit="item"><rect x="${it.x}" y="${it.y}" width="${r2(L.W)}" height="${r2(L.H)}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1"/>`;
+  let s = `<g data-id="${it.id}" data-hit="item"${scTf(it)}><rect x="${it.x}" y="${it.y}" width="${r2(L.W)}" height="${r2(L.H)}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1"/>`;
   s += `<text x="${it.x + L.pad}" y="${it.y + 13.5}" font-size="9" font-weight="700" style="fill:var(--ink)">${esc(it.title || 'LÉGENDE')}</text><line x1="${it.x}" y1="${it.y + L.titleH}" x2="${r2(it.x + L.W)}" y2="${it.y + L.titleH}" style="stroke:var(--ink)" stroke-width="0.8"/>`;
   if (!L.rows.length) s += `<text x="${it.x + L.pad}" y="${it.y + L.titleH + 16}" font-size="7.5" font-style="italic" style="fill:var(--muted-ink)">Aucun élément pour l’instant</text>`;
   let cx = it.x + L.pad;
@@ -939,7 +939,7 @@ function nomenLayout(it, ctx) {
 }
 function nomenSVG(it, ctx) {
   const L = nomenLayout(it, ctx), x0 = it.x, y0 = it.y, yT = y0 + L.titleH;
-  let s = `<g data-id="${it.id}" data-hit="item"><rect x="${x0}" y="${y0}" width="${r2(L.W)}" height="${r2(L.H)}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1"/>`;
+  let s = `<g data-id="${it.id}" data-hit="item"${scTf(it)}><rect x="${x0}" y="${y0}" width="${r2(L.W)}" height="${r2(L.H)}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1"/>`;
   s += `<text x="${x0 + 8}" y="${y0 + 13.5}" font-size="9" font-weight="700" style="fill:var(--ink)">${esc(it.title || 'NOMENCLATURE')}</text>`;
   s += `<rect x="${x0}" y="${yT}" width="${r2(L.W)}" height="${L.rh}" style="fill:var(--hdr)" stroke="none"/><line x1="${x0}" y1="${yT}" x2="${r2(x0 + L.W)}" y2="${yT}" style="stroke:var(--ink)" stroke-width="0.8"/>`;
   for (let k = 0; k < L.cols; k++) {
@@ -959,13 +959,13 @@ function nomenSVG(it, ctx) {
   return s + '</g>';
 }
 const CART_W = 420, CART_H = 88;
+/* Taille des blocs de mise en page (cartouche, légende, nomenclature) : agrandissement ancré en haut à gauche */
 const cartSc = it => clamp(+it.sc || 1, 0.5, 4);
+const scTf = it => { const k = cartSc(it); return k === 1 ? '' : ` transform="matrix(${k} 0 0 ${k} ${r2(it.x * (1 - k))} ${r2(it.y * (1 - k))})"`; };
 function cartSVG(it) {
   const f = it.f || {}, x = it.x, y = it.y;
   const cell = (cx, cy, w, hh, cap, val, vs, vw) => `<rect x="${cx}" y="${cy}" width="${w}" height="${hh}" fill="none" style="stroke:var(--ink)" stroke-width="0.8"/><text x="${cx + 4}" y="${cy + 8}" font-size="5.5" style="fill:var(--muted-ink)">${esc(cap)}</text><text x="${cx + 4}" y="${cy + hh - 7}" font-size="${vs}" font-weight="${vw}" style="fill:var(--ink)">${esc(fitText(val, w - 8, vs, vw))}</text>`;
-  /* Taille : agrandissement ancré en haut à gauche */
-  const k = cartSc(it), tf = k === 1 ? '' : ` transform="matrix(${k} 0 0 ${k} ${r2(x * (1 - k))} ${r2(y * (1 - k))})"`;
-  let s = `<g data-id="${it.id}" data-hit="item"${tf}><rect x="${x}" y="${y}" width="${CART_W}" height="${CART_H}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1.4"/>`;
+  let s = `<g data-id="${it.id}" data-hit="item"${scTf(it)}><rect x="${x}" y="${y}" width="${CART_W}" height="${CART_H}" style="fill:var(--paper);stroke:var(--ink)" stroke-width="1.4"/>`;
   s += cell(x, y, 170, 30, 'Entreprise', f.ent, 10, 700) + cell(x + 170, y, 250, 30, 'Opération', f.ope, 9, 400) + cell(x, y + 30, CART_W, 30, 'Titre du document', f.titre, 11, 700);
   let cx = x; for (const [cap, val, w] of [['Lot', f.lot, 90], ['Phase', f.phase, 60], ['Indice', f.ind, 50], ['Date', f.date, 80], ['Échelle', f.ech, 70], ['Dessiné par', f.auteur, 70]]) { s += cell(cx, y + 60, w, 28, cap, val, 8, 400); cx += w; }
   return s + '</g>';
@@ -976,8 +976,8 @@ function bboxOf(it, ctx) {
     case 'pipe': { const b = aabb(it.pts), w = netOf(it.net).w / 2 + 1; return { x0: b.x0 - w, y0: b.y0 - w, x1: b.x1 + w, y1: b.y1 + w }; }
     case 'text': { const L = textLayout(it); return { x0: L.x0, y0: it.y, x1: L.x0 + L.W, y1: it.y + L.H }; }
     case 'zone': return { x0: it.x, y0: it.y, x1: it.x + it.w, y1: it.y + it.h };
-    case 'legend': { const L = legendLayout(it, ctx || buildCtx()); return { x0: it.x, y0: it.y, x1: it.x + L.W, y1: it.y + L.H }; }
-    case 'nomen': { const L = nomenLayout(it, ctx || buildCtx()); return { x0: it.x, y0: it.y, x1: it.x + L.W, y1: it.y + L.H }; }
+    case 'legend': { const L = legendLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
+    case 'nomen': { const L = nomenLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
     case 'cart': return { x0: it.x, y0: it.y, x1: it.x + CART_W * cartSc(it), y1: it.y + CART_H * cartSc(it) };
   }
   return null;

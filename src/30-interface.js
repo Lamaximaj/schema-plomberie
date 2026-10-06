@@ -43,13 +43,15 @@ function paramField(el, k, sp) {
   if (sp.type === 'area') return F(sp.label, fArea(get, set, { k: 'p-' + k }));
   return F(sp.label, fText(get, set, { k: 'p-' + k, max: sp.max || 40 }));
 }
-const ITABS = [['prop', 'Propriétés'], ['racc', 'Raccordement']];
+const ITABS = [['prop', 'Propriétés'], ['racc', 'Raccordement'], ['fonc', 'Fonction']];
 function setItab(k) { state.itab = k; state.hiPort = null; buildInspector(); renderUI(); }
-const tabsNode = () => h('div', { class: 'itabs', role: 'tablist' }, ITABS.map(([k, l]) => h('button', { class: 'itab' + (state.itab === k ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': String(state.itab === k), onclick: () => setItab(k) }, l)));
+const tabsNode = racc => h('div', { class: 'itabs', role: 'tablist' }, ITABS.filter(([k]) => racc || k !== 'racc').map(([k, l]) => h('button', { class: 'itab' + (state.itab === k ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': String(state.itab === k), onclick: () => setItab(k) }, l)));
 function inspEl(el) {
   const def = S[el.type], pre = PRE[el.pre];
   IB.append(headNode(thumbSVG(el), (pre && pre.name) || def.name, CATS[CAT_IDX[def.cat]][1]));
-  if (portsOf(el).length) { IB.append(tabsNode()); if (state.itab === 'racc') { inspRacc(el); return; } }
+  const racc = portsOf(el).length > 0; IB.append(tabsNode(racc));
+  if (state.itab === 'racc' && racc) { inspRacc(el); return; }
+  if (state.itab === 'fonc') { inspFonc(el); return; }
   IB.append(SEC(null,
     F('Repère', fText(() => el.tag, v => { el.tag = v; }, { k: 'tag', max: 24, aria: 'Repère' }), fCheck(() => el.st, v => { el.st = v; }, 'Afficher')),
     F('Désignation', fText(() => el.name, v => { el.name = v; }, { k: 'name', max: 120, aria: 'Désignation' }), fCheck(() => el.sn, v => { el.sn = v; }, 'Afficher')),
@@ -104,6 +106,29 @@ function raccRow(el, i, st, info) {
       info.tip ? h('p', { class: 'rtip' }, info.tip) : null,
       st ? null : h('div', { class: 'btnrow', style: 'margin-top:7px' }, h('button', { class: 'btn sm ghost', type: 'button', title: 'Commencer un tuyau depuis ce point', onclick: () => traceFrom(el, i, want[0]), onfocus: () => hoverPort(el, i), onblur: () => hoverPort(null) }, 'Tracer depuis ce point'))));
 }
+/* Onglet Fonction : rôle de l’organe et règles de pose */
+function foncBody(f) {
+  return f ? [SEC('À quoi il sert', h('p', { class: 'fonc' }, f[0])), SEC('Où et comment le poser', h('p', { class: 'fonc' }, f[1]))]
+    : [SEC(null, h('p', { class: 'hint' }, 'Pas encore de fiche pour ce symbole.'))];
+}
+function inspFonc(el) {
+  IB.append(...foncBody(foncOf(el)), SEC(null, h('div', { class: 'btnrow' }, btn('Voir la fonction de tous les organes', () => openFonctions()))));
+}
+function openFonctions() {
+  const q = h('input', { class: 'search', type: 'search', placeholder: 'Rechercher un organe ou une fonction', 'aria-label': 'Rechercher un organe ou une fonction', autocomplete: 'off' }), list = h('div', { class: 'fonc-list' });
+  const fill = () => {
+    const t = norm(q.value.trim()); list.innerHTML = '';
+    for (const [cat, label] of CATS) {
+      const rows = Object.values(PRE).filter(p => p.cat === cat).map(p => ({ p, f: FONC[p.k] || FONC[p.type] })).filter(r => r.f && (!t || norm(r.p.name + ' ' + r.f[0] + ' ' + r.f[1]).includes(t)));
+      if (!rows.length) continue;
+      list.append(h('h3', { class: 'fonc-cat' }, label), ...rows.map(({ p, f }) => h('div', { class: 'fonc-row' }, h('div', { class: 'th', html: thumbSVG(makeEl(p.k, 0, 0, true)) }), h('div', { class: 'fonc-txt' }, h('b', null, p.name), h('p', null, f[0]), h('p', { class: 'fonc-pose' }, f[1])))));
+    }
+    if (!list.children.length) list.append(h('p', { class: 'hint' }, 'Aucun organe ne correspond à cette recherche.'));
+  };
+  q.addEventListener('input', fill); fill();
+  modal('Fonction des organes', h('div', null, q, list), [h('button', { class: 'btn primary', type: 'button', onclick: closeModal }, 'Fermer')]);
+  $('.modal').classList.add('wide'); q.focus();
+}
 function inspRacc(el) {
   const ctx = buildCtx(), r = raccOf(el), wp = portsW(el), st = wp.map(q => portStatus(el, q, ctx)), done = st.filter(Boolean).length;
   IB.append(SEC(null, h('div', { class: 'racc-fig', html: raccFigure(el, ctx) }),
@@ -141,22 +166,23 @@ function inspZone(z) {
     h('div', { class: 'f' }, fCheck(() => z.fill, v => { z.fill = v; }, 'Fond teinté')), F('Couleur', fColor(() => isHex(z.color) ? z.color : '#5c656b', v => { z.color = v; }))));
   IB.append(actionsSec());
 }
+const sizeField = (it, label) => F(label, h('div', null, fNum(() => Math.round(cartSc(it) * 100), v => { it.sc = clamp(Math.round(+v || 100), 50, 400) / 100; }, { min: 50, max: 400, step: 25 }), h('p', { class: 'hint' }, 'Ou tirez un coin vert du bloc sur le schéma.')));
 function inspLegend(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="12" y="8" width="40" height="30" fill="#fff" stroke="#16191b"/><line x1="16" y1="17" x2="26" y2="17" stroke="#1c7ed6" stroke-width="2.5"/><line x1="16" y1="28" x2="26" y2="28" stroke="#e03131" stroke-width="2.5"/></svg>', 'Légende', 'Mise à jour automatique'));
-  IB.append(SEC(null, F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne', fNum(() => it.rows, v => { it.rows = Math.round(v); }, { min: 3, max: 60 })),
+  IB.append(SEC(null, sizeField(it, 'Taille de la légende (%)'), F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne', fNum(() => it.rows, v => { it.rows = Math.round(v); }, { min: 3, max: 60 })),
     h('div', { class: 'f' }, fCheck(() => it.nets !== false, v => { it.nets = v; }, 'Réseaux utilisés')), h('div', { class: 'f' }, fCheck(() => it.syms !== false, v => { it.syms = v; }, 'Symboles utilisés'))));
   IB.append(actionsSec());
 }
 function inspNomen(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="10" y="8" width="44" height="30" fill="#fff" stroke="#16191b"/><path d="M10 16H54M10 23H54M10 30H54M20 8V38M38 8V38" stroke="#16191b" stroke-width=".8"/></svg>', 'Nomenclature', 'Mise à jour automatique'));
-  IB.append(SEC(null, F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne (0 : une seule colonne)', fNum(() => +it.rows || 0, v => { it.rows = Math.max(0, Math.round(v)); }, { min: 0, max: 200 })), h('p', { class: 'hint' }, 'Les symboles sont regroupés par désignation et caractéristiques. Renseignez-les dans les propriétés de chaque symbole pour obtenir les quantités par référence.')));
+  IB.append(SEC(null, sizeField(it, 'Taille de la nomenclature (%)'), F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne (0 : une seule colonne)', fNum(() => +it.rows || 0, v => { it.rows = Math.max(0, Math.round(v)); }, { min: 0, max: 200 })), h('p', { class: 'hint' }, 'Les symboles sont regroupés par désignation et caractéristiques. Renseignez-les dans les propriétés de chaque symbole pour obtenir les quantités par référence.')));
   IB.append(actionsSec());
 }
 function inspCart(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="6" y="11" width="52" height="24" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M6 19H58M6 27H58M24 11V19M18 27V35M30 27V35M44 27V35" stroke="#16191b" stroke-width=".8"/></svg>', 'Cartouche'));
   const keep = () => { try { localStorage.setItem(LS_CART, JSON.stringify({ ent: it.f.ent, auteur: it.f.auteur })); } catch (e) { /* stockage indisponible */ } };
   const fld = (k, label) => F(label, fText(() => it.f[k], v => { it.f[k] = v; }, { k: 'f-' + k, max: 120, after: keep }));
-  IB.append(SEC(null, F('Taille du cartouche (%)', fNum(() => Math.round(cartSc(it) * 100), v => { it.sc = clamp(Math.round(+v || 100), 50, 400) / 100; }, { min: 50, max: 400, step: 25 })), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
+  IB.append(SEC(null, sizeField(it, 'Taille du cartouche (%)'), fld('ent', 'Entreprise'), fld('ope', 'Opération'), fld('titre', 'Titre du document'), h('div', { class: 'row2' }, fld('lot', 'Lot'), fld('phase', 'Phase')), h('div', { class: 'row2' }, fld('ind', 'Indice'), fld('date', 'Date')), h('div', { class: 'row2' }, fld('ech', 'Échelle'), fld('auteur', 'Dessiné par'))));
   IB.append(actionsSec());
 }
 function inspMulti(items) {
@@ -224,7 +250,7 @@ function buildPalette() {
 }
 function tile(p) {
   const th = p.k[0] === '@' ? SPECIAL_THUMB[p.k] : thumbSVG(makeEl(p.k, 0, 0, true));
-  const b = h('button', { class: 'tile', type: 'button', 'data-k': p.k, title: p.name, html: th + '<span>' + esc(p.name) + '</span>' });
+  const f = FONC[p.k] || (PRE[p.k] && FONC[PRE[p.k].type]), b = h('button', { class: 'tile', type: 'button', 'data-k': p.k, title: f ? p.name + ' : ' + f[0] : p.name, html: th + '<span>' + esc(p.name) + '</span>' });
   b.addEventListener('pointerdown', e => tileDown(e, p));
   b.addEventListener('click', () => { if (palDrag && palDrag.done) return; activateTile(p); });
   return b;
@@ -715,7 +741,7 @@ function bindUI() {
   for (const b of $$('[data-tool]')) b.addEventListener('click', () => setTool(b.dataset.tool));
   $('#b-rl').onclick = () => rotateCmd(-90); $('#b-rr').onclick = () => rotateCmd(90); $('#b-fh').onclick = () => flipCmd('h'); $('#b-fv').onclick = () => flipCmd('v');
   $('#b-undo').onclick = undo; $('#b-redo').onclick = redo; $('#b-del').onclick = deleteSel;
-  $('#b-file').onclick = e => toggleMenu('file', e.currentTarget); $('#b-exp').onclick = e => toggleMenu('exp', e.currentTarget); $('#b-net').onclick = e => toggleMenu('net', e.currentTarget);
+  $('#b-file').onclick = e => toggleMenu('file', e.currentTarget); $('#b-exp').onclick = e => toggleMenu('exp', e.currentTarget); $('#b-fonc').onclick = () => openFonctions(); $('#b-net').onclick = e => toggleMenu('net', e.currentTarget);
   $('#b-zi').onclick = () => zoomCenter(1.25); $('#b-zo').onclick = () => zoomCenter(0.8); $('#b-fit').onclick = fitView;
   $('#b-pal').onclick = () => { app.classList.toggle('show-pal'); app.classList.remove('show-insp'); };
   $('#b-insp').onclick = () => { app.classList.toggle('show-insp'); app.classList.remove('show-pal'); };

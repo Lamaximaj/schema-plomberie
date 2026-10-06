@@ -17,7 +17,7 @@ trap 'rm -f "$mod"' EXIT
   done
   echo '];'
 } > "$mod"
-cat src/00-entete.html src/10-symboles-et-rendu.js "$mod" src/20-interactions.js src/30-interface.js src/99-pied.html > dist/index.html
+cat src/00-entete.html src/10-symboles-et-rendu.js src/15-fonctions.js "$mod" src/20-interactions.js src/30-interface.js src/99-pied.html > dist/index.html
 # Bibliothèques de l’export PDF, servies avec la page
 rm -rf dist/vendor && cp -R vendor dist/vendor
 echo "dist/index.html généré ($(wc -c < dist/index.html) octets)"

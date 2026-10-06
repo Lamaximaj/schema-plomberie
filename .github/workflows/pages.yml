@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Vérifier la syntaxe JavaScript
-        run: cat src/10-symboles-et-rendu.js src/20-interactions.js src/30-interface.js > /tmp/app.js && node --check /tmp/app.js
+        run: cat src/10-symboles-et-rendu.js src/15-fonctions.js src/20-interactions.js src/30-interface.js > /tmp/app.js && node --check /tmp/app.js
       - name: Construire la page
         run: bash build.sh
       - uses: actions/configure-pages@v5

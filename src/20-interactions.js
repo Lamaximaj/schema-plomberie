@@ -11,7 +11,7 @@ function renderUI() {
     one.pts.forEach((q, i) => { s += `<rect class="hdl vh" data-hit="vh" data-id="${one.id}" data-i="${i}" x="${r2(q.x - hs / 2)}" y="${r2(q.y - hs / 2)}" width="${r2(hs)}" height="${r2(hs)}" stroke-width="${sw}"/>`; });
   }
   if (one && one.kind === 'zone') { const s0 = 8 / k; for (const [c, x, y] of [['nw', one.x, one.y], ['ne', one.x + one.w, one.y], ['sw', one.x, one.y + one.h], ['se', one.x + one.w, one.y + one.h]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="zh" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
-  if (one && one.kind === 'cart') { const b = bboxOf(one), s0 = 9 / k; for (const [c, x, y] of [['nw', b.x0, b.y0], ['ne', b.x1, b.y0], ['sw', b.x0, b.y1], ['se', b.x1, b.y1]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="ch" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
+  if (one && SCALED[one.kind]) { const b = bboxOf(one), s0 = 9 / k; for (const [c, x, y] of [['nw', b.x0, b.y0], ['ne', b.x1, b.y0], ['sw', b.x0, b.y1], ['se', b.x1, b.y1]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="ch" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
   if (one && one.kind === 'el' && state.itab === 'racc') s += portBadges(one, k);
   const showPorts = state.tool === 'pipe' || (drag && drag.kind === 'vertex');
   if (showPorts) { const r = r2(3.2 / k), sw = r2(1.2 / k); for (const el of els()) for (const q of portsW(el)) s += `<circle class="portmark" cx="${q.x}" cy="${q.y}" r="${r}" stroke-width="${sw}"/>`; }
@@ -250,8 +250,8 @@ function dragMove(e, w) {
     render(); return;
   }
   if (d.kind === 'cart') {
-    const k = clamp(Math.round(Math.max(Math.abs(w.x - d.ax) / CART_W, Math.abs(w.y - d.ay) / CART_H) * 20) / 20, 0.5, 4), it = d.it;
-    it.sc = k; it.x = d.c.includes('w') ? r2(d.ax - CART_W * k) : d.ax; it.y = d.c.includes('n') ? r2(d.ay - CART_H * k) : d.ay;
+    const k = clamp(Math.round(Math.max(Math.abs(w.x - d.ax) / d.bw, Math.abs(w.y - d.ay) / d.bh) * 20) / 20, 0.5, 4), it = d.it;
+    it.sc = k; it.x = d.c.includes('w') ? r2(d.ax - d.bw * k) : d.ax; it.y = d.c.includes('n') ? r2(d.ay - d.bh * k) : d.ay;
     d.moved = true; render(); return;
   }
   if (d.kind === 'zone') {
@@ -274,10 +274,16 @@ function dragEnd(d) {
   if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); commit(d.before); } return; }
   if (d.kind === 'zoneNew') { let z = d.z; if (!z) { z = makeZone(d.s.x, d.s.y); doc.items.unshift(z); } z.w = Math.max(40, z.w); z.h = Math.max(40, z.h); commit(d.before); setTool('select'); setSel([z.id]); focusField('title', true); }
 }
+/* Blocs de mise en page redimensionnables par leurs coins, et leur taille à 100 % */
+const SCALED = { cart: 1, legend: 1, nomen: 1 };
+function baseSize(it) {
+  if (it.kind === 'cart') return [CART_W, CART_H];
+  const L = it.kind === 'legend' ? legendLayout(it, buildCtx()) : nomenLayout(it, buildCtx()); return [Math.max(1, L.W), Math.max(1, L.H)];
+}
 function startHandle(e, w, t) {
   const it = byId(t.dataset.id); if (!it) return; const i = +t.dataset.i, before = snapshot();
   if (t.dataset.hit === 'vh') { drag = { kind: 'vertex', before, p: it, i, sx: e.clientX, sy: e.clientY, moved: false }; renderUI(); return; }
-  if (t.dataset.hit === 'ch') { const k0 = cartSc(it), c = t.dataset.c; drag = { kind: 'cart', before, it, ax: c.includes('w') ? it.x + CART_W * k0 : it.x, ay: c.includes('n') ? it.y + CART_H * k0 : it.y, c, moved: false }; return; }
+  if (t.dataset.hit === 'ch') { const k0 = cartSc(it), c = t.dataset.c, [bw, bh] = baseSize(it); drag = { kind: 'cart', before, it, bw, bh, ax: c.includes('w') ? it.x + bw * k0 : it.x, ay: c.includes('n') ? it.y + bh * k0 : it.y, c, moved: false }; return; }
   if (t.dataset.hit === 'zh') { drag = { kind: 'zone', before, z: it, c: t.dataset.c, o: { x: it.x, y: it.y, w: it.w, h: it.h }, moved: false }; return; }
   const a0 = it.pts[i], b0 = it.pts[i + 1]; if (!a0 || !b0) return;
   const pts = clone(it.pts); let si = i;
