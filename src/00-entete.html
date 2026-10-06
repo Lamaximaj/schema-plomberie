@@ -165,6 +165,14 @@ kbd{font:600 11px/1 Barlow,sans-serif;padding:3px 5px;border:1px solid var(--rul
 .modal header h2{margin:0;font:700 18px "Barlow Semi Condensed",Barlow,sans-serif}
 .modal .body{padding:14px 16px;overflow:auto}
 .modal footer{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--rule-soft)}
+p.fonc{margin:0;font-size:13.5px;line-height:1.5}
+.modal.wide{width:min(760px,100%);max-height:min(86vh,900px)}
+.fonc-list{margin-top:10px}
+.fonc-cat{margin:14px 0 4px;font:700 15px "Barlow Semi Condensed",Barlow,sans-serif}
+.fonc-row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start;padding:9px 0;border-bottom:1px solid var(--rule-soft)}
+.fonc-txt b{display:block;font-weight:600;margin-bottom:2px}
+.fonc-txt p{margin:0 0 3px;font-size:13px;line-height:1.45}
+.fonc-txt .fonc-pose{color:var(--muted)}
 .lib-row{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--rule-soft)}
 .lib-row .nm{flex:1;min-width:0}
 .lib-row b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -205,6 +213,7 @@ kbd{font:600 11px/1 Barlow,sans-serif;padding:3px 5px;border:1px solid var(--rul
 <button class="btn" type="button" id="b-del" title="Supprimer (Suppr)" aria-label="Supprimer"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
 <span class="sep"></span>
 <button class="btn" type="button" id="b-file" data-menu><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span class="desk">Fichier</span></button>
+<button class="btn" type="button" id="b-fonc" title="Fonction de chaque organe"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v13"/></svg><span class="desk">Fonctions</span></button>
 <button class="btn" type="button" id="b-exp" data-menu><svg class="ico" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/></svg><span class="desk">Exporter</span></button>
 <span class="spacer"></span>
 <button class="btn" type="button" id="b-zo" aria-label="Zoom arrière">−</button>

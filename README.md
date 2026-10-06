@@ -12,7 +12,8 @@
 - **Mise en page** : légende et nomenclature générées automatiquement, cartouche (lot, phase, indice, date).
 - **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
 - **Exports** PNG, SVG, JSON et PDF A4, A3 et A0. Le PDF est vectoriel (trait et texte nets à toutes les échelles, police Arimo intégrée) ; si ses bibliothèques ne se chargent pas, il est produit en image d'environ 300 dpi. Le travail en cours est gardé dans le navigateur.
-- **Cartouche** agrandissable de 50 à 400 % : glisser un coin du cartouche sélectionné, ou saisir « Taille du cartouche (%) » dans son panneau.
+- **Cartouche, légende et nomenclature** agrandissables de 50 à 400 % : glisser un coin vert du bloc sélectionné, ou saisir sa taille (%) dans son panneau.
+- **Fonction des organes** : onglet « Fonction » d’un symbole sélectionné (à quoi il sert, où et comment le poser), bouton « Fonctions » pour la liste complète avec recherche, et rappel au survol de la bibliothèque.
 - **Exemples** : local eau, chaufferie gaz, eaux pluviales des toitures non accessibles.
 - **Modèles** (Fichier > Modèles) : schémas complets à reprendre, par exemple la sous-station CPCU Bessin.
 
@@ -29,6 +30,7 @@ open dist/index.html   # ou double-clic sur le fichier
 | --- | --- |
 | `src/00-entete.html` | Styles et structure de la page |
 | `src/10-symboles-et-rendu.js` | Symboles, réseaux, modèle de données, rendu SVG, légende, nomenclature, cartouche |
+| `src/15-fonctions.js` | Fiche de chaque organe : fonction, règles de pose |
 | `src/20-interactions.js` | Tracé, pose, aimantation sur les tuyaux, orientation, déplacements, historique |
 | `src/30-interface.js` | Panneau de propriétés, bibliothèque, menus, exports, sauvegarde, exemples |
 | `modeles/*.json` | Modèles proposés dans Fichier > Modèles (schémas enregistrés depuis l'outil) |
