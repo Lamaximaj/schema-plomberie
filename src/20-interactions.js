@@ -133,36 +133,120 @@ function magnetize(el, og, force) {
   return true;
 }
 
-/* ===== Raccordements : extrémités de tuyaux qui suivent les éléments ===== */
+/* ===== Raccordements : extrémités de tuyaux qui suivent les éléments =====
+   L'extrémité raccordée suit l'élément. Les organes posés sur le tuyau (vannes, manchettes, mesures) et les tuyaux piqués dessus
+   suivent aussi : sur le premier tronçon, ceux qui sont du côté de l'élément gardent leur distance à l'élément, et l'allongement
+   ou la baïonnette se fait dans le plus grand espace libre du tronçon. */
+const LINK_TOL = 2;
 function findAtt(items, selIds) {
-  const ports = [], mp = items.filter(i => i.kind === 'pipe'), res = [];
-  for (const it of items) if (it.kind === 'el') for (const p of portsW(it)) ports.push(p);
+  const mp = items.filter(i => i.kind === 'pipe'), res = [], movers = items.filter(i => i.kind === 'el'), cx = { taken: new Set(selIds), sel: selIds, late: [] };
+  for (const r of ridersOf(mp, selIds)) { cx.taken.add(r.el.id); movers.push(r.el); }
+  const ports = []; for (const it of movers) for (const p of portsW(it)) ports.push(p);
   for (const p of pipes()) {
     if (selIds.has(p.id)) continue;
     const ends = [];
-    for (const ei of [0, p.pts.length - 1]) { const q = p.pts[ei]; if (ports.some(pp => near(pp, q)) || mp.some(m => onPoly(q, m.pts))) ends.push(ei); }
-    if (ends.length) res.push({ pipe: p, ends, orig: clone(p.pts) });
+    for (const ei of [0, p.pts.length - 1]) { const q = p.pts[ei]; if (ports.some(pp => near(pp, q, LINK_TOL)) || mp.some(m => onPoly(q, m.pts))) ends.push(ei); }
+    if (ends.length) { res.push({ pipe: p, ends, orig: clone(p.pts) }); cx.taken.add(p.id); }
   }
+  for (const a of res) a.hangers = hangersOf(a.pipe, cx, 2);
+  res.late = cx.late;
   return res;
 }
-function applyAtt(a, dx, dy) {
-  const o = a.orig, n = o.length, pts = clone(o);
-  if (a.ends.length === 2) { a.pipe.pts = pts.map(q => ({ x: r2(q.x + dx), y: r2(q.y + dy) })); return; }
-  const i = a.ends[0], j = i === 0 ? 1 : n - 2, dir = segDir(o[i], o[j]);
-  pts[i] = { x: r2(o[i].x + dx), y: r2(o[i].y + dy) };
-  if (n === 2) {
-    const A = pts[i], B = pts[j];
-    if (Math.abs(A.x - B.x) > 0.01 && Math.abs(A.y - B.y) > 0.01 && (dir === 'h' || dir === 'v')) {
-      let m1, m2;
-      if (dir === 'h') { const mx = snap((A.x + B.x) / 2); m1 = { x: mx, y: A.y }; m2 = { x: mx, y: B.y }; } else { const my = snap((A.y + B.y) / 2); m1 = { x: A.x, y: my }; m2 = { x: B.x, y: my }; }
-      a.pipe.pts = i === 0 ? [A, m1, m2, B] : [B, m2, m1, A]; return;
-    }
-    a.pipe.pts = pts; return;
+/* Ce que porte un tuyau : organes en ligne ou piqués (avec les tuyaux raccordés à leurs autres points : 3e voie, décharge…)
+   et tuyaux dont une extrémité est piquée dessus, sur depth niveaux. Un tuyau déjà emmené par ailleurs dont l'autre bout
+   est ici est noté dans cx.late : ce bout sera recalé après coup. */
+function hangersOf(p, cx, depth) {
+  const hs = [], claim = (o, ei, h) => {
+    if (cx.sel.has(o.id)) return null;
+    if (cx.taken.has(o.id)) { cx.late.push({ pipe: o, ei, q0: { x: o.pts[ei].x, y: o.pts[ei].y }, h }); return null; }
+    cx.taken.add(o.id); const t = { pipe: o, ends: [ei], orig: clone(o.pts) }; t.hangers = hangersOf(o, cx, depth - 1); return t;
+  };
+  for (const el of els()) { if (cx.taken.has(el.id)) continue; const q = tapPt(el, p); if (q) { cx.taken.add(el.id); hs.push({ q: { x: q.x, y: q.y }, el, off: { x: el.x - q.x, y: el.y - q.y }, subs: [] }); } }
+  if (depth <= 0) return hs;
+  for (const h of hs.slice()) {
+    const pp = portsW(h.el);
+    for (const o of pipes()) { if (o === p) continue; for (const ei of [0, o.pts.length - 1]) if (pp.some(v => near(v, o.pts[ei], LINK_TOL)) && !onPoly(o.pts[ei], p.pts)) { const t = claim(o, ei, h); if (t) h.subs.push(t); break; } }
   }
-  if (dir === 'h') pts[j] = { x: pts[j].x, y: pts[i].y }; else if (dir === 'v') pts[j] = { x: pts[i].x, y: pts[j].y };
-  a.pipe.pts = pts;
+  for (const o of pipes()) {
+    if (o === p) continue;
+    for (const ei of [0, o.pts.length - 1]) {
+      const q = o.pts[ei]; if (!onPoly(q, p.pts)) continue;
+      const h = { q: { x: q.x, y: q.y } }, t = claim(o, ei, h); if (t) h.att = t; hs.push(h); break;
+    }
+  }
+  return hs;
 }
-function ridersOf(mp, selIds) { if (!mp.length) return []; return els().filter(el => !selIds.has(el.id) && (S[el.type].inline || S[el.type].pin) && mp.some(p => onPoly(el, p.pts))).map(el => ({ el, ox: el.x, oy: el.y })); }
+/* Point par lequel un organe est posé sur le tuyau p : son centre pour un symbole en ligne ou piqué, sinon un de ses raccords
+   posé sur le tuyau hors de ses extrémités (soupape, entonnoir…), pour les petits organes seulement */
+function tapPt(el, p) {
+  const d = S[el.type]; if ((d.inline || d.pin) && onPoly(el, p.pts)) return { x: el.x, y: el.y };
+  const b = boxOf(el); if (Math.max(b[2], b[3]) > 40) return null;
+  const a0 = p.pts[0], a1 = p.pts[p.pts.length - 1];
+  for (const q of portsW(el)) if (onPoly(q, p.pts) && !near(q, a0) && !near(q, a1)) return q;
+  return null;
+}
+/* Recale les bouts notés dans late sur la nouvelle position de ce qui les porte */
+function applyLate(late) {
+  for (const L of late || []) {
+    if (!L.h.np) continue; const o = L.pipe, idx = L.ei === 0 ? 0 : o.pts.length - 1, cur = o.pts[idx];
+    const tx = r2(L.q0.x + L.h.np.x - L.h.q.x), ty = r2(L.q0.y + L.h.np.y - L.h.q.y);
+    if (Math.abs(cur.x - tx) > 0.01 || Math.abs(cur.y - ty) > 0.01) applyAtt({ pipe: o, ends: [idx], orig: clone(o.pts) }, r2(tx - cur.x), r2(ty - cur.y));
+  }
+}
+const hyp = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+const inSeg = (p, a, b) => ({ x: r2(clamp(p.x, Math.min(a.x, b.x), Math.max(a.x, b.x))), y: r2(clamp(p.y, Math.min(a.y, b.y), Math.max(a.y, b.y))) });
+/* Point q de l'ancien tracé o reporté sur le nouveau tracé np (mêmes sommets) : il reste à sa place le long du tronçon */
+function followPt(q, o, np) {
+  for (let k = 0; k < o.length - 1; k++) {
+    const r = distPtSeg(q, o[k], o[k + 1]); if (r.d > 0.6) continue;
+    const a = np[k], b = np[k + 1], d0 = segDir(o[k], o[k + 1]), d1 = segDir(a, b);
+    if (d0 === 'h' && d1 !== 'v' && d1 !== 'd') return inSeg({ x: q.x, y: a.y }, a, b);
+    if (d0 === 'v' && d1 !== 'h' && d1 !== 'd') return inSeg({ x: a.x, y: q.y }, a, b);
+    return { x: r2(a.x + (b.x - a.x) * r.t), y: r2(a.y + (b.y - a.y) * r.t) };
+  }
+  return q;
+}
+function applyAtt(a, dx, dy) {
+  const o = a.orig, n = o.length, hs = a.hangers || [];
+  let np, place;
+  if (a.ends.length === 2) { np = o.map(q => ({ x: r2(q.x + dx), y: r2(q.y + dy) })); place = h => ({ x: r2(h.q.x + dx), y: r2(h.q.y + dy) }); }
+  else {
+    const i = a.ends[0], j = i === 0 ? 1 : n - 2, E = o[i], F = o[j], dir = segDir(E, F), A = { x: r2(E.x + dx), y: r2(E.y + dy) };
+    np = clone(o); np[i] = A;
+    /* Premier tronçon : organes et piquages rangés depuis l'élément ; ceux d'avant le plus grand espace libre suivent l'élément */
+    const first = hs.filter(h => distPtSeg(h.q, E, F).d < 0.6).sort((p, q) => hyp(p.q, E) - hyp(q.q, E)), stops = [E, ...first.map(h => h.q), F];
+    let g = 0, gl = -1; for (let k = 0; k < stops.length - 1; k++) { const L = hyp(stops[k], stops[k + 1]); if (L >= gl) { gl = L; g = k; } }
+    const onFirst = new Set(first);
+    if (dir !== 'h' && dir !== 'v') place = h => followPt(h.q, o, np);
+    else {
+      /* Si l'élément avance vers ses organes plus que le plus grand espace ne le permet, ils se resserrent tous régulièrement */
+      const ax = dir === 'v' ? 'y' : 'x', pr = dir === 'v' ? 'x' : 'y', len = F[ax] - E[ax], sa = (A[ax] - E[ax]) * (Math.sign(len) || 1);
+      const squeeze = first.length > 0 && sa > gl - 24, lead = new Set(squeeze ? first : first.slice(0, g));
+      const leadPos = h => { if (!squeeze) return { x: r2(h.q.x + dx), y: r2(h.q.y + dy) }; const v = r2(A[ax] + (len ? (h.q[ax] - E[ax]) / len : 0) * (F[ax] - A[ax])); return ax === 'x' ? { x: v, y: A.y } : { x: A.x, y: v }; };
+      if (n === 2 && Math.abs(A[pr] - F[pr]) > 0.01) {
+        /* Tuyau droit déporté : baïonnette au milieu du plus grand espace libre, après les organes qui suivent l'élément */
+        const ld = first.filter(h => lead.has(h)), lo = ld.length ? leadPos(ld[ld.length - 1])[ax] : A[ax], hi = !squeeze && g < first.length ? first[g].q[ax] : F[ax];
+        let at = snap((lo + hi) / 2); if (!((at - lo) * (hi - at) > 0)) at = r2((lo + hi) / 2);
+        const m1 = ax === 'x' ? { x: at, y: A.y } : { x: A.x, y: at }, m2 = ax === 'x' ? { x: at, y: F.y } : { x: F.x, y: at };
+        np = i === 0 ? [A, m1, m2, F] : [F, m2, m1, A];
+        place = h => lead.has(h) ? inSeg(leadPos(h), A, m1) : inSeg(h.q, m2, F);
+      } else {
+        if (n > 2) np[j] = dir === 'h' ? { x: F.x, y: A.y } : { x: A.x, y: F.y };
+        const B = np[j];
+        place = h => lead.has(h) ? inSeg(leadPos(h), A, B) : onFirst.has(h) ? inSeg(dir === 'h' ? { x: h.q.x, y: A.y } : { x: A.x, y: h.q.y }, A, B) : followPt(h.q, o, np);
+      }
+    }
+  }
+  a.pipe.pts = np;
+  for (const h of hs) {
+    const p = place(h), ddx = r2(p.x - h.q.x), ddy = r2(p.y - h.q.y); h.np = p;
+    if (h.el) { h.el.x = r2(p.x + h.off.x); h.el.y = r2(p.y + h.off.y); for (const t of h.subs) applyAtt(t, ddx, ddy); } else if (h.att) applyAtt(h.att, ddx, ddy);
+  }
+}
+/* Fin du déplacement : tracés nettoyés, y compris ceux des tuyaux piqués */
+function simplifyAtt(a) { a.pipe.pts = simplify(a.pipe.pts); for (const h of a.hangers || []) { if (h.att) simplifyAtt(h.att); for (const t of h.subs || []) simplifyAtt(t); } }
+function simplifyLate(late) { for (const L of late || []) L.pipe.pts = simplify(L.pipe.pts); }
+function ridersOf(mp, selIds) { if (!mp.length) return []; return els().filter(el => !selIds.has(el.id) && mp.some(p => tapPt(el, p))).map(el => ({ el, ox: el.x, oy: el.y })); }
 function moveEnd(pipe, ei, dx, dy) { const idx = ei === 0 ? 0 : pipe.pts.length - 1; applyAtt({ pipe, ends: [idx], orig: clone(pipe.pts) }, dx, dy); pipe.pts = simplify(pipe.pts); }
 const geomOf = it => it.kind === 'pipe' ? { pts: clone(it.pts) } : { x: it.x, y: it.y, rot: it.rot, fh: it.fh };
 function setGeom(it, g, dx, dy) { if (g.pts) it.pts = g.pts.map(q => ({ x: r2(q.x + dx), y: r2(q.y + dy) })); else { it.x = r2(g.x + dx); it.y = r2(g.y + dy); if (it.kind === 'el') { it.rot = g.rot; it.fh = g.fh; } } }
@@ -257,6 +341,7 @@ function dragMove(e, w) {
     if (d.single && !d.att.length && magnetize(d.single, d.orig.get(d.single.id))) { dx = d.single.x - d.anchor.x; dy = d.single.y - d.anchor.y; }
     for (const r of d.riders) { r.el.x = r2(r.ox + dx); r.el.y = r2(r.oy + dy); }
     for (const a of d.att) applyAtt(a, dx, dy);
+    applyLate(d.att.late);
     render(); return;
   }
   if (d.kind === 'vertex') {
@@ -270,6 +355,7 @@ function dragMove(e, w) {
     d.p.pts = pts; const dx = d.horiz ? 0 : delta, dy = d.horiz ? delta : 0;
     for (const r of d.riders) { r.el.x = r2(r.ox + dx); r.el.y = r2(r.oy + dy); }
     for (const a of d.att) applyAtt(a, dx, dy);
+    applyLate(d.att.late);
     render(); return;
   }
   if (d.kind === 'cart') {
@@ -295,11 +381,11 @@ function dragMove(e, w) {
 }
 function dragEnd(d) {
   if (d.kind === 'rubber') { rubberEnd(d); return; }
-  if (d.kind === 'move') { if (d.moved || d.dup) { for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); for (const it of d.items) if (it.kind === 'pipe') it.pts = simplify(it.pts); commit(d.before); } else if (d.clickSel) setSel([d.clickSel]); return; }
+  if (d.kind === 'move') { if (d.moved || d.dup) { for (const a of d.att) simplifyAtt(a); simplifyLate(d.att.late); for (const it of d.items) if (it.kind === 'pipe') it.pts = simplify(it.pts); commit(d.before); } else if (d.clickSel) setSel([d.clickSel]); return; }
   if (d.kind === 'label' || d.kind === 'zone') { if (d.moved) commit(d.before); return; }
   if (d.kind === 'cart' || d.kind === 'pageMove' || d.kind === 'pageSize') { if (d.moved) { commit(d.before); buildInspector(); } return; }
   if (d.kind === 'vertex') { state.snap = null; if (d.moved) { d.p.pts = simplify(d.p.pts); if (d.p.pts.length < 2) { doc.items = doc.items.filter(i => i !== d.p); state.sel.delete(d.p.id); } commit(d.before); } else renderUI(); return; }
-  if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) a.pipe.pts = simplify(a.pipe.pts); commit(d.before); } return; }
+  if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) simplifyAtt(a); simplifyLate(d.att.late); commit(d.before); } return; }
   if (d.kind === 'zoneNew') { let z = d.z; if (!z) { z = makeZone(d.s.x, d.s.y); doc.items.unshift(z); } z.w = Math.max(40, z.w); z.h = Math.max(40, z.h); commit(d.before); setTool('select'); setSel([z.id]); focusField('title', true); }
 }
 /* Blocs de mise en page redimensionnables par leurs coins, et leur taille à 100 % */
@@ -319,7 +405,8 @@ function startHandle(e, w, t) {
   if (si + 1 === pts.length - 1) pts.push({ x: pts[pts.length - 1].x, y: pts[pts.length - 1].y });
   const att = [];
   for (const o of pipes()) { if (o === it) continue; const ends = []; for (const ei of [0, o.pts.length - 1]) if (distPtSeg(o.pts[ei], a0, b0).d < 0.6) ends.push(ei); if (ends.length) att.push({ pipe: o, ends, orig: clone(o.pts) }); }
-  const riders = els().filter(el => (S[el.type].inline || S[el.type].pin) && distPtSeg(el, a0, b0).d < 0.6).map(el => ({ el, ox: el.x, oy: el.y }));
+  const riders = els().filter(el => tapPt(el, { pts: [a0, b0] })).map(el => ({ el, ox: el.x, oy: el.y }));
+  const cx = { taken: new Set([it.id, ...att.map(a => a.pipe.id), ...riders.map(r => r.el.id)]), sel: new Set([it.id]), late: [] }; for (const a of att) if (a.ends.length === 1) a.hangers = hangersOf(a.pipe, cx, 1); att.late = cx.late;
   drag = { kind: 'segment', before, p: it, si, base: pts, horiz: segDir(a0, b0) === 'h', start: w, att, riders, moved: false };
 }
 function segRect(a, b, x0, y0, x1, y1) {
@@ -426,15 +513,17 @@ function flipCmd(axis) {
   commit(before); buildInspector();
 }
 function transformEl(el, fn) {
-  const ends = []; for (const a of findAtt([el], new Set([el.id]))) for (const ei of a.ends) ends.push({ a, ei, q: a.orig[ei] });
+  const atts = findAtt([el], new Set([el.id])), ends = []; for (const a of atts) for (const ei of a.ends) ends.push({ a, ei, q: a.orig[ei] });
+  const shift = (en, dx, dy) => { if (en.a.ends.length === 1) { applyAtt(en.a, dx, dy); simplifyAtt(en.a); } else moveEnd(en.a.pipe, en.ei, dx, dy); };
   fn(el); el.lx = 0; el.ly = 0;
   const np = portsW(el), used = new Set();
-  for (const en of ends) { const j = np.findIndex((pp, k) => !used.has(k) && near(pp, en.q)); if (j >= 0) { used.add(j); en.done = true; } }
+  for (const en of ends) { const j = np.findIndex((pp, k) => !used.has(k) && near(pp, en.q, LINK_TOL)); if (j >= 0) { used.add(j); en.done = true; } }
   for (const en of ends) {
     if (en.done) continue; let bj = -1, bd = Infinity;
     np.forEach((pp, k) => { if (used.has(k)) return; const dd = Math.hypot(pp.x - en.q.x, pp.y - en.q.y); if (dd < bd) { bd = dd; bj = k; } });
-    if (bj >= 0) { used.add(bj); moveEnd(en.a.pipe, en.ei, np[bj].x - en.q.x, np[bj].y - en.q.y); }
+    if (bj >= 0) { used.add(bj); shift(en, np[bj].x - en.q.x, np[bj].y - en.q.y); }
   }
+  applyLate(atts.late); simplifyLate(atts.late);
 }
 function transformGroup(items0, kind, deg) {
   const selIds = new Set(items0.map(i => i.id)), riders = ridersOf(items0.filter(i => i.kind === 'pipe'), selIds).map(r => r.el), items = items0.concat(riders);
@@ -443,15 +532,16 @@ function transformGroup(items0, kind, deg) {
   for (const it of items) { const q = bboxOf(it, ctx); b = b ? { x0: Math.min(b.x0, q.x0), y0: Math.min(b.y0, q.y0), x1: Math.max(b.x1, q.x1), y1: Math.max(b.y1, q.y1) } : Object.assign({}, q); }
   const cx = snap((b.x0 + b.x1) / 2), cy = snap((b.y0 + b.y1) / 2);
   const map = (x, y) => { let dx = x - cx, dy = y - cy; if (kind === 'rot') [dx, dy] = rotv(dx, dy, deg); else if (kind === 'mh') dx = -dx; else dy = -dy; return { x: r2(cx + dx), y: r2(cy + dy) }; };
-  const recs = [];
-  for (const a of findAtt(items, selIds)) for (const ei of a.ends) { const q = a.orig[ei]; let ref = null; for (const it of items) if (it.kind === 'el') { const k = portsW(it).findIndex(pp => near(pp, q)); if (k >= 0) { ref = { el: it, k }; break; } } recs.push({ pipe: a.pipe, ei, q, ref }); }
+  const recs = [], atts = findAtt(items, selIds);
+  for (const a of atts) for (const ei of a.ends) { const q = a.orig[ei]; let ref = null; for (const it of items) if (it.kind === 'el') { const k = portsW(it).findIndex(pp => near(pp, q, LINK_TOL)); if (k >= 0) { ref = { el: it, k }; break; } } recs.push({ a, pipe: a.pipe, ei, q, ref }); }
   for (const it of items) {
     if (it.kind === 'el') { const p = map(it.x, it.y); it.x = p.x; it.y = p.y; if (kind === 'rot') it.rot = norm360((it.rot || 0) + deg); else { it.fh = !it.fh; it.rot = norm360(kind === 'mh' ? -(it.rot || 0) : 180 - (it.rot || 0)); } it.lx = 0; it.ly = 0; }
     else if (it.kind === 'pipe') it.pts = it.pts.map(q => map(q.x, q.y));
     else if (it.kind === 'zone') { const c1 = map(it.x, it.y), c2 = map(it.x + it.w, it.y + it.h); it.x = Math.min(c1.x, c2.x); it.y = Math.min(c1.y, c2.y); it.w = Math.abs(c2.x - c1.x); it.h = Math.abs(c2.y - c1.y); }
     else { const q = bboxOf(it, ctx), mx = (q.x0 + q.x1) / 2, my = (q.y0 + q.y1) / 2, mc = map(mx, my); it.x = snap(it.x + mc.x - mx); it.y = snap(it.y + mc.y - my); }
   }
-  for (const r of recs) { const np = r.ref ? portsW(r.ref.el)[r.ref.k] : map(r.q.x, r.q.y); if (np) moveEnd(r.pipe, r.ei, np.x - r.q.x, np.y - r.q.y); }
+  for (const r of recs) { const np = r.ref ? portsW(r.ref.el)[r.ref.k] : map(r.q.x, r.q.y); if (!np) continue; if (r.a.ends.length === 1) { applyAtt(r.a, np.x - r.q.x, np.y - r.q.y); simplifyAtt(r.a); } else moveEnd(r.pipe, r.ei, np.x - r.q.x, np.y - r.q.y); }
+  applyLate(atts.late); simplifyLate(atts.late);
 }
 
 /* ===== Édition ===== */
@@ -533,7 +623,8 @@ function nudge(dx, dy) {
   const items = selItems(); if (!items.length) return; const before = snapshot(), selIds = new Set(items.map(i => i.id)), att = findAtt(items, selIds), riders = ridersOf(items.filter(i => i.kind === 'pipe'), selIds);
   for (const it of items) setGeom(it, geomOf(it), dx, dy);
   for (const r of riders) { r.el.x = r2(r.ox + dx); r.el.y = r2(r.oy + dy); }
-  for (const a of att) { applyAtt(a, dx, dy); a.pipe.pts = simplify(a.pipe.pts); }
+  for (const a of att) applyAtt(a, dx, dy);
+  applyLate(att.late); for (const a of att) simplifyAtt(a); simplifyLate(att.late);
   commit(before);
 }
 function onEscape() { if (state.draft) { finishDraft(); return; } if (drag) { abortDrag(); return; } if (state.tool !== 'select') { setTool('select'); return; } if (state.sel.size) setSel([]); }
