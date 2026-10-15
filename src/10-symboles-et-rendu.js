@@ -1042,7 +1042,7 @@ function contentBBox(ctx) {
 }
 /* ===== Cadre de la feuille, un par schéma (doc.opts.page) : x, y, largeur w en unités du plan, hauteur selon le format et l'orientation.
    Formats en mm (paysage) avec leur marge d'impression. u : unités du plan par millimètre imprimé. ===== */
-const SHEETS = { a4: [297, 210, 10], a3: [420, 297, 10], a0: [1189, 841, 15] };
+const SHEETS = { a4: [297, 210, 10], a3: [420, 297, 10], a2: [594, 420, 10], a1: [841, 594, 15], a0: [1189, 841, 15] };
 const pageOn = () => !!(doc.opts.page && doc.opts.page.on);
 function pageGeom(pg) {
   pg = pg || doc.opts.page; const [L, l, mg] = SHEETS[pg.fmt] || SHEETS.a4, PW = pg.land ? L : l, PH = pg.land ? l : L, u = pg.w / PW;
