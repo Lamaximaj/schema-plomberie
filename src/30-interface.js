@@ -222,7 +222,7 @@ function pageSec() {
   const out = doc.items.filter(it => { const b = bboxOf(it, ctx); return b && (b.x0 < M.x0 - 0.5 || b.y0 < M.y0 - 0.5 || b.x1 > M.x1 + 0.5 || b.y1 > M.y1 + 0.5); }).length;
   const mm = v => (v / g.u).toFixed(1).replace('.', ','), small = 8 / g.u < 1.8;
   return SEC('Feuille', toggle,
-    h('div', { class: 'row2' }, F('Format', fSelect([['a4', 'A4'], ['a3', 'A3'], ['a0', 'A0']], () => pg.fmt, v => { pg.fmt = v; }, buildInspector)), F('Orientation', fSelect([['1', 'Paysage'], ['0', 'Portrait']], () => pg.land ? '1' : '0', setLand, buildInspector))),
+    h('div', { class: 'row2' }, F('Format', fSelect([['a4', 'A4'], ['a3', 'A3'], ['a2', 'A2'], ['a1', 'A1'], ['a0', 'A0']], () => pg.fmt, v => { pg.fmt = v; }, buildInspector)), F('Orientation', fSelect([['1', 'Paysage'], ['0', 'Portrait']], () => pg.land ? '1' : '0', setLand, buildInspector))),
     h('div', { class: 'f' }, fCheck(() => pg.border, v => { pg.border = v; }, 'Imprimer le trait de cadre')),
     h('p', { class: 'hint' }, `Textes imprimés en ${fmtL} : repères ${mm(8)} mm, plus petits textes ${mm(5.5)} mm.`),
     small ? h('p', { class: 'hint', style: 'color:var(--danger)' }, 'Repères trop petits pour être lus : réduisez la feuille par ses coins, ou passez en format plus grand.') : null,
@@ -331,7 +331,7 @@ function fileMenu(a) {
     { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }]
     .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : []), 'file');
 }
-function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }, { label: 'PDF A0', run: () => exportPDF('a0'), disabled: d }], 'exp'); }
+function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }, { label: 'PDF A2', run: () => exportPDF('a2'), disabled: d }, { label: 'PDF A1', run: () => exportPDF('a1'), disabled: d }, { label: 'PDF A0', run: () => exportPDF('a0'), disabled: d }], 'exp'); }
 function netMenu(a) { openMenu(a, doc.nets.map((n, i) => ({ label: netLabel(n), sw: n.color, kbd: i < 9 ? String(i + 1) : null, on: n.id === state.activeNet, run: () => { setActiveNet(n.id); setTool('pipe'); } })), 'net'); }
 function modal(title, body, actions) {
   closeModal(); const bg = h('div', { class: 'modal-bg' }); bg.addEventListener('pointerdown', e => { if (e.target === bg) closeModal(); });
@@ -411,7 +411,7 @@ function exportSVG() { const e = buildExport(); if (e) saveFile(fileBase() + '.s
 async function exportPNG() { const e = buildExport(); if (!e) return; try { saveFile(fileBase() + '.png', await svgToPng(e.svg, e.w, e.h, clamp(Math.sqrt(16e6 / (e.w * e.h)), 1, 4))); } catch (err) { toast('Création de l’image impossible.'); } }
 /* Formats PDF (mm, paysage) et marge. Export vectoriel (svg2pdf, police Arimo, de même chasse qu'Arial) : net à toutes les échelles.
    Si ces bibliothèques ne se chargent pas, repli sur un rendu image d'environ 300 dpi, découpé en tuiles de 3000 px au plus
-   (un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
+   (un A1 ou un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
 const PDF_FMT = SHEETS, PDF_PXMM = 12, PDF_TILE = 3000;
 /* Bibliothèques servies avec la page (dossier vendor/), CDN en secours */
 const PDF_LIBS = {
@@ -509,7 +509,7 @@ async function exportPDF(fmt) {
   try { await loadFirst(PDF_LIBS.jspdf, hasJsPDF); } catch (e) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
   const J = window.jspdf.jsPDF;
   const e = buildExport(); if (!e) return;
-  /* Avec le cadre de la feuille : la feuille entière, dans son orientation (A4, A3 et A0 ont les mêmes proportions) ; sinon le dessin centré dans les marges */
+  /* Avec le cadre de la feuille : la feuille entière, dans son orientation (les formats A ont tous les mêmes proportions) ; sinon le dessin centré dans les marges */
   const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.page ? doc.opts.page.land : e.w >= e.h, PW = land ? L : l, PH = land ? l : L, mm = e.page ? 0 : mg;
   const s = Math.min((PW - 2 * mm) / e.w, (PH - 2 * mm) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
   const mk = () => new J({ orientation: land ? 'landscape' : 'portrait', unit: 'mm', format: fmt, compress: true });
