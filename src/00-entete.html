@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Schéma de principe plomberie</title>
+<meta name="theme-color" content="#2b7a3b">
+<link rel="icon" href="icons/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
@@ -158,6 +161,10 @@ kbd{font:600 11px/1 Barlow,sans-serif;padding:3px 5px;border:1px solid var(--rul
 #hint{display:flex;gap:16px;overflow:hidden;white-space:nowrap;flex:1;min-width:0}
 #hint span{display:inline-flex;align-items:center;gap:5px}
 #coords{flex:none;font-variant-numeric:tabular-nums}
+#filestat{flex:none;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#filestat.dirty{color:var(--text);font-weight:600}
+#filestat.dirty::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#e8590c;margin-right:6px;vertical-align:1px}
+.notice{position:fixed;left:50%;bottom:calc(48px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--plate);color:var(--text);border:1px solid var(--rule);padding:8px 8px 8px 14px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow);z-index:85;max-width:min(94vw,560px)}
 .toast{position:fixed;left:50%;bottom:calc(48px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--panel);padding:9px 14px;border-radius:8px;font-size:13.5px;box-shadow:var(--shadow);z-index:80;opacity:0;transition:opacity .18s;pointer-events:none;max-width:min(90vw,520px)}
 .toast.show{opacity:1}
 .menu{position:fixed;z-index:60;min-width:240px;background:var(--plate);border:1px solid var(--rule);border-radius:9px;box-shadow:var(--shadow);padding:5px;display:flex;flex-direction:column}
@@ -247,9 +254,9 @@ p.fonc{margin:0;font-size:13.5px;line-height:1.5}
 <div class="draftbar" id="draftbar" hidden><button class="btn sm ghost" type="button" id="d-back">Retirer le dernier point</button><button class="btn sm primary" type="button" id="d-end">Terminer le tuyau</button><button class="btn sm ghost" type="button" id="d-cancel">Annuler</button></div>
 </main>
 <aside id="insp" aria-label="Propriétés"><div id="insp-body"></div></aside>
-<footer id="foot"><div id="hint"></div><span id="coords"></span></footer>
+<footer id="foot"><div id="hint"></div><span id="filestat" aria-live="polite"></span><span id="coords"></span></footer>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <datalist id="dn-list"><option value="DN15"><option value="DN20"><option value="DN25"><option value="DN32"><option value="DN40"><option value="DN50"><option value="DN65"><option value="DN80"><option value="DN100"><option value="DN125"><option value="DN150"><option value="Ø12"><option value="Ø14"><option value="Ø16"><option value="Ø18"><option value="Ø22"><option value="Ø28"><option value="Ø35"><option value="Ø42"><option value="Ø54"><option value="PER 16"><option value="PER 20"><option value="PER 25"><option value="Multicouche 26"><option value="Multicouche 32"></datalist>
-<input type="file" id="file-in" accept=".json,application/json" hidden>
+<input type="file" id="file-in" accept=".json,.svg,.pdf,.png,application/json,image/svg+xml,application/pdf,image/png" hidden>
 <script>

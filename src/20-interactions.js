@@ -82,8 +82,8 @@ function fitView() {
 /* ===== Historique ===== */
 const hist = { u: [], r: [] };
 const snapshot = () => JSON.stringify(doc);
-function commit(before) { if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); if (IB.querySelector('.racc')) buildInspector(); }
-function restoreSnap(s) { doc = JSON.parse(s); for (const id of [...state.sel]) if (!byId(id)) state.sel.delete(id); scheduleSave(); render(); buildInspector(); updateUndo(); syncDocName(); }
+function commit(before) { if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); if (IB.querySelector('.racc')) buildInspector(); fileStatus(); }
+function restoreSnap(s) { doc = JSON.parse(s); for (const id of [...state.sel]) if (!byId(id)) state.sel.delete(id); onRestoreSnap(s); scheduleSave(); render(); buildInspector(); updateUndo(); syncDocName(); }
 function undo() { if (state.draft) { cancelDraft(); return; } if (!hist.u.length) return; hist.r.push(snapshot()); restoreSnap(hist.u.pop()); }
 function redo() { if (!hist.r.length) return; hist.u.push(snapshot()); restoreSnap(hist.r.pop()); }
 function updateUndo() { $('#b-undo').disabled = !hist.u.length; $('#b-redo').disabled = !hist.r.length; }
