@@ -238,7 +238,7 @@ function inspDoc() {
   IB.append(SEC('Affichage', h('div', { class: 'f' }, h('label', { class: 'chk' }, g, h('span', null, 'Grille'))), h('div', { class: 'f' }, fCheck(() => doc.opts.hops !== false, v => { doc.opts.hops = v; }, 'Sauts aux croisements de tuyaux')), h('div', { class: 'f' }, fCheck(() => !!doc.opts.real, v => { doc.opts.real = v; }, 'Équipements en vue réaliste'))));
   IB.append(pageSec());
   IB.append(SEC('Repères', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Numérote les symboles de gauche à droite, ligne par ligne.'), btn('Renuméroter les repères', renumber)));
-  const keys = [['V', 'Sélection'], ['L', 'Tuyauterie'], ['T', 'Texte'], ['Z', 'Zone ou local'], ['R', 'Tourner de 90°'], ['F', 'Inverser le sens'], ['Maj+F', 'Passer de l’autre côté'], ['1 à 9', 'Réseau du tracé'], ['/', 'Autre coude pendant le tracé'], ['Maj', 'Tracé à 45°, ou déplacement droit'], ['Alt + glisser', 'Dupliquer'], ['Ctrl+Z', 'Annuler'], ['Suppr', 'Supprimer'], ['Flèches', 'Décaler d’un pas'], ['Espace + glisser', 'Déplacer la vue'], ['0', 'Ajuster à l’écran'], ['G', 'Grille']];
+  const keys = [['V', 'Sélection'], ['L', 'Tuyauterie'], ['T', 'Texte'], ['Z', 'Zone ou local'], ['R', 'Tourner de 90°'], ['F', 'Inverser le sens'], ['Maj+F', 'Passer de l’autre côté'], ['1 à 9', 'Réseau du tracé'], ['/', 'Autre coude pendant le tracé'], ['Maj', 'Tracé à 45°, ou déplacement droit'], ['Alt + glisser', 'Dupliquer'], ['Ctrl+Z', 'Annuler'], ['Suppr', 'Supprimer'], ['Flèches', 'Décaler d’un pas'], ['Espace + glisser', 'Déplacer la vue'], ['0', 'Ajuster à l’écran'], ['G', 'Grille'], ['Ctrl+S', 'Enregistrer'], ['Ctrl+Maj+S', 'Enregistrer sous'], ['Ctrl+O', 'Ouvrir']];
   IB.append(SEC('Raccourcis', h('div', { class: 'keys' }, keys.flatMap(([k, t]) => [h('kbd', null, k), h('span', null, t)]))));
 }
 function netRow(n, i) {
@@ -309,7 +309,7 @@ function tileDown(e, p) {
 
 /* ===== Menus, fenêtres, messages ===== */
 let menuEl = null, modalEl = null, toastT = 0;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), clamp(String(msg).length * 45, 2800, 9000)); }
 function openMenu(anchor, items, id) {
   closeMenu(); const m = h('div', { class: 'menu', role: 'menu' });
   for (const it of items) {
@@ -326,12 +326,19 @@ function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
 function toggleMenu(id, anchor) { if (menuEl && menuEl.dataset.for === id) { closeMenu(); return; } ({ file: fileMenu, exp: expMenu, net: netMenu })[id](anchor); }
 document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target) && !e.target.closest('[data-menu]')) closeMenu(); }, true);
 function fileMenu(a) {
-  openMenu(a, [{ label: 'Nouveau schéma', run: newSchema }, { label: 'Ouvrir un fichier .json…', run: () => $('#file-in').click() }, { label: 'Enregistrer en fichier .json', run: saveJSON, disabled: !canDownload() }, '-',
-    { head: 'Mes projets' }, { label: lib.ok ? 'Enregistrer dans Mes projets' : 'Indisponible dans cette vue', kbd: lib.ok ? 'Ctrl+S' : null, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes projets…', run: openLib, disabled: !lib.ok }, '-',
+  const f = state.file, fileItems = FSA ? [
+    { label: f && f.handle ? 'Enregistrer (' + f.name + ')' : 'Enregistrer…', kbd: 'Ctrl+S', run: saveCurrent },
+    { label: 'Enregistrer sous…', kbd: 'Ctrl+Maj+S', run: saveAs },
+  ] : [{ label: 'Enregistrer en fichier .json', run: saveJSON, disabled: !canDownload() }];
+  const rec = FSA && recents.length ? [{ head: 'Récents' }].concat(recents.slice(0, 6).map(r => ({ label: r.name, run: () => openHandle(r.handle) }))) : [];
+  const libSave = !FSA && lib.ok && !state.libId ? 'Ctrl+S' : null;
+  openMenu(a, [{ label: 'Nouveau schéma', run: newSchema }, { label: 'Ouvrir… (.json, .svg, .pdf, .png)', kbd: 'Ctrl+O', run: openDialog }].concat(rec, rec.length ? ['-'] : [], fileItems, ['-',
+    { head: lib.kind === 'claude' ? 'Mes projets (en ligne)' : 'Mes projets (dans ce navigateur)' }, { label: lib.ok ? 'Enregistrer dans Mes projets' : 'Indisponible dans cette vue', kbd: state.libId && !(f && f.handle) ? 'Ctrl+S' : libSave, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes projets…', run: openLib, disabled: !lib.ok }, '-',
     { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }]
-    .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : []), 'file');
+    .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : [])
+    .concat(installEvt ? ['-', { label: 'Installer l’application (hors connexion)', run: installApp }] : [])), 'file');
 }
-function expMenu(a) { const d = !canDownload(); openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }, { label: 'PDF A2', run: () => exportPDF('a2'), disabled: d }, { label: 'PDF A1', run: () => exportPDF('a1'), disabled: d }, { label: 'PDF A0', run: () => exportPDF('a0'), disabled: d }], 'exp'); }
+function expMenu(a) { const d = !canDownload() && !FSA; openMenu(a, [{ label: 'Image PNG', run: exportPNG, disabled: d }, { label: 'Vectoriel SVG', run: exportSVG, disabled: d }, { label: 'PDF A4', run: () => exportPDF('a4'), disabled: d }, { label: 'PDF A3', run: () => exportPDF('a3'), disabled: d }, { label: 'PDF A2', run: () => exportPDF('a2'), disabled: d }, { label: 'PDF A1', run: () => exportPDF('a1'), disabled: d }, { label: 'PDF A0', run: () => exportPDF('a0'), disabled: d }, '-', { head: 'Chaque export se rouvre et se modifie (Fichier > Ouvrir).' }], 'exp'); }
 function netMenu(a) { openMenu(a, doc.nets.map((n, i) => ({ label: netLabel(n), sw: n.color, kbd: i < 9 ? String(i + 1) : null, on: n.id === state.activeNet, run: () => { setActiveNet(n.id); setTool('pipe'); } })), 'net'); }
 function modal(title, body, actions) {
   closeModal(); const bg = h('div', { class: 'modal-bg' }); bg.addEventListener('pointerdown', e => { if (e.target === bg) closeModal(); });
@@ -351,7 +358,11 @@ function promptModal(title, label, value) {
 
 /* ===== Fichiers, exports, sauvegarde ===== */
 let saveT = 0, dl = null; const lib = { ok: false, kind: '', db: null, uid: null, idb: null };
-function scheduleSave() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify({ doc, libId: state.libId, net: state.activeNet })); } catch (e) { /* stockage indisponible */ } }, 400); }
+function saveNow() {
+  clearTimeout(saveT); const f = state.file;
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ doc, libId: state.libId, net: state.activeNet, file: f ? { name: f.name, fmt: f.fmt, pdf: f.pdf || null } : null, fileHash: state.fileHash, libHash: state.libHash })); } catch (e) { /* stockage indisponible */ }
+}
+function scheduleSave() { clearTimeout(saveT); saveT = setTimeout(saveNow, 400); }
 function sanitize(d) {
   if (!d || !Array.isArray(d.items) || !Array.isArray(d.nets)) throw new Error('format');
   const out = newDoc(), num = v => (isFinite(+v) ? +v : 0), ids = new Set();
@@ -372,13 +383,20 @@ function sanitize(d) {
   const pg = d.opts && d.opts.page; if (pg && typeof pg === 'object') out.opts.page = { on: !!pg.on, fmt: SHEETS[pg.fmt] ? pg.fmt : 'a4', land: pg.land !== false, x: num(pg.x), y: num(pg.y), w: clamp(num(pg.w) || 1000, 100, 50000), border: !!pg.border };
   return out;
 }
-function restore() { try { const raw = localStorage.getItem(LS_KEY); if (!raw) return false; const o = JSON.parse(raw); doc = sanitize(o.doc); state.libId = o.libId || null; if (o.net && doc.nets.some(n => n.id === o.net)) state.activeNet = o.net; return true; } catch (e) { return false; } }
-function loadDocObj(d) { const nd = sanitize(d), before = snapshot(); doc = nd; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
+function restore() {
+  try {
+    const raw = localStorage.getItem(LS_KEY); if (!raw) return false; const o = JSON.parse(raw); doc = sanitize(o.doc); state.libId = o.libId || null; if (o.net && doc.nets.some(n => n.id === o.net)) state.activeNet = o.net;
+    if (o.file && o.file.name) state.file = { handle: null, name: String(o.file.name), fmt: fmtOfName(o.file.name) || 'json', pdf: o.file.pdf || null };
+    state.fileHash = o.fileHash || null; state.libHash = o.libHash || null;
+    return true;
+  } catch (e) { return false; }
+}
+function loadDocObj(d, link) { switchDoc(sanitize(d), link || null); }
 function syncDocName() { $('#docname').value = doc.name || 'Sans titre'; }
-function newSchema() { const before = snapshot(), nets = doc.nets; doc = newDoc(); doc.nets = nets; state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); view.k = 1.5; view.tx = 60; view.ty = 60; applyView(); toast('Nouveau schéma. Ctrl+Z pour revenir au précédent.'); }
-function loadExample(k) { const before = snapshot(); doc = k === 'eau' ? exLocalEau() : k === 'ep' ? exEauxPluviales() : exChaufferie(); state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
+function newSchema() { const nd = newDoc(); nd.nets = clone(doc.nets); switchDoc(nd, null, true); view.k = 1.5; view.tx = 60; view.ty = 60; applyView(); toast('Nouveau schéma. Ctrl+Z pour revenir au précédent.'); }
+function loadExample(k) { switchDoc(k === 'eau' ? exLocalEau() : k === 'ep' ? exEauxPluviales() : exChaufferie(), null); }
 const MODS = typeof MODELES !== 'undefined' ? MODELES : [];
-function loadModele(i) { const before = snapshot(); doc = sanitize(clone(MODS[i].doc)); state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); toast('Modèle ouvert. Ctrl+Z pour revenir au schéma précédent.'); }
+function loadModele(i) { switchDoc(sanitize(clone(MODS[i].doc)), null); toast('Modèle ouvert. Ctrl+Z pour revenir au schéma précédent.'); }
 const canDownload = () => !!dl || !window.claude;
 async function saveFile(name, data) {
   if (dl) {
@@ -390,7 +408,7 @@ async function saveFile(name, data) {
   toast('Export indisponible dans cette vue.');
 }
 const EXPORT_VARS = { '--ink': '#16191b', '--paper': '#ffffff', '--hdr': '#ececec', '--muted-ink': '#6b7378', '--sel': '#2c9a46' };
-const fileBase = () => (doc.name || 'schema').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'schema';
+const fileBase = () => String(doc.name || 'Schéma').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '-').replace(/\s+/g, ' ').replace(/^[\s.-]+|[\s.]+$/g, '').slice(0, 80) || 'Schéma';
 function buildExport() {
   const ctx = buildCtx(), b = contentBBox(ctx); if (!b) { toast('Le schéma est vide.'); return null; }
   const g = pageOn() ? pageGeom() : null, m = 20;
@@ -407,8 +425,8 @@ function svgToPng(str, w, hh, scale) {
     img.onerror = () => rej(new Error('img')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str);
   });
 }
-function exportSVG() { const e = buildExport(); if (e) saveFile(fileBase() + '.svg', '<?xml version="1.0" encoding="UTF-8"?>\n' + e.svg); }
-async function exportPNG() { const e = buildExport(); if (!e) return; try { saveFile(fileBase() + '.png', await svgToPng(e.svg, e.w, e.h, clamp(Math.sqrt(16e6 / (e.w * e.h)), 1, 4))); } catch (err) { toast('Création de l’image impossible.'); } }
+function exportSVG() { if (buildExport()) saveOut(fileBase() + '.svg', 'svg', async () => svgFileText()); }
+function exportPNG() { if (buildExport()) saveOut(fileBase() + '.png', 'png', async () => { try { return await pngFileBlob(); } catch (err) { toast('Création de l’image impossible.'); return null; } }); }
 /* Formats PDF (mm, paysage) et marge. Export vectoriel (svg2pdf, police Arimo, de même chasse qu'Arial) : net à toutes les échelles.
    Si ces bibliothèques ne se chargent pas, repli sur un rendu image d'environ 300 dpi, découpé en tuiles de 3000 px au plus
    (un A1 ou un A0 dépasse la taille d'image que certains navigateurs savent dessiner d'un seul tenant). */
@@ -505,10 +523,12 @@ async function pdfRaster(pdf, e, ox, oy, s) {
     pdf.addImage(url, 'PNG', ox + tx * s, oy + ty * s, tw * s, th * s, undefined, 'FAST');
   }
 }
-async function exportPDF(fmt) {
-  try { await loadFirst(PDF_LIBS.jspdf, hasJsPDF); } catch (e) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return; }
+function exportPDF(fmt) { if (buildExport()) saveOut(fileBase() + ' ' + fmt.toUpperCase() + '.pdf', 'pdf', () => pdfBlob(fmt)); }
+/* PDF du schéma, avec ses données (se rouvre dans l'outil) ; null en cas d'échec, après un message */
+async function pdfBlob(fmt) {
+  try { await loadFirst(PDF_LIBS.jspdf, hasJsPDF); } catch (e) { toast('Le module PDF n’a pas pu être chargé. Exportez en PNG ou en SVG.'); return null; }
   const J = window.jspdf.jsPDF;
-  const e = buildExport(); if (!e) return;
+  const e = buildExport(); if (!e) return null;
   /* Avec le cadre de la feuille : la feuille entière, dans son orientation (les formats A ont tous les mêmes proportions) ; sinon le dessin centré dans les marges */
   const [L, l, mg] = PDF_FMT[fmt] || PDF_FMT.a4, land = e.page ? doc.opts.page.land : e.w >= e.h, PW = land ? L : l, PH = land ? l : L, mm = e.page ? 0 : mg;
   const s = Math.min((PW - 2 * mm) / e.w, (PH - 2 * mm) / e.h), dw = e.w * s, dh = e.h * s, ox = (PW - dw) / 2, oy = (PH - dh) / 2;
@@ -518,9 +538,10 @@ async function exportPDF(fmt) {
   try { await pdfVector(pdf, e, ox, oy, dw, dh); }
   catch (err) {
     try { pdf = mk(); await pdfRaster(pdf, e, ox, oy, s); toast('PDF en image (environ 300 dpi) : le mode vectoriel n’a pas pu être chargé.'); }
-    catch (err2) { toast('Création du PDF impossible.'); return; }
+    catch (err2) { toast('Création du PDF impossible.'); return null; }
   }
-  saveFile(fileBase() + '-' + fmt.toUpperCase() + '.pdf', pdf.output('blob'));
+  pdfAddData(pdf, payload({ exp: { pdf: fmt } }));
+  return pdf.output('blob');
 }
 function saveJSON() { saveFile(fileBase() + '.json', JSON.stringify(doc, null, 1)); }
 async function initCaps() {
@@ -557,16 +578,16 @@ const libStore = {
   del(id) { return lib.kind === 'local' ? idbReq('readwrite', st => st.delete(id)) : libCol().doc(id).delete(); },
 };
 const libErr = e => e && (e.code === 'quota_exceeded' || e.name === 'QuotaExceededError') ? 'Espace plein : supprimez d’anciens projets.' : e && e.code === 'invalid_argument' ? 'Vos droits sur cette page ne permettent pas d’enregistrer.' : 'Enregistrement impossible pour le moment.';
-async function saveLib(asNew) {
+async function saveLib(asNew, quiet) {
   if (!lib.ok) { toast('Mes projets n’est pas disponible ici : utilisez Enregistrer en fichier .json.'); return; }
   let name = doc.name || 'Sans titre';
   if (asNew || !state.libId) { const r = await promptModal(asNew ? 'Enregistrer une copie' : 'Enregistrer dans Mes projets', 'Nom du projet', asNew ? name + ' (copie)' : name); if (r == null) return; name = r.trim() || 'Sans titre'; doc.name = name; syncDocName(); }
   const json = JSON.stringify(doc); if (lib.kind === 'claude' && json.length > 240000) { toast('Projet trop volumineux pour Mes projets : enregistrez-le en fichier .json.'); return; }
   const id = (!asNew && state.libId) || ('s' + Date.now().toString(36) + uid().slice(0, 4));
   try {
-    await libStore.put(id, { name, updatedAt: Date.now(), json, n: doc.items.length }); state.libId = id; scheduleSave();
+    await libStore.put(id, { name, updatedAt: Date.now(), json, n: doc.items.length }); state.libId = id; state.libHash = sigHash(json); persistLink(); fileStatus();
     if (lib.kind === 'local' && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-    toast('Enregistré dans Mes projets.');
+    if (!quiet) toast('Enregistré dans Mes projets.');
   } catch (e) { toast(libErr(e)); }
 }
 async function backupLib() {
@@ -610,8 +631,8 @@ async function openLib() {
     for (const v of all) {
       const del = btn('Supprimer', null, 'danger');
       const row = h('div', { class: 'lib-row', 'data-nm': String(v.name || '').toLowerCase() }, h('div', { class: 'nm' }, h('b', null, v.name || 'Sans titre'), h('small', null, new Date(v.updatedAt || 0).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) + (v.n ? ', ' + v.n + ' objets' : '') + (v.id === state.libId ? ' · ouvert' : ''))),
-        h('button', { class: 'btn sm primary', type: 'button', onclick: () => { try { loadDocObj(JSON.parse(v.json)); state.libId = v.id; scheduleSave(); closeModal(); toast('Projet ouvert : ' + (v.name || 'Sans titre')); } catch (e) { toast('Ce projet est illisible.'); } } }, 'Ouvrir'), del);
-      del.addEventListener('click', async () => { if (del.dataset.arm !== '1') { del.dataset.arm = '1'; del.textContent = 'Confirmer'; setTimeout(() => { del.dataset.arm = ''; del.textContent = 'Supprimer'; }, 3000); return; } try { await libStore.del(v.id); row.remove(); if (state.libId === v.id) state.libId = null; toast('Projet supprimé.'); } catch (e) { toast('Suppression impossible.'); } });
+        h('button', { class: 'btn sm primary', type: 'button', onclick: () => { try { loadDocObj(JSON.parse(v.json), { libId: v.id }); closeModal(); toast('Projet ouvert : ' + (v.name || 'Sans titre')); } catch (e) { toast('Ce projet est illisible.'); } } }, 'Ouvrir'), del);
+      del.addEventListener('click', async () => { if (del.dataset.arm !== '1') { del.dataset.arm = '1'; del.textContent = 'Confirmer'; setTimeout(() => { del.dataset.arm = ''; del.textContent = 'Supprimer'; }, 3000); return; } try { await libStore.del(v.id); row.remove(); if (state.libId === v.id) { state.libId = null; state.libHash = null; persistLink(); fileStatus(); } toast('Projet supprimé.'); } catch (e) { toast('Suppression impossible.'); } });
       list.append(row);
     }
   } catch (e) { body.innerHTML = ''; body.append(h('p', { class: 'hint' }, 'Impossible de lire Mes projets pour le moment.')); }
@@ -637,6 +658,13 @@ function showCoords(w) {
 /* ===== Clavier ===== */
 window.addEventListener('keydown', e => {
   const tg = e.target, typing = tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.tagName === 'SELECT' || tg.isContentEditable);
+  const fk = (e.ctrlKey || e.metaKey) && !e.altKey && e.key.length === 1 ? e.key.toLowerCase() : '';
+  if (fk === 's' || fk === 'o') {
+    e.preventDefault(); if (modalEl) return; closeMenu();
+    if (tg && tg !== document.body && typeof tg.blur === 'function') tg.blur();
+    if (fk === 'o') openDialog(); else if (e.shiftKey) saveAs(); else saveCurrent();
+    return;
+  }
   if (modalEl) { if (e.key === 'Escape') closeModal(); return; }
   if (menuEl) { if (e.key === 'Escape') { closeMenu(); return; } if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const its = $$('.menu-it:not(:disabled)', menuEl), i = its.indexOf(document.activeElement); const n = its[(i + (e.key === 'ArrowDown' ? 1 : -1) + its.length) % its.length]; if (n) n.focus(); return; } }
   if (typing) { if (e.key === 'Escape') tg.blur(); return; }
@@ -645,7 +673,7 @@ window.addEventListener('keydown', e => {
     if (k === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); } else if (k === 'y') { e.preventDefault(); redo(); }
     else if (k === 'c' && state.sel.size) { e.preventDefault(); copySel(); } else if (k === 'x' && state.sel.size) { e.preventDefault(); copySel(); deleteSel(); }
     else if (k === 'v' && clip) { e.preventDefault(); paste(); } else if (k === 'd') { e.preventDefault(); duplicateSel(); }
-    else if (k === 'a') { e.preventDefault(); setSel(doc.items.map(i => i.id)); } else if (k === 's') { e.preventDefault(); if (lib.ok) saveLib(false); else saveJSON(); }
+    else if (k === 'a') { e.preventDefault(); setSel(doc.items.map(i => i.id)); }
     return;
   }
   if (e.altKey) return;
@@ -792,9 +820,15 @@ function bindUI() {
   dn.addEventListener('input', () => { doc.name = dn.value; scheduleSave(); });
   dn.addEventListener('change', () => { doc.name = dn.value.trim() || 'Sans titre'; commit(dnPrev); dnPrev = snapshot(); if (!state.sel.size) buildInspector(); });
   dn.addEventListener('keydown', e => { if (e.key === 'Enter') dn.blur(); });
-  $('#file-in').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { loadDocObj(JSON.parse(await f.text())); state.libId = null; toast('Schéma ouvert.'); } catch (err) { toast('Fichier illisible : choisissez un .json enregistré depuis cet outil.'); } });
+  $('#file-in').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { await openFile(f, null); } catch (err) { toast('Fichier illisible.'); } });
   $('#stage').addEventListener('dragover', e => e.preventDefault());
-  $('#stage').addEventListener('drop', async e => { e.preventDefault(); const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return; try { loadDocObj(JSON.parse(await f.text())); toast('Schéma ouvert.'); } catch (err) { toast('Fichier illisible.'); } });
+  $('#stage').addEventListener('drop', async e => {
+    e.preventDefault(); const dt = e.dataTransfer; if (!dt) return;
+    const it = dt.items && dt.items[0], hp = FSA && it && it.kind === 'file' && typeof it.getAsFileSystemHandle === 'function' ? it.getAsFileSystemHandle() : null;
+    const f = dt.files && dt.files[0]; if (!f) return;
+    let hd = null; try { hd = hp ? await hp : null; } catch (err) { hd = null; }
+    try { await openFile(f, hd && hd.kind === 'file' ? hd : null); } catch (err) { toast('Fichier illisible.'); }
+  });
   if (window.ResizeObserver) new ResizeObserver(() => { updateGrid(); renderUI(); }).observe($('#stage'));
   const art = [makeEl('vanne', 70, 30), makeEl('pompe', 130, 30), makeEl('clapet', 180, 30), makeEl('filtre', 230, 30)];
   $('#empty-art').innerHTML = '<line x1="20" y1="30" x2="280" y2="30" stroke="#1c7ed6" stroke-width="2.4"/>' + art.map(a => elSVG(a, null, { exp: true })).join('');
@@ -804,7 +838,7 @@ function init() {
   const had = restore(); syncDocName(); updateNetBtn(); updateHint();
   render(); buildInspector(); updateUndo(); updateToolUI();
   requestAnimationFrame(() => { if (had && doc.items.length) fitView(); else applyView(); });
-  initCaps();
+  initCaps(); initFiles(); testHook();
 }
 init();
 })();

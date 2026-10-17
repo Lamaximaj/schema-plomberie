@@ -1,0 +1,14 @@
+{
+  "name": "schema-plomberie",
+  "private": true,
+  "description": "Éditeur de schémas de principe plomberie : page web autonome.",
+  "scripts": {
+    "build": "bash build.sh",
+    "test": "bash build.sh && node tests/e2e.cjs",
+    "signatures": "node outils/signatures-anciennes.cjs",
+    "icones": "node outils/icones.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}
