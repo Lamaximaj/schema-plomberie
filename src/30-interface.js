@@ -237,9 +237,9 @@ function pageSec() {
 function inspDoc() {
   IB.append(headNode('<svg viewBox="0 0 64 46"><path d="M6 23H58" stroke="#1c7ed6" stroke-width="2.5"/><path d="M22 17L22 29L32 17L32 29Z" fill="#fff" stroke="#16191b" stroke-width="1.4"/><circle cx="44" cy="23" r="6" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M41.8 19.5L41.8 26.5L48 23Z" fill="#16191b"/></svg>', doc.name || 'Sans titre', els().length + ' symboles, ' + pipes().length + ' tuyaux'));
   const list = h('div', { class: 'nets' }); doc.nets.forEach((n, i) => list.append(netRow(n, i)));
-  const nd = (doc.opts.dim || []).length;
-  IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9. L’œil estompe le réseau à 20 % (outil Estomper : cliquez sur un tuyau).'), list,
-    h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet), nd ? btn('Tout réafficher (' + nd + ')', undimAll) : null)));
+  const nd = (doc.opts.dim || []).length + ((doc.opts.circ && doc.opts.circ.dim) || []).length + (doc.opts.circ && doc.opts.circ.iso ? 1 : 0);
+  IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9. L’œil estompe tout le réseau à 20 %. Pour un seul circuit (là où le fluide peut aller), outils Isoler (I) et Estomper (O) : cliquez sur un tuyau.'), list,
+    h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet), nd ? btn('Tout réafficher', undimAll) : null)));
   IB.append(layersSec());
   IB.append(fondsSec());
   IB.append(etatsSec());
@@ -258,7 +258,7 @@ function netRow(n, i) {
   const nm = h('input', { class: 'inp', type: 'text', maxlength: 40, 'aria-label': 'Nom du réseau' }); nm.value = n.name; live(nm, () => { n.name = nm.value; });
   const ext = h('div', { class: 'ext', hidden: true }, fSelect(DASH_OPTS, () => n.dash, v => { n.dash = v; }), fSelect([['1.2', 'Fin'], ['2', 'Moyen'], ['2.4', 'Normal'], ['3.2', 'Épais'], ['4.5', 'Gaine']], () => String(n.w), v => { n.w = +v; }), btn('Supprimer', () => delNet(n), 'danger'));
   const dm = (doc.opts.dim || []).includes(n.id); if (dm) row.classList.add('dim');
-  const eye = h('button', { class: 'btn sm ghost dimb', type: 'button', title: dm ? 'Réafficher ce réseau' : 'Estomper ce réseau (20 %)', 'aria-pressed': dm ? 'true' : 'false', onclick: () => toggleDim(n.id), html: dm ? EYE_OFF : EYE_ON });
+  const eye = h('button', { class: 'btn sm ghost dimb', type: 'button', title: dm ? 'Réafficher tout ce réseau' : 'Estomper tout ce réseau (20 %)', 'aria-pressed': dm ? 'true' : 'false', onclick: () => toggleDim(n.id), html: dm ? EYE_OFF : EYE_ON });
   const more = h('button', { class: 'btn sm ghost more', type: 'button', title: 'Style du trait', 'aria-expanded': 'false', onclick: () => { ext.hidden = !ext.hidden; more.setAttribute('aria-expanded', String(!ext.hidden)); } }, '…');
   row.append(pick, col, ab, nm, eye, more, ext);
   return row;
@@ -389,6 +389,7 @@ function sanitize(d) {
   const lyIds = new Set(out.layers.map(l => l.id)); for (const c of out.items) if (!lyIds.has(c.cal)) c.cal = out.layers[0].id;
   if (Array.isArray(d.etats)) out.etats = d.etats.filter(e => e && e.id).map(e => ({ id: String(e.id).slice(0, 40), name: String(e.name || 'État').slice(0, 40), hl: isHex(e.hl) ? e.hl : '', dash: DASHES[e.dash] != null ? e.dash : '', x: !!e.x, fade: !!e.fade }));
   out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real), dim: d.opts && Array.isArray(d.opts.dim) ? d.opts.dim.map(String).filter(id => out.nets.some(n => n.id === id)) : [] };
+  { const c = d.opts && d.opts.circ, sd = v => v && typeof v === 'object' && typeof v.p === 'string' ? { p: v.p.slice(0, 40), x: num(v.x), y: num(v.y) } : null; out.opts.circ = { dim: c && Array.isArray(c.dim) ? c.dim.map(sd).filter(Boolean) : [], iso: c ? sd(c.iso) : null }; }
   const pg = d.opts && d.opts.page; if (pg && typeof pg === 'object') out.opts.page = { on: !!pg.on, fmt: SHEETS[pg.fmt] ? pg.fmt : 'a4', land: pg.land !== false, x: num(pg.x), y: num(pg.y), w: clamp(num(pg.w) || 1000, 100, 50000), border: !!pg.border };
   return out;
 }
@@ -645,7 +646,8 @@ function updateHint() {
   else if (state.tool === 'text') parts = [['', 'Cliquez à l’endroit où placer le texte.']];
   else if (state.tool === 'zone') parts = [['', 'Glissez pour tracer le contour d’un local ou d’une limite de prestation.']];
   else if (state.tool === 'hand') parts = [['', 'Glissez pour déplacer la vue. Molette pour zoomer.']];
-  else if (state.tool === 'dim') parts = [[K('Clic'), 'sur un tuyau : estomper son réseau à 20 %, ou le réafficher'], [K('Échap'), 'terminer']];
+  else if (state.tool === 'dim') parts = [[K('Clic'), 'sur un tuyau : estomper à 20 % le circuit où son fluide peut aller, ou le réafficher'], [K('Échap'), 'terminer'], ['', 'Une vanne normalement fermée arrête le circuit.']];
+  else if (state.tool === 'iso') parts = [[K('Clic'), 'sur un tuyau : ne garder que son circuit, le reste à 20 %'], [K('Clic'), 'sur le même circuit ou dans le vide : tout réafficher'], [K('Échap'), 'terminer'], ['', 'Une vanne normalement fermée arrête le circuit.']];
   else if (state.tool === 'cut') parts = [[K('Clic'), 'sur un tuyau : le couper en deux tronçons à cet endroit'], [K('Échap'), 'terminer'], ['', 'Chaque tronçon reçoit ensuite son état : neuf, existant, à curer, curé.']];
   else parts = [[K('Glisser'), 'déplacer'], [K('Maj') + ' + clic', 'ajouter à la sélection'], [K('Alt') + ' + glisser', 'dupliquer'], [K('R'), 'tourner'], [K('F'), 'inverser le sens'], [K('Double-clic'), 'sur un tuyau : ajouter un coude'], [K('Espace') + ' + glisser', 'vue']];
   $('#hint').innerHTML = parts.map(([k, t]) => '<span>' + k + (k ? ' ' : '') + esc(t) + '</span>').join('');
@@ -681,7 +683,7 @@ window.addEventListener('keydown', e => {
   if (k === 'r') rotateCmd(e.shiftKey ? -90 : 90);
   else if (k === 'f') flipCmd(e.shiftKey ? 'v' : 'h');
   else if (k === '/' || k === ':') { if (state.draft) { state.draft.flip = !state.draft.flip; if (state.snap) state.draft.preview = route(state.snap); renderUI(); } }
-  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand'); else if (k === 'o') setTool(state.tool === 'dim' ? 'select' : 'dim'); else if (k === 'x') setTool(state.tool === 'cut' ? 'select' : 'cut');
+  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand'); else if (k === 'o') setTool(state.tool === 'dim' ? 'select' : 'dim'); else if (k === 'i') setTool(state.tool === 'iso' ? 'select' : 'iso'); else if (k === 'x') setTool(state.tool === 'cut' ? 'select' : 'cut');
   else if (k === 'g') { state.grid = !state.grid; updateGrid(); if (!state.sel.size) buildInspector(); }
 });
 window.addEventListener('keyup', e => { if (e.key === ' ') { state.space = false; svg.classList.remove('pan-ready'); } });

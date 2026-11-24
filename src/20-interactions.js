@@ -286,6 +286,7 @@ function onDown(e) {
   if (state.tool === 'text') return textDown(w);
   if (state.tool === 'zone') { drag = { kind: 'zoneNew', before: snapshot(), s: { x: snap(w.x), y: snap(w.y) }, z: null }; return; }
   if (state.tool === 'dim') return dimDown(e, w);
+  if (state.tool === 'iso') return isoDown(e, w);
   if (state.tool === 'cut') return cutDown(e, w);
   selectDown(e, w, dbl);
 }

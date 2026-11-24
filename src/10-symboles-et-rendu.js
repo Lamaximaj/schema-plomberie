@@ -887,6 +887,12 @@ function pipeSVG(p, ctx, hops, o, selected) {
   if (!o.exp) s += `<path d="${polyD(p.pts)}" fill="none" stroke="transparent" stroke-width="11" stroke-linejoin="round"/>`;
   return s + '</g>';
 }
+/* Morceau d'un tuyau, dessiné seul (sans flèches ni sauts) */
+function pipePartSVG(p, pts, ctx) {
+  if (!pts || pts.length < 2) return '';
+  const n = ctx.nets[p.net] || FALLBACK_NET, et = etatOf(p), dk = et && et.dash ? et.dash : n.dash, dash = DASHES[dk] || '';
+  return `<path data-id="${p.id}" data-hit="item" d="${polyD(pts)}" fill="none" stroke="${n.color}" stroke-width="${n.w}" stroke-linejoin="round" stroke-linecap="${dk === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}${et && et.fade ? ' stroke-opacity="0.4"' : ''}/>`;
+}
 /* Surlignage d'un tronçon (dessiné sous tous les tuyaux) et croix des tronçons à déposer */
 function pipeHlSVG(p, ctx) {
   const et = etatOf(p); if (!et || !isHex(et.hl) || !p.pts || p.pts.length < 2) return '';
@@ -930,10 +936,10 @@ function junctionsSVG(ctx, dim) {
   for (const p of ctx.pipes) for (const q of endsOf(p)) cnt.set(pkey(q), (cnt.get(pkey(q)) || 0) + 1);
   for (const p of ctx.pipes) for (const q of endsOf(p)) {
     const k = pkey(q); if (dots.has(k)) continue;
-    for (const o of ctx.pipes) { if (o === p || endsOf(o).some(e => near(e, q))) continue; if (onPoly(q, o.pts)) { const n = ctx.nets[o.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, id: o.net }); break; } }
-    if (!dots.has(k) && cnt.get(k) >= 3) { const n = ctx.nets[p.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, id: p.net }); }
+    for (const o of ctx.pipes) { if (o === p || endsOf(o).some(e => near(e, q))) continue; if (onPoly(q, o.pts)) { const n = ctx.nets[o.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, p: o }); break; } }
+    if (!dots.has(k) && cnt.get(k) >= 3) { const n = ctx.nets[p.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, p }); }
   }
-  let s = ''; for (const d of dots.values()) s += `<circle cx="${d.x}" cy="${d.y}" r="${r2(Math.max(2.8, d.w * 1.35))}" fill="${d.c}" stroke="none"${dim && dim.has(d.id) ? ' opacity="0.2"' : ''}/>`;
+  let s = ''; for (const d of dots.values()) s += `<circle cx="${d.x}" cy="${d.y}" r="${r2(Math.max(2.8, d.w * 1.35))}" fill="${d.c}" stroke="none"${dim && dim(d.p, d) ? ' opacity="0.2"' : ''}/>`;
   return s;
 }
 const ZDASH = { dash: '7 4', solid: '', dashdot: '14 4 3 4' };
@@ -1105,26 +1111,35 @@ function pageBorderSVG() {
   return `<rect x="${r2(m.x0)}" y="${r2(m.y0)}" width="${r2(m.x1 - m.x0)}" height="${r2(m.y1 - m.y0)}" fill="none" style="stroke:var(--ink)" stroke-width="${r2(0.5 * g.u)}"/>`;
 }
 /* Un symbole est estompé quand tous les réseaux qui le traversent le sont */
-function elDimmed(el, ctx, dim) {
-  if (!dim.size) return false; let any = false;
-  for (const q of portsW(el)) { const n = netAt(ctx, q); if (!n) continue; if (!dim.has(n.id)) return false; any = true; }
+/* Un symbole est estompé quand tous les tuyaux qui le touchent sont estompés à cet endroit */
+function elDimmed(el, ctx, dimAt) {
+  let any = false;
+  for (const q of portsW(el)) for (const p of ctx.pipes) { if (!onPoly(q, p.pts)) continue; if (!dimAt(p, q)) return false; any = true; }
   return any;
 }
 /* o.exp : export (fonds de plan compris) ; à l'écran, les fonds sont dessinés à part (fondsLayerSVG) */
 function contentSVG(o) {
-  const ctx = buildCtx(), hops = doc.opts.hops !== false ? computeHops(ctx.pipes) : null, sel = o.exp ? null : state.sel, dim = dimSet();
+  const ctx = buildCtx(), hops = doc.opts.hops !== false ? computeHops(ctx.pipes) : null, sel = o.exp ? null : state.sel, dim = dimSet(), cs = circState();
+  /* Estompé : réseau entier (œil du panneau) ou circuit estompé / hors du circuit isolé */
+  const dimAt = (p, q) => dim.has(p.net) || (!!cs && cs.dimmed(cs.G.pieceAt(p, q))), anyDim = dim.size > 0 || !!cs;
   let f = '', z = pageBorderSVG(), hl = '', p = '', e = '', l = '', a = '';
   const W = (it, str, dm) => { if (!str) return str; const lk = !o.exp && isLocked(it); return lk || dm ? `<g${lk ? ' pointer-events="none"' : ''}${dm ? ' opacity="0.2"' : ''}>${str}</g>` : str; };
   for (const it of doc.items) {
     if (!isVis(it)) continue;
     if (it.kind === 'fond') { if (o.exp && it.prt !== false) f += fondSVG(it, o); }
     else if (it.kind === 'zone') z += W(it, zoneSVG(it, o));
-    else if (it.kind === 'pipe') { const dm = dim.has(it.net); hl += W(it, pipeHlSVG(it, ctx), dm); p += W(it, pipeSVG(it, ctx, hops && hops.get(it.id), o, sel && sel.has(it.id)), dm); l += W(it, pipeLabelSVG(it, ctx), dm); }
-    else if (it.kind === 'el') { const dm = elDimmed(it, ctx, dim); e += W(it, elSVG(it, ctx, o), dm); l += W(it, labelSVG(it, o), dm); }
+    else if (it.kind === 'pipe') {
+      let dm = dim.has(it.net), keep = null;
+      if (!dm && cs) { const B = cs.G.byPipe.get(it.id), st = B ? B.list.map(cs.dimmed) : []; if (st.length && st.every(Boolean)) dm = true; else if (st.some(Boolean)) { dm = true; keep = B.list.filter((pc, k) => !st[k]); } }
+      hl += W(it, pipeHlSVG(it, ctx), dm); p += W(it, pipeSVG(it, ctx, hops && hops.get(it.id), o, sel && sel.has(it.id)), dm); l += W(it, pipeLabelSVG(it, ctx), dm && !keep);
+      /* Tuyau traversé par une vanne fermée : la partie restée dans le circuit est redessinée pleine */
+      if (keep) { hl += W(it, keep.map(pc => pipeHlSVG(Object.assign({}, it, { pts: pc.pts }), ctx)).join('')); p += W(it, keep.map(pc => pipePartSVG(it, pc.pts, ctx)).join('')); }
+    }
+    else if (it.kind === 'el') { const dm = anyDim && elDimmed(it, ctx, dimAt); e += W(it, elSVG(it, ctx, o), dm); l += W(it, labelSVG(it, o), dm); }
     else if (it.kind === 'text') a += W(it, textSVG(it, o));
     else if (it.kind === 'legend') a += W(it, legendSVG(it, ctx));
     else if (it.kind === 'nomen') a += W(it, nomenSVG(it, ctx));
     else if (it.kind === 'cart') a += W(it, cartSVG(it));
   }
-  return f + z + hl + p + junctionsSVG(ctx, dim) + e + l + a;
+  return f + z + hl + p + junctionsSVG(ctx, anyDim ? dimAt : null) + e + l + a;
 }
