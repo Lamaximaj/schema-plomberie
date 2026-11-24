@@ -1,0 +1,3786 @@
+{
+ "v": 2,
+ "name": "Repérage chauffage SS-1 phase 1",
+ "nets": [
+  {
+   "id": "ef",
+   "abbr": "EF",
+   "name": "Eau froide",
+   "color": "#1c7ed6",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "ea",
+   "abbr": "EA",
+   "name": "Eau adoucie",
+   "color": "#0ca5b8",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "ecs",
+   "abbr": "ECS",
+   "name": "Eau chaude sanitaire",
+   "color": "#e03131",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "becs",
+   "abbr": "BECS",
+   "name": "Bouclage ECS",
+   "color": "#d6336c",
+   "dash": "dash",
+   "w": 2.4
+  },
+  {
+   "id": "dch",
+   "abbr": "DCH",
+   "name": "Départ chauffage",
+   "color": "#f76707",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "rch",
+   "abbr": "RCH",
+   "name": "Retour chauffage",
+   "color": "#7048e8",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "gaz",
+   "abbr": "GAZ",
+   "name": "Gaz",
+   "color": "#c99a06",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "eu",
+   "abbr": "EU",
+   "name": "Évacuation / vidange",
+   "color": "#8d6e63",
+   "dash": "dash",
+   "w": 2.0
+  },
+  {
+   "id": "reg",
+   "abbr": "",
+   "name": "Liaison de régulation",
+   "color": "#7d868c",
+   "dash": "dot",
+   "w": 1.2
+  },
+  {
+   "id": "ep",
+   "abbr": "EP",
+   "name": "Eaux pluviales",
+   "color": "#0b7285",
+   "dash": "dash",
+   "w": 2.0
+  },
+  {
+   "id": "enp",
+   "abbr": "ENP",
+   "name": "Eau non potable (récupération EP)",
+   "color": "#74b816",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "vap",
+   "abbr": "VAP",
+   "name": "Vapeur CPCU",
+   "color": "#a61e4d",
+   "dash": "solid",
+   "w": 2.4
+  },
+  {
+   "id": "cond",
+   "abbr": "COND",
+   "name": "Condensats",
+   "color": "#9c36b5",
+   "dash": "dash",
+   "w": 2.0
+  },
+  {
+   "id": "an",
+   "abbr": "AN",
+   "name": "Air neuf",
+   "color": "#37b24d",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "as",
+   "abbr": "AS",
+   "name": "Air soufflé",
+   "color": "#4dabf7",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "ar",
+   "abbr": "AR",
+   "name": "Air repris / extrait",
+   "color": "#f59f00",
+   "dash": "solid",
+   "w": 4.5
+  },
+  {
+   "id": "aj",
+   "abbr": "AJ",
+   "name": "Air rejeté",
+   "color": "#a9712f",
+   "dash": "solid",
+   "w": 4.5
+  }
+ ],
+ "items": [
+  {
+   "id": "d6ncf10e",
+   "kind": "zone",
+   "x": -770.0,
+   "y": 800.0,
+   "w": 170.0,
+   "h": 290.0,
+   "title": "Batiment des soeurs",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "pf91dhod",
+   "kind": "zone",
+   "x": -1670.0,
+   "y": -170.0,
+   "w": 1290.0,
+   "h": 250.0,
+   "title": "TERRE PLEIN",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "zdoc9is0",
+   "kind": "zone",
+   "x": -1770.0,
+   "y": -250.0,
+   "w": 100.0,
+   "h": 330.0,
+   "title": "VESTIAIRE",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "j8ht9lgm",
+   "kind": "zone",
+   "x": -2220.0,
+   "y": -450.0,
+   "w": 450.0,
+   "h": 280.0,
+   "title": "Lingerie",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "xg9edn58",
+   "kind": "zone",
+   "x": -1990.0,
+   "y": -170.0,
+   "w": 220.0,
+   "h": 250.0,
+   "title": "Local technique",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "1u33xtpl",
+   "kind": "zone",
+   "x": -2220.0,
+   "y": -170.0,
+   "w": 230.0,
+   "h": 250.0,
+   "title": "Bunaderie",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "pft75v2s",
+   "kind": "zone",
+   "x": -2220.0,
+   "y": 80.0,
+   "w": 2880.0,
+   "h": 240.0,
+   "title": "Circulation",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "eh60kvj5",
+   "kind": "zone",
+   "x": -2220.0,
+   "y": 320.0,
+   "w": 460.0,
+   "h": 1060.0,
+   "title": "Chapelle",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "0ce9uvw5",
+   "kind": "zone",
+   "x": -1760.0,
+   "y": 320.0,
+   "w": 220.0,
+   "h": 480.0,
+   "title": "Local Fauteuil",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "3efr4edt",
+   "kind": "zone",
+   "x": -1540.0,
+   "y": 320.0,
+   "w": 770.0,
+   "h": 480.0,
+   "title": "Terre plein",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "2sywb3wk",
+   "kind": "zone",
+   "x": -770.0,
+   "y": 320.0,
+   "w": 170.0,
+   "h": 480.0,
+   "title": "SAS",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "h5dnsipz",
+   "kind": "zone",
+   "x": -600.0,
+   "y": 320.0,
+   "w": 450.0,
+   "h": 480.0,
+   "title": "CPCU",
+   "color": "#5c656b",
+   "style": "dash",
+   "fill": false
+  },
+  {
+   "id": "fzx3kiad",
+   "kind": "zone",
+   "x": -319.65,
+   "y": 814.04,
+   "w": 279.32,
+   "h": 88.15,
+   "title": "",
+   "color": "#2d62f4",
+   "style": "solid",
+   "fill": false
+  },
+  {
+   "id": "wsk7kegy",
+   "kind": "zone",
+   "x": -1306.33,
+   "y": -624.57,
+   "w": 1268.2,
+   "h": 203.3,
+   "title": "",
+   "color": "#ff0000",
+   "style": "solid",
+   "fill": false
+  },
+  {
+   "id": "z5fk2z9r",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -530.0,
+     "y": 650.0
+    },
+    {
+     "x": -494.5,
+     "y": 650.0
+    },
+    {
+     "x": -490.0,
+     "y": 645.5
+    },
+    {
+     "x": -485.5,
+     "y": 650.0
+    },
+    {
+     "x": -444.5,
+     "y": 650.0
+    },
+    {
+     "x": -440.0,
+     "y": 645.5
+    },
+    {
+     "x": -435.5,
+     "y": 650.0
+    },
+    {
+     "x": -394.5,
+     "y": 650.0
+    },
+    {
+     "x": -390.0,
+     "y": 645.5
+    },
+    {
+     "x": -385.5,
+     "y": 650.0
+    },
+    {
+     "x": -344.5,
+     "y": 650.0
+    },
+    {
+     "x": -340.0,
+     "y": 645.5
+    },
+    {
+     "x": -335.5,
+     "y": 650.0
+    },
+    {
+     "x": -294.5,
+     "y": 650.0
+    },
+    {
+     "x": -290.0,
+     "y": 645.5
+    },
+    {
+     "x": -285.5,
+     "y": 650.0
+    },
+    {
+     "x": -240.0,
+     "y": 650.0
+    },
+    {
+     "x": -240.0,
+     "y": 700.0
+    },
+    {
+     "x": -240.0,
+     "y": 690.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "i19r0wyo",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1800.0,
+     "y": 400.0
+    },
+    {
+     "x": -2000.0,
+     "y": 400.0
+    },
+    {
+     "x": -2000.0,
+     "y": 300.0
+    },
+    {
+     "x": -1984.5,
+     "y": 300.0
+    },
+    {
+     "x": -1980.0,
+     "y": 295.5
+    },
+    {
+     "x": -1975.5,
+     "y": 300.0
+    },
+    {
+     "x": -1654.5,
+     "y": 300.0
+    },
+    {
+     "x": -1650.0,
+     "y": 295.5
+    },
+    {
+     "x": -1645.5,
+     "y": 300.0
+    },
+    {
+     "x": -550.0,
+     "y": 300.0
+    },
+    {
+     "x": -550.0,
+     "y": 750.0
+    },
+    {
+     "x": -240.0,
+     "y": 750.0
+    },
+    {
+     "x": -240.0,
+     "y": 700.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "jfljooa5",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -650.0,
+     "y": 700.0
+    },
+    {
+     "x": -634.5,
+     "y": 700.0
+    },
+    {
+     "x": -630.0,
+     "y": 695.5
+    },
+    {
+     "x": -625.5,
+     "y": 700.0
+    },
+    {
+     "x": -554.5,
+     "y": 700.0
+    },
+    {
+     "x": -550.0,
+     "y": 695.5
+    },
+    {
+     "x": -545.5,
+     "y": 700.0
+    },
+    {
+     "x": -520.0,
+     "y": 700.0
+    },
+    {
+     "x": -520.0,
+     "y": 750.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "lqsaj08x",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -650.0,
+     "y": 920.0
+    },
+    {
+     "x": -650.0,
+     "y": 700.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "ui6d39zz",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -490.0,
+     "y": 750.0
+    },
+    {
+     "x": -490.0,
+     "y": 150.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "zzg4zdme",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 150.0,
+     "y": 150.0
+    },
+    {
+     "x": -335.5,
+     "y": 150.0
+    },
+    {
+     "x": -340.0,
+     "y": 145.5
+    },
+    {
+     "x": -344.5,
+     "y": 150.0
+    },
+    {
+     "x": -355.5,
+     "y": 150.0
+    },
+    {
+     "x": -360.0,
+     "y": 145.5
+    },
+    {
+     "x": -364.5,
+     "y": 150.0
+    },
+    {
+     "x": -405.5,
+     "y": 150.0
+    },
+    {
+     "x": -410.0,
+     "y": 145.5
+    },
+    {
+     "x": -414.5,
+     "y": 150.0
+    },
+    {
+     "x": -490.0,
+     "y": 150.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "n2khvdga",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -530.0,
+     "y": 650.0
+    },
+    {
+     "x": -530.0,
+     "y": 280.0
+    },
+    {
+     "x": -1885.5,
+     "y": 280.0
+    },
+    {
+     "x": -1890.0,
+     "y": 275.5
+    },
+    {
+     "x": -1894.5,
+     "y": 280.0
+    },
+    {
+     "x": -1980.0,
+     "y": 280.0
+    },
+    {
+     "x": -1980.0,
+     "y": 380.0
+    },
+    {
+     "x": -1780.0,
+     "y": 380.0
+    },
+    {
+     "x": -1780.0,
+     "y": 510.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "j8gxbeny",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1800.0,
+     "y": 400.0
+    },
+    {
+     "x": -1800.0,
+     "y": 580.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "jqwx4hh5",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2150.0,
+     "y": 260.0
+    },
+    {
+     "x": -1894.5,
+     "y": 260.0
+    },
+    {
+     "x": -1890.0,
+     "y": 255.5
+    },
+    {
+     "x": -1885.5,
+     "y": 260.0
+    },
+    {
+     "x": -1874.5,
+     "y": 260.0
+    },
+    {
+     "x": -1870.0,
+     "y": 255.5
+    },
+    {
+     "x": -1865.5,
+     "y": 260.0
+    },
+    {
+     "x": -650.0,
+     "y": 260.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "344tfjgv",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2200.0,
+     "y": -100.0
+    },
+    {
+     "x": -2074.5,
+     "y": -100.0
+    },
+    {
+     "x": -2070.0,
+     "y": -104.5
+    },
+    {
+     "x": -2065.5,
+     "y": -100.0
+    },
+    {
+     "x": -2050.0,
+     "y": -100.0
+    },
+    {
+     "x": -2050.0,
+     "y": 200.0
+    },
+    {
+     "x": -1894.5,
+     "y": 200.0
+    },
+    {
+     "x": -1890.0,
+     "y": 195.5
+    },
+    {
+     "x": -1885.5,
+     "y": 200.0
+    },
+    {
+     "x": -1874.5,
+     "y": 200.0
+    },
+    {
+     "x": -1870.0,
+     "y": 195.5
+    },
+    {
+     "x": -1865.5,
+     "y": 200.0
+    },
+    {
+     "x": -494.5,
+     "y": 200.0
+    },
+    {
+     "x": -490.0,
+     "y": 195.5
+    },
+    {
+     "x": -485.5,
+     "y": 200.0
+    },
+    {
+     "x": -464.5,
+     "y": 200.0
+    },
+    {
+     "x": -460.0,
+     "y": 195.5
+    },
+    {
+     "x": -455.5,
+     "y": 200.0
+    },
+    {
+     "x": -440.0,
+     "y": 200.0
+    },
+    {
+     "x": -440.0,
+     "y": 750.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "q4k7bn7x",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -460.0,
+     "y": 650.0
+    },
+    {
+     "x": -460.0,
+     "y": 180.0
+    },
+    {
+     "x": -485.5,
+     "y": 180.0
+    },
+    {
+     "x": -490.0,
+     "y": 175.5
+    },
+    {
+     "x": -494.5,
+     "y": 180.0
+    },
+    {
+     "x": -1865.5,
+     "y": 180.0
+    },
+    {
+     "x": -1870.0,
+     "y": 175.5
+    },
+    {
+     "x": -1874.5,
+     "y": 180.0
+    },
+    {
+     "x": -1885.5,
+     "y": 180.0
+    },
+    {
+     "x": -1890.0,
+     "y": 175.5
+    },
+    {
+     "x": -1894.5,
+     "y": 180.0
+    },
+    {
+     "x": -2045.5,
+     "y": 180.0
+    },
+    {
+     "x": -2050.0,
+     "y": 175.5
+    },
+    {
+     "x": -2054.5,
+     "y": 180.0
+    },
+    {
+     "x": -2070.0,
+     "y": 180.0
+    },
+    {
+     "x": -2070.0,
+     "y": -120.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "j8b7tfq7",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -2070.0,
+     "y": -120.0
+    },
+    {
+     "x": -2150.0,
+     "y": -120.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "xkwo886v",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2000.0,
+     "y": -180.0
+    },
+    {
+     "x": -2000.0,
+     "y": 160.0
+    },
+    {
+     "x": -1894.5,
+     "y": 160.0
+    },
+    {
+     "x": -1890.0,
+     "y": 155.5
+    },
+    {
+     "x": -1885.5,
+     "y": 160.0
+    },
+    {
+     "x": -1874.5,
+     "y": 160.0
+    },
+    {
+     "x": -1870.0,
+     "y": 155.5
+    },
+    {
+     "x": -1865.5,
+     "y": 160.0
+    },
+    {
+     "x": -494.5,
+     "y": 160.0
+    },
+    {
+     "x": -490.0,
+     "y": 155.5
+    },
+    {
+     "x": -485.5,
+     "y": 160.0
+    },
+    {
+     "x": -414.5,
+     "y": 160.0
+    },
+    {
+     "x": -410.0,
+     "y": 155.5
+    },
+    {
+     "x": -405.5,
+     "y": 160.0
+    },
+    {
+     "x": -390.0,
+     "y": 160.0
+    },
+    {
+     "x": -390.0,
+     "y": 750.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "ompzom75",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2000.0,
+     "y": -180.0
+    },
+    {
+     "x": -2015.5,
+     "y": -180.0
+    },
+    {
+     "x": -2020.0,
+     "y": -184.5
+    },
+    {
+     "x": -2024.5,
+     "y": -180.0
+    },
+    {
+     "x": -2200.0,
+     "y": -180.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "wbbr4qmw",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -410.0,
+     "y": 650.0
+    },
+    {
+     "x": -410.0,
+     "y": 140.0
+    },
+    {
+     "x": -1695.5,
+     "y": 140.0
+    },
+    {
+     "x": -1700.0,
+     "y": 135.5
+    },
+    {
+     "x": -1704.5,
+     "y": 140.0
+    },
+    {
+     "x": -1805.5,
+     "y": 140.0
+    },
+    {
+     "x": -1810.0,
+     "y": 135.5
+    },
+    {
+     "x": -1814.5,
+     "y": 140.0
+    },
+    {
+     "x": -1865.5,
+     "y": 140.0
+    },
+    {
+     "x": -1870.0,
+     "y": 135.5
+    },
+    {
+     "x": -1874.5,
+     "y": 140.0
+    },
+    {
+     "x": -1885.5,
+     "y": 140.0
+    },
+    {
+     "x": -1890.0,
+     "y": 135.5
+    },
+    {
+     "x": -1894.5,
+     "y": 140.0
+    },
+    {
+     "x": -1995.5,
+     "y": 140.0
+    },
+    {
+     "x": -2000.0,
+     "y": 135.5
+    },
+    {
+     "x": -2004.5,
+     "y": 140.0
+    },
+    {
+     "x": -2020.0,
+     "y": 140.0
+    },
+    {
+     "x": -2020.0,
+     "y": -200.0
+    },
+    {
+     "x": -2110.0,
+     "y": -200.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "2wxfogo4",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1500.0,
+     "y": 50.0
+    },
+    {
+     "x": -1500.0,
+     "y": 120.0
+    },
+    {
+     "x": -364.5,
+     "y": 120.0
+    },
+    {
+     "x": -360.0,
+     "y": 115.5
+    },
+    {
+     "x": -355.5,
+     "y": 120.0
+    },
+    {
+     "x": -340.0,
+     "y": 120.0
+    },
+    {
+     "x": -340.0,
+     "y": 750.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "mvn4a4wf",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -360.0,
+     "y": 650.0
+    },
+    {
+     "x": -360.0,
+     "y": 100.0
+    },
+    {
+     "x": -1495.5,
+     "y": 100.0
+    },
+    {
+     "x": -1500.0,
+     "y": 95.5
+    },
+    {
+     "x": -1504.5,
+     "y": 100.0
+    },
+    {
+     "x": -1520.0,
+     "y": 100.0
+    },
+    {
+     "x": -1520.0,
+     "y": 50.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "hym4l1vf",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 150.0,
+     "y": 120.0
+    },
+    {
+     "x": -340.0,
+     "y": 120.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "z3zfkkib",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -360.0,
+     "y": 100.0
+    },
+    {
+     "x": 150.0,
+     "y": 100.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "j3j4wj99",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -1680.0,
+     "y": 140.0
+    },
+    {
+     "x": -1680.0,
+     "y": 50.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "ibag7i1m",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -1790.0,
+     "y": 140.0
+    },
+    {
+     "x": -1790.0,
+     "y": 50.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "nbqns6pu",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1700.0,
+     "y": 160.0
+    },
+    {
+     "x": -1700.0,
+     "y": 50.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "q80idw37",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1810.0,
+     "y": 160.0
+    },
+    {
+     "x": -1810.0,
+     "y": 50.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "06i8j76b",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -490.0,
+     "y": 260.0
+    },
+    {
+     "x": -600.0,
+     "y": 260.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "2lajlj4h",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2300.0,
+     "y": 150.0
+    },
+    {
+     "x": -2300.0,
+     "y": 240.0
+    },
+    {
+     "x": -1894.5,
+     "y": 240.0
+    },
+    {
+     "x": -1890.0,
+     "y": 235.5
+    },
+    {
+     "x": -1885.5,
+     "y": 240.0
+    },
+    {
+     "x": -1874.5,
+     "y": 240.0
+    },
+    {
+     "x": -1870.0,
+     "y": 235.5
+    },
+    {
+     "x": -1865.5,
+     "y": 240.0
+    },
+    {
+     "x": -494.5,
+     "y": 240.0
+    },
+    {
+     "x": -490.0,
+     "y": 235.5
+    },
+    {
+     "x": -485.5,
+     "y": 240.0
+    },
+    {
+     "x": -464.5,
+     "y": 240.0
+    },
+    {
+     "x": -460.0,
+     "y": 235.5
+    },
+    {
+     "x": -455.5,
+     "y": 240.0
+    },
+    {
+     "x": -444.5,
+     "y": 240.0
+    },
+    {
+     "x": -440.0,
+     "y": 235.5
+    },
+    {
+     "x": -435.5,
+     "y": 240.0
+    },
+    {
+     "x": -414.5,
+     "y": 240.0
+    },
+    {
+     "x": -410.0,
+     "y": 235.5
+    },
+    {
+     "x": -405.5,
+     "y": 240.0
+    },
+    {
+     "x": -394.5,
+     "y": 240.0
+    },
+    {
+     "x": -390.0,
+     "y": 235.5
+    },
+    {
+     "x": -385.5,
+     "y": 240.0
+    },
+    {
+     "x": -364.5,
+     "y": 240.0
+    },
+    {
+     "x": -360.0,
+     "y": 235.5
+    },
+    {
+     "x": -355.5,
+     "y": 240.0
+    },
+    {
+     "x": -344.5,
+     "y": 240.0
+    },
+    {
+     "x": -340.0,
+     "y": 235.5
+    },
+    {
+     "x": -335.5,
+     "y": 240.0
+    },
+    {
+     "x": -314.5,
+     "y": 240.0
+    },
+    {
+     "x": -310.0,
+     "y": 235.5
+    },
+    {
+     "x": -305.5,
+     "y": 240.0
+    },
+    {
+     "x": -290.0,
+     "y": 240.0
+    },
+    {
+     "x": -290.0,
+     "y": 750.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "9du7794g",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -310.0,
+     "y": 650.0
+    },
+    {
+     "x": -310.0,
+     "y": 220.0
+    },
+    {
+     "x": -335.5,
+     "y": 220.0
+    },
+    {
+     "x": -340.0,
+     "y": 215.5
+    },
+    {
+     "x": -344.5,
+     "y": 220.0
+    },
+    {
+     "x": -355.5,
+     "y": 220.0
+    },
+    {
+     "x": -360.0,
+     "y": 215.5
+    },
+    {
+     "x": -364.5,
+     "y": 220.0
+    },
+    {
+     "x": -385.5,
+     "y": 220.0
+    },
+    {
+     "x": -390.0,
+     "y": 215.5
+    },
+    {
+     "x": -394.5,
+     "y": 220.0
+    },
+    {
+     "x": -405.5,
+     "y": 220.0
+    },
+    {
+     "x": -410.0,
+     "y": 215.5
+    },
+    {
+     "x": -414.5,
+     "y": 220.0
+    },
+    {
+     "x": -435.5,
+     "y": 220.0
+    },
+    {
+     "x": -440.0,
+     "y": 215.5
+    },
+    {
+     "x": -444.5,
+     "y": 220.0
+    },
+    {
+     "x": -455.5,
+     "y": 220.0
+    },
+    {
+     "x": -460.0,
+     "y": 215.5
+    },
+    {
+     "x": -464.5,
+     "y": 220.0
+    },
+    {
+     "x": -485.5,
+     "y": 220.0
+    },
+    {
+     "x": -490.0,
+     "y": 215.5
+    },
+    {
+     "x": -494.5,
+     "y": 220.0
+    },
+    {
+     "x": -1865.5,
+     "y": 220.0
+    },
+    {
+     "x": -1870.0,
+     "y": 215.5
+    },
+    {
+     "x": -1874.5,
+     "y": 220.0
+    },
+    {
+     "x": -1885.5,
+     "y": 220.0
+    },
+    {
+     "x": -1890.0,
+     "y": 215.5
+    },
+    {
+     "x": -1894.5,
+     "y": 220.0
+    },
+    {
+     "x": -2295.5,
+     "y": 220.0
+    },
+    {
+     "x": -2300.0,
+     "y": 215.5
+    },
+    {
+     "x": -2304.5,
+     "y": 220.0
+    },
+    {
+     "x": -2320.0,
+     "y": 220.0
+    },
+    {
+     "x": -2320.0,
+     "y": 150.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "9dpmrcg6",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -310.0,
+     "y": 220.0
+    },
+    {
+     "x": -264.5,
+     "y": 220.0
+    },
+    {
+     "x": -260.0,
+     "y": 215.5
+    },
+    {
+     "x": -255.5,
+     "y": 220.0
+    },
+    {
+     "x": 150.0,
+     "y": 220.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "29be2u66",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": 150.0,
+     "y": 240.0
+    },
+    {
+     "x": -255.5,
+     "y": 240.0
+    },
+    {
+     "x": -260.0,
+     "y": 235.5
+    },
+    {
+     "x": -264.5,
+     "y": 240.0
+    },
+    {
+     "x": -290.0,
+     "y": 240.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "mr26846p",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -520.0,
+     "y": 650.0
+    },
+    {
+     "x": -520.0,
+     "y": 680.0
+    },
+    {
+     "x": -545.5,
+     "y": 680.0
+    },
+    {
+     "x": -550.0,
+     "y": 675.5
+    },
+    {
+     "x": -554.5,
+     "y": 680.0
+    },
+    {
+     "x": -630.0,
+     "y": 680.0
+    },
+    {
+     "x": -630.0,
+     "y": 920.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "7q9m2i0h",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -260.0,
+     "y": 650.0
+    },
+    {
+     "x": -260.0,
+     "y": 200.0
+    },
+    {
+     "x": 150.0,
+     "y": 200.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "z2uep1en",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -470.0,
+     "y": 750.0
+    },
+    {
+     "x": -470.0,
+     "y": 780.0
+    },
+    {
+     "x": -540.0,
+     "y": 780.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "thjxjqi3",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -320.0,
+     "y": 750.0
+    },
+    {
+     "x": -320.0,
+     "y": 780.0
+    },
+    {
+     "x": -230.0,
+     "y": 780.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "ogz5kok1",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2000.0,
+     "y": -180.0
+    },
+    {
+     "x": -2000.0,
+     "y": -250.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "6zv0mwuf",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -2000.0,
+     "y": -250.0
+    },
+    {
+     "x": -1980.0,
+     "y": -250.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "xbv932by",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -2020.0,
+     "y": -200.0
+    },
+    {
+     "x": -2020.0,
+     "y": -270.0
+    },
+    {
+     "x": -1980.0,
+     "y": -270.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "v7s6ehog",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -1650.0,
+     "y": 280.0
+    },
+    {
+     "x": -1650.0,
+     "y": 350.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "fqrclri1",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1670.0,
+     "y": 300.0
+    },
+    {
+     "x": -1670.0,
+     "y": 350.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "qzj865uf",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -1890.0,
+     "y": 300.0
+    },
+    {
+     "x": -1890.0,
+     "y": 120.0
+    },
+    {
+     "x": -1995.5,
+     "y": 120.0
+    },
+    {
+     "x": -2000.0,
+     "y": 115.5
+    },
+    {
+     "x": -2004.5,
+     "y": 120.0
+    },
+    {
+     "x": -2015.5,
+     "y": 120.0
+    },
+    {
+     "x": -2020.0,
+     "y": 115.5
+    },
+    {
+     "x": -2024.5,
+     "y": 120.0
+    },
+    {
+     "x": -2045.5,
+     "y": 120.0
+    },
+    {
+     "x": -2050.0,
+     "y": 115.5
+    },
+    {
+     "x": -2054.5,
+     "y": 120.0
+    },
+    {
+     "x": -2065.5,
+     "y": 120.0
+    },
+    {
+     "x": -2070.0,
+     "y": 115.5
+    },
+    {
+     "x": -2074.5,
+     "y": 120.0
+    },
+    {
+     "x": -2150.0,
+     "y": 120.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "rdl1erbf",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -1870.0,
+     "y": 280.0
+    },
+    {
+     "x": -1870.0,
+     "y": 100.0
+    },
+    {
+     "x": -1995.5,
+     "y": 100.0
+    },
+    {
+     "x": -2000.0,
+     "y": 95.5
+    },
+    {
+     "x": -2004.5,
+     "y": 100.0
+    },
+    {
+     "x": -2015.5,
+     "y": 100.0
+    },
+    {
+     "x": -2020.0,
+     "y": 95.5
+    },
+    {
+     "x": -2024.5,
+     "y": 100.0
+    },
+    {
+     "x": -2045.5,
+     "y": 100.0
+    },
+    {
+     "x": -2050.0,
+     "y": 95.5
+    },
+    {
+     "x": -2054.5,
+     "y": 100.0
+    },
+    {
+     "x": -2065.5,
+     "y": 100.0
+    },
+    {
+     "x": -2070.0,
+     "y": 95.5
+    },
+    {
+     "x": -2074.5,
+     "y": 100.0
+    },
+    {
+     "x": -2150.0,
+     "y": 100.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "qfoeqh3a",
+   "kind": "pipe",
+   "net": "dch",
+   "pts": [
+    {
+     "x": -630.0,
+     "y": 850.0
+    },
+    {
+     "x": -630.0,
+     "y": 720.0
+    },
+    {
+     "x": -645.5,
+     "y": 720.0
+    },
+    {
+     "x": -650.0,
+     "y": 715.5
+    },
+    {
+     "x": -654.5,
+     "y": 720.0
+    },
+    {
+     "x": -700.0,
+     "y": 720.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": true,
+   "txt": ""
+  },
+  {
+   "id": "v90ric7p",
+   "kind": "pipe",
+   "net": "rch",
+   "pts": [
+    {
+     "x": -650.0,
+     "y": 880.0
+    },
+    {
+     "x": -650.0,
+     "y": 740.0
+    },
+    {
+     "x": -700.0,
+     "y": 740.0
+    }
+   ],
+   "dn": "",
+   "lab": false,
+   "lp": 0.5,
+   "arr": false,
+   "txt": ""
+  },
+  {
+   "id": "hkqdlmtt",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2150.0,
+   "y": -120.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers Kiné"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "7ns26lrw",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2110.0,
+   "y": -200.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers Kiné + R+1/2 aile"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bqcab69m",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1520.0,
+   "y": 50.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée P1 Bouchonné au RDC"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "64p2g158",
+   "kind": "el",
+   "type": "pompe",
+   "pre": "pompe",
+   "x": -240.0,
+   "y": 700.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "vv": false
+   },
+   "tag": "P1",
+   "name": "Circulateur / pompe",
+   "note": "",
+   "st": true,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "z6tnovmi",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2320.0,
+   "y": 150.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée CTA piscine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "zwdiaeq1",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 150.0,
+   "y": 220.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers chauffage P0"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kdfy6sps",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -650.0,
+   "y": 260.0,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "c3lkr2aq",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -600.0,
+   "y": 260.0,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "xv9upctn",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -260.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "wlavyf4r",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -310.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "6mp6afqf",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -360.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jzczbtto",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -410.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "f7jyu5js",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -410.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jc616i76",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -460.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bofbcixg",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -530.0,
+   "y": 630.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "y29db8p5",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -520.0,
+   "y": 670.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qa3e68f7",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -520.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "e4qeqpno",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -490.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "35ye4scm",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -440.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ejvqtia4",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -390.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "d5rgn5s7",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -340.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "s333h9mt",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -290.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "f4bs3e62",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -260.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée colone provisoire"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rynnefj7",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -310.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée P0 + CTA piscine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qxi6rhxo",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -360.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée partie des radiateurs P1 et P2"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "55zbka52",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -410.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée chauffage lingerie et kiné"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ztj0wyuh",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -460.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée chauffage kiné et R+1/2 de l'aile"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "vauvzhma",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -530.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée chapelle"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "sqxezyex",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -440.0,
+   "y": 430.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour chauffage kiné et R+1/2 de l'aile"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1rdrgdsj",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -390.0,
+   "y": 450.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour chauffage lingerie et kiné"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pr16umx1",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -340.0,
+   "y": 430.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour partie des radiateurs P1 et P2"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "bz99nfd0",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -290.0,
+   "y": 480.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour P0 + CTA piscine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "2is5d9ik",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -490.0,
+   "y": 470.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour Général"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "40vstqqz",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -630.0,
+   "y": 840.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée BAT Soeur"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pt49zhkk",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -650.0,
+   "y": 920.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour BAT Soeur"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "en659o2v",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne",
+   "x": -550.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": false
+   },
+   "tag": "",
+   "name": "Vanne d'isolement",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "21i9mpfl",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -540.0,
+   "y": 780.0,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "v9fupxqm",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -230.0,
+   "y": 780.0,
+   "rot": 0,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "b0y07nyr",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -1650.0,
+   "y": 350.0,
+   "rot": 270,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "vd5rxi67",
+   "kind": "el",
+   "type": "bouchon",
+   "pre": "bouchon",
+   "x": -1670.0,
+   "y": 350.0,
+   "rot": 90,
+   "fh": false,
+   "p": {},
+   "tag": "",
+   "name": "Bouchon / attente",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "nfrpyz21",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -1650.0,
+   "y": 320.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "tbic145a",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -1670.0,
+   "y": 320.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ez732pgo",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -2070.0,
+   "y": -10.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "jj7g3f9c",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -2050.0,
+   "y": -10.0,
+   "rot": 90,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "aioctiq7",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -1450.0,
+   "y": 120.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1hget7my",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -1450.0,
+   "y": 100.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qoaa8t3r",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -2120.0,
+   "y": 100.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "up47p9pb",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -2120.0,
+   "y": 120.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "0tdbm50f",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -680.0,
+   "y": 740.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qo1xo5cv",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -680.0,
+   "y": 720.0,
+   "rot": 0,
+   "fh": true,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "0xzmas6e",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -700.0,
+   "y": 720.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers radiateur curée"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "n5mtmo3o",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -810.0,
+   "y": 740.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour radiateur curée"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qsg5lo50",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -550.0,
+   "y": 500.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour chapelle"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "djzdnbj0",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2180.0,
+   "y": 260.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour général curé au RDC"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "ddlz2uhf",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1800.0,
+   "y": 60.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Radiateur au SS-1"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "kvml73ct",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1690.0,
+   "y": 60.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Radiateur au SS-1"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "yxv2kgaf",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1990.0,
+   "y": -260.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Radiateur au SS-1"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "rfw0h9ny",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2210.0,
+   "y": -180.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour Kiné + R+1/2 aile"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "wt1fd4mx",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2210.0,
+   "y": -100.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour Kiné"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "82mux4b0",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1500.0,
+   "y": -80.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour P1 Bouchonné au RDC"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "pzcyc3ed",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2150.0,
+   "y": 110.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Radiateur Kiné"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qmevxrvc",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -2300.0,
+   "y": 60.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour CTA piscine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qurtaebo",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 250.0,
+   "y": 240.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour chauffage P0"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "g43yq15i",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 150.0,
+   "y": 200.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers combles"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "5latjpuu",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 230.0,
+   "y": 150.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour général"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "3xf6mzkp",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 150.0,
+   "y": 100.0,
+   "rot": 0,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée partie R+1/2 P2 + cuisine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "0ec498uk",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": 280.0,
+   "y": 120.0,
+   "rot": 180,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Allée partie R+1/2 P2 + cuisine"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "1geqfng0",
+   "kind": "el",
+   "type": "vanne",
+   "pre": "vanne_nf",
+   "x": -390.0,
+   "y": 730.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "nf": true
+   },
+   "tag": "",
+   "name": "Vanne d'isolement normalement fermée",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "52loi03p",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1780.0,
+   "y": 510.0,
+   "rot": 90,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Vers Chapelle"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "8hssrrxq",
+   "kind": "el",
+   "type": "renvoi",
+   "pre": "renvoi",
+   "x": -1800.0,
+   "y": 580.0,
+   "rot": 270,
+   "fh": false,
+   "p": {
+    "sens": "dep",
+    "txt": "Retour Chapelle"
+   },
+   "tag": "",
+   "name": "Renvoi de liaison",
+   "note": "",
+   "st": false,
+   "sn": false,
+   "sv": false,
+   "lx": 0,
+   "ly": 0
+  },
+  {
+   "id": "qm2plppj",
+   "kind": "text",
+   "x": -2210.0,
+   "y": 30.0,
+   "txt": "BUANDERIE",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "smuezqp6",
+   "kind": "text",
+   "x": -1928.68,
+   "y": -440.0,
+   "txt": "LINGERIE",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "7og3cga4",
+   "kind": "text",
+   "x": -1777.42,
+   "y": -160.0,
+   "txt": "REFECTOIR",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "end",
+   "bg": false
+  },
+  {
+   "id": "o2xcsohd",
+   "kind": "text",
+   "x": -1770.0,
+   "y": 1350.0,
+   "txt": "CHAPELLE",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "end",
+   "bg": false
+  },
+  {
+   "id": "mmex6l2q",
+   "kind": "text",
+   "x": -1540.0,
+   "y": 755.0,
+   "txt": "L. FAUTEUIL",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "end",
+   "bg": false
+  },
+  {
+   "id": "agwncxvj",
+   "kind": "text",
+   "x": -940.0,
+   "y": 330.0,
+   "txt": "TERRE PLEIN",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "cnqcnau0",
+   "kind": "text",
+   "x": -700.0,
+   "y": 1010.0,
+   "txt": "Batiment\nDes Seours",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "middle",
+   "bg": false
+  },
+  {
+   "id": "xltenc59",
+   "kind": "text",
+   "x": -660.0,
+   "y": 330.0,
+   "txt": "SAS",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "4e0gz9j8",
+   "kind": "text",
+   "x": -560.0,
+   "y": -160.0,
+   "txt": "TERRE PLEIN",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "fkzr0st0",
+   "kind": "text",
+   "x": -500.0,
+   "y": 785.0,
+   "txt": "Retour sous logemnt provisoire bouchonné",
+   "size": 12.0,
+   "bold": false,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "dtw00bxm",
+   "kind": "text",
+   "x": -240.0,
+   "y": 330.0,
+   "txt": "CPCU",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "zzna1k1h",
+   "kind": "text",
+   "x": 10.0,
+   "y": 260.0,
+   "txt": "CIRCULATION",
+   "size": 24.0,
+   "bold": true,
+   "color": "",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "9jzfx6kj",
+   "kind": "text",
+   "x": -315.65,
+   "y": 817.04,
+   "txt": "Vanne fermer à ce jours travaux\nnécessaire dans la lingerie pour\nséparer les départs dans la dans l'aile\net les radiateurs du sous-sol lingerie.",
+   "size": 16.03,
+   "bold": false,
+   "color": "#2d62f4",
+   "align": "start",
+   "bg": false
+  },
+  {
+   "id": "5mtic4ud",
+   "kind": "text",
+   "x": -672.23,
+   "y": -618.57,
+   "txt": "Schéma de principe chauffage\nphase 1",
+   "size": 74.8,
+   "bold": false,
+   "color": "",
+   "align": "middle",
+   "bg": false
+  },
+  {
+   "id": "ujzde8gx",
+   "kind": "legend",
+   "x": -1390.0,
+   "y": 410.0,
+   "title": "LÉGENDE",
+   "rows": 12,
+   "nets": true,
+   "syms": true,
+   "sc": 2.7
+  }
+ ],
+ "opts": {
+  "hops": true,
+  "real": false
+ }
+}

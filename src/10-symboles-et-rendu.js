@@ -725,14 +725,30 @@ const FALLBACK_NET = { id: '?', abbr: '', name: 'Réseau', color: '#495057', das
 const DASHES = { solid: '', dash: '9 4', dot: '0.1 3.4', dashdot: '12 3 2 3' };
 const DASH_OPTS = [['solid', 'Continu'], ['dash', 'Tirets'], ['dot', 'Pointillé'], ['dashdot', 'Mixte']];
 const LS_KEY = 'schema-plomberie:v1', LS_CART = 'schema-plomberie:cart';
-function newDoc() { return { v: 2, name: 'Sans titre', nets: clone(DEFAULT_NETS), items: [], opts: { hops: true } }; }
+/* États des tronçons : surlignage (hl), trait (dash, vide = celui du réseau), croix (x) et trait estompé (fade) */
+const DEFAULT_ETATS = [
+  { id: 'neuf', name: 'Neuf', hl: '#51cf66', dash: '', x: false, fade: false },
+  { id: 'exist', name: 'Existant', hl: '', dash: 'dash', x: false, fade: false },
+  { id: 'acurer', name: 'À curer', hl: '#ff6b6b', dash: '', x: true, fade: false },
+  { id: 'cure', name: 'Curé', hl: '', dash: 'dot', x: false, fade: true },
+];
+const newLayer = (name, id) => ({ id: id || 'c' + uid(), name: name || 'Calque', show: true, lock: false });
+function newDoc() { return { v: 2, name: 'Sans titre', nets: clone(DEFAULT_NETS), layers: [newLayer('Calque 1', 'c1')], etats: clone(DEFAULT_ETATS), items: [], opts: { hops: true, dim: [] } }; }
 let doc = newDoc();
 const state = { tool: 'select', pre: null, ghost: null, gRot: 0, gFh: false, activeNet: 'ef', grid: true, sel: new Set(), draft: null, snap: null, space: false, mouse: null, mouseIn: false, libId: null, itab: 'prop', hiPort: null };
 const view = { k: 1.5, tx: 60, ty: 60 };
 let drag = null;
 const byId = id => doc.items.find(i => i.id === id);
-const els = () => doc.items.filter(i => i.kind === 'el');
-const pipes = () => doc.items.filter(i => i.kind === 'pipe');
+/* Calques : un élément sans calque connu appartient au calque actif (pendant sa création), sinon au premier */
+const layerOf = it => { const L = doc.layers || []; return L.find(l => l.id === it.cal) || L.find(l => l.id === state.layer) || L[0] || null; };
+const isVis = it => { const l = layerOf(it); return !l || l.show !== false; };
+const isLocked = it => { const l = layerOf(it); return !!(l && l.lock) || (it.kind === 'fond' && !!it.lock); };
+const editable = it => isVis(it) && !isLocked(it);
+/* Tuyaux et symboles visibles : un calque masqué ne compte ni pour le dessin, ni pour les raccordements, ni pour la légende */
+const els = () => doc.items.filter(i => i.kind === 'el' && isVis(i));
+const pipes = () => doc.items.filter(i => i.kind === 'pipe' && isVis(i));
+const etatOf = p => p.et ? (doc.etats || []).find(e => e.id === p.et) || null : null;
+const dimSet = () => new Set((doc.opts && doc.opts.dim) || []);
 const netOf = id => doc.nets.find(n => n.id === id) || FALLBACK_NET;
 const netLabel = n => n.name + (n.abbr ? ' (' + n.abbr + ')' : '');
 const selItems = () => [...state.sel].map(byId).filter(Boolean);
@@ -862,13 +878,37 @@ function arrowsSVG(p, n, ctx) {
 }
 function pipeSVG(p, ctx, hops, o, selected) {
   if (!p.pts || p.pts.length < 2) return '';
-  const n = ctx.nets[p.net] || FALLBACK_NET, d = pipeD(p.pts, hops), dash = DASHES[n.dash] || '';
+  const n = ctx.nets[p.net] || FALLBACK_NET, d = pipeD(p.pts, hops), et = etatOf(p), dk = et && et.dash ? et.dash : n.dash, dash = DASHES[dk] || '';
   let s = `<g data-id="${p.id}" data-hit="item">`;
   if (selected) s += `<path d="${d}" fill="none" style="stroke:var(--sel)" stroke-opacity="0.3" stroke-width="${r2(n.w + 7)}" stroke-linejoin="round" stroke-linecap="round"/>`;
-  s += `<path d="${d}" fill="none" stroke="${n.color}" stroke-width="${n.w}" stroke-linejoin="round" stroke-linecap="${n.dash === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}/>`;
+  s += `<path d="${d}" fill="none" stroke="${n.color}" stroke-width="${n.w}" stroke-linejoin="round" stroke-linecap="${dk === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}${et && et.fade ? ' stroke-opacity="0.4"' : ''}/>`;
+  if (et && et.x) s += crossesSVG(p.pts, et.hl || '#e03131', n.w);
   if (p.arr) s += arrowsSVG(p, n, ctx);
   if (!o.exp) s += `<path d="${polyD(p.pts)}" fill="none" stroke="transparent" stroke-width="11" stroke-linejoin="round"/>`;
   return s + '</g>';
+}
+/* Surlignage d'un tronçon (dessiné sous tous les tuyaux) et croix des tronçons à déposer */
+function pipeHlSVG(p, ctx) {
+  const et = etatOf(p); if (!et || !isHex(et.hl) || !p.pts || p.pts.length < 2) return '';
+  const n = ctx.nets[p.net] || FALLBACK_NET;
+  return `<path data-id="${p.id}" data-hit="item" d="${polyD(p.pts)}" fill="none" stroke="${et.hl}" stroke-opacity="0.45" stroke-width="${r2(n.w + 8)}" stroke-linejoin="round" stroke-linecap="round"/>`;
+}
+function crossesSVG(pts, col, w) {
+  const c = Math.max(3.5, w * 1.6); let s = '';
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], L = Math.hypot(b.x - a.x, b.y - a.y); if (L < 8) continue;
+    const n = Math.max(1, Math.floor(L / 36)), st = L / n;
+    for (let j = 0; j < n; j++) { const f = (st * (j + 0.5)) / L, x = a.x + (b.x - a.x) * f, y = a.y + (b.y - a.y) * f; s += `<path d="M${r2(x - c)},${r2(y - c)}L${r2(x + c)},${r2(y + c)}M${r2(x - c)},${r2(y + c)}L${r2(x + c)},${r2(y - c)}" stroke="${col}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`; }
+  }
+  return s;
+}
+/* Échantillon d'un état de tronçon (légende, panneau) */
+function etatSample(et, x0, x1, y, col, w) {
+  col = col || '#495057'; w = w || 2.4; const dk = et.dash || 'solid', dash = DASHES[dk] || ''; let s = '';
+  if (isHex(et.hl)) s += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${et.hl}" stroke-opacity="0.45" stroke-width="${r2(w + 8)}" stroke-linecap="round"/>`;
+  s += `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${col}" stroke-width="${w}" stroke-linecap="${dk === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}${et.fade ? ' stroke-opacity="0.4"' : ''}/>`;
+  if (et.x) s += crossesSVG([{ x: x0, y }, { x: x1, y }], et.hl || '#e03131', w);
+  return s;
 }
 function pointAlong(pts, f) {
   const seg = []; let L = 0; for (let i = 0; i < pts.length - 1; i++) { const l = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y); seg.push(l); L += l; }
@@ -885,15 +925,15 @@ function pipeLabelSVG(p, ctx) {
   const a = readable(Math.atan2(at.uy, at.ux) * 180 / Math.PI), ar = a * Math.PI / 180, off = n.w / 2 + 3;
   return `<g data-id="${p.id}" data-hit="item">` + haloText(at.x + Math.sin(ar) * off, at.y - Math.cos(ar) * off, txt, 7.5, 700, 'middle', n.color, a) + '</g>';
 }
-function junctionsSVG(ctx) {
+function junctionsSVG(ctx, dim) {
   const cnt = new Map(), dots = new Map(), endsOf = p => [p.pts[0], p.pts[p.pts.length - 1]];
   for (const p of ctx.pipes) for (const q of endsOf(p)) cnt.set(pkey(q), (cnt.get(pkey(q)) || 0) + 1);
   for (const p of ctx.pipes) for (const q of endsOf(p)) {
     const k = pkey(q); if (dots.has(k)) continue;
-    for (const o of ctx.pipes) { if (o === p || endsOf(o).some(e => near(e, q))) continue; if (onPoly(q, o.pts)) { const n = ctx.nets[o.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w }); break; } }
-    if (!dots.has(k) && cnt.get(k) >= 3) { const n = ctx.nets[p.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w }); }
+    for (const o of ctx.pipes) { if (o === p || endsOf(o).some(e => near(e, q))) continue; if (onPoly(q, o.pts)) { const n = ctx.nets[o.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, id: o.net }); break; } }
+    if (!dots.has(k) && cnt.get(k) >= 3) { const n = ctx.nets[p.net] || FALLBACK_NET; dots.set(k, { x: q.x, y: q.y, c: n.color, w: n.w, id: p.net }); }
   }
-  let s = ''; for (const d of dots.values()) s += `<circle cx="${d.x}" cy="${d.y}" r="${r2(Math.max(2.8, d.w * 1.35))}" fill="${d.c}" stroke="none"/>`;
+  let s = ''; for (const d of dots.values()) s += `<circle cx="${d.x}" cy="${d.y}" r="${r2(Math.max(2.8, d.w * 1.35))}" fill="${d.c}" stroke="none"${dim && dim.has(d.id) ? ' opacity="0.2"' : ''}/>`;
   return s;
 }
 const ZDASH = { dash: '7 4', solid: '', dashdot: '14 4 3 4' };
@@ -933,6 +973,7 @@ function thumbSVG(el, minW, minH) {
 function legendLayout(it, ctx) {
   const rows = [];
   if (it.nets !== false) { const used = new Set(ctx.pipes.map(p => p.net)); for (const n of doc.nets) if (used.has(n.id)) rows.push({ t: 'net', n, label: n.abbr ? n.abbr + ' : ' + n.name : n.name }); }
+  if (it.etats !== false) { const used = new Set(ctx.pipes.map(p => p.et).filter(Boolean)); for (const e of doc.etats || []) if (used.has(e.id)) rows.push({ t: 'etat', e, label: e.name }); }
   if (it.syms !== false) {
     const seen = new Map(); for (const e of ctx.els) { const d = S[e.type]; if (!d || d.nolegend) continue; const k = PRE[e.pre] ? e.pre : e.type; if (!seen.has(k)) seen.set(k, e); }
     for (const [k, e] of [...seen.entries()].sort((a, b) => CAT_IDX[S[a[1].type].cat] - CAT_IDX[S[b[1].type].cat])) rows.push({ t: 'sym', e, label: (PRE[k] && PRE[k].name) || S[e.type].name });
@@ -951,7 +992,8 @@ function legendSVG(it, ctx) {
   L.cols.forEach((col, ci) => {
     col.forEach((r, ri) => {
       const my = it.y + L.titleH + 6 + ri * L.rh + L.rh / 2;
-      if (r.t === 'net') { const d = DASHES[r.n.dash]; s += `<line x1="${r2(cx + 4)}" y1="${r2(my)}" x2="${r2(cx + L.th - 4)}" y2="${r2(my)}" stroke="${r.n.color}" stroke-width="${r.n.w}"${d ? ` stroke-dasharray="${d}"` : ''} stroke-linecap="${r.n.dash === 'dot' ? 'round' : 'butt'}"/>`; }
+      if (r.t === 'etat') s += etatSample(r.e, r2(cx + 4), r2(cx + L.th - 4), r2(my));
+      else if (r.t === 'net') { const d = DASHES[r.n.dash]; s += `<line x1="${r2(cx + 4)}" y1="${r2(my)}" x2="${r2(cx + L.th - 4)}" y2="${r2(my)}" stroke="${r.n.color}" stroke-width="${r.n.w}"${d ? ` stroke-dasharray="${d}"` : ''} stroke-linecap="${r.n.dash === 'dot' ? 'round' : 'butt'}"/>`; }
       else { const e = Object.assign({}, r.e, { x: 0, y: 0, rot: 0, fh: false }), b = boxOf(e), sc = Math.min((L.th - 8) / Math.max(b[2], 1), (L.rh - 5) / Math.max(b[3], 1), 1); s += symInner(e, sc, cx + L.th / 2, my); }
       s += `<text x="${r2(cx + L.th + 8)}" y="${r2(my + L.fs * 0.35)}" font-size="${L.fs}" style="fill:var(--ink)">${esc(r.label)}</text>`;
     });
@@ -1024,7 +1066,7 @@ function bboxOf(it, ctx) {
     case 'el': return elBox(it);
     case 'pipe': { const b = aabb(it.pts), w = netOf(it.net).w / 2 + 1; return { x0: b.x0 - w, y0: b.y0 - w, x1: b.x1 + w, y1: b.y1 + w }; }
     case 'text': { const L = textLayout(it); return { x0: L.x0, y0: it.y, x1: L.x0 + L.W, y1: it.y + L.H }; }
-    case 'zone': return { x0: it.x, y0: it.y, x1: it.x + it.w, y1: it.y + it.h };
+    case 'zone': case 'fond': return { x0: it.x, y0: it.y, x1: it.x + it.w, y1: it.y + it.h };
     case 'legend': { const L = legendLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
     case 'nomen': { const L = nomenLayout(it, ctx || buildCtx()), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
     case 'cart': { const L = cartLayout(it), k = cartSc(it); return { x0: it.x, y0: it.y, x1: it.x + L.W * k, y1: it.y + L.H * k }; }
@@ -1062,17 +1104,27 @@ function pageBorderSVG() {
   const g = pageGeom(), m = marginBox(g);
   return `<rect x="${r2(m.x0)}" y="${r2(m.y0)}" width="${r2(m.x1 - m.x0)}" height="${r2(m.y1 - m.y0)}" fill="none" style="stroke:var(--ink)" stroke-width="${r2(0.5 * g.u)}"/>`;
 }
+/* Un symbole est estompé quand tous les réseaux qui le traversent le sont */
+function elDimmed(el, ctx, dim) {
+  if (!dim.size) return false; let any = false;
+  for (const q of portsW(el)) { const n = netAt(ctx, q); if (!n) continue; if (!dim.has(n.id)) return false; any = true; }
+  return any;
+}
+/* o.exp : export (fonds de plan compris) ; à l'écran, les fonds sont dessinés à part (fondsLayerSVG) */
 function contentSVG(o) {
-  const ctx = buildCtx(), hops = doc.opts.hops !== false ? computeHops(ctx.pipes) : null, sel = o.exp ? null : state.sel;
-  let z = pageBorderSVG(), p = '', e = '', l = '', a = '';
+  const ctx = buildCtx(), hops = doc.opts.hops !== false ? computeHops(ctx.pipes) : null, sel = o.exp ? null : state.sel, dim = dimSet();
+  let f = '', z = pageBorderSVG(), hl = '', p = '', e = '', l = '', a = '';
+  const W = (it, str, dm) => { if (!str) return str; const lk = !o.exp && isLocked(it); return lk || dm ? `<g${lk ? ' pointer-events="none"' : ''}${dm ? ' opacity="0.2"' : ''}>${str}</g>` : str; };
   for (const it of doc.items) {
-    if (it.kind === 'zone') z += zoneSVG(it, o);
-    else if (it.kind === 'pipe') { p += pipeSVG(it, ctx, hops && hops.get(it.id), o, sel && sel.has(it.id)); l += pipeLabelSVG(it, ctx); }
-    else if (it.kind === 'el') { e += elSVG(it, ctx, o); l += labelSVG(it, o); }
-    else if (it.kind === 'text') a += textSVG(it, o);
-    else if (it.kind === 'legend') a += legendSVG(it, ctx);
-    else if (it.kind === 'nomen') a += nomenSVG(it, ctx);
-    else if (it.kind === 'cart') a += cartSVG(it);
+    if (!isVis(it)) continue;
+    if (it.kind === 'fond') { if (o.exp && it.prt !== false) f += fondSVG(it, o); }
+    else if (it.kind === 'zone') z += W(it, zoneSVG(it, o));
+    else if (it.kind === 'pipe') { const dm = dim.has(it.net); hl += W(it, pipeHlSVG(it, ctx), dm); p += W(it, pipeSVG(it, ctx, hops && hops.get(it.id), o, sel && sel.has(it.id)), dm); l += W(it, pipeLabelSVG(it, ctx), dm); }
+    else if (it.kind === 'el') { const dm = elDimmed(it, ctx, dim); e += W(it, elSVG(it, ctx, o), dm); l += W(it, labelSVG(it, o), dm); }
+    else if (it.kind === 'text') a += W(it, textSVG(it, o));
+    else if (it.kind === 'legend') a += W(it, legendSVG(it, ctx));
+    else if (it.kind === 'nomen') a += W(it, nomenSVG(it, ctx));
+    else if (it.kind === 'cart') a += W(it, cartSVG(it));
   }
-  return z + p + junctionsSVG(ctx) + e + l + a;
+  return f + z + hl + p + junctionsSVG(ctx, dim) + e + l + a;
 }

@@ -39,14 +39,14 @@ function alignSec(L) {
     h('p', { class: 'hint' }, (L.ref === 'page' ? 'Le bloc se cale sur les marges de la feuille.' : L.ref !== L.mov ? 'Les blocs s’alignent sur la zone sélectionnée, qui ne bouge pas.' : 'Les blocs s’alignent entre eux, sur les bords de l’ensemble sélectionné.')
       + ' En les faisant glisser, ils s’aimantent aussi aux bords des autres blocs, des zones' + (pageOn() ? ' et aux marges de la feuille.' : '.')));
 }
-const actionsSec = () => SEC(null, h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Premier plan', () => zorder(true)), btn('Arrière-plan', () => zorder(false)), btn('Supprimer', deleteSel, 'danger', 'Suppr')));
+const actionsSec = () => SEC(null, layerField(selItems()), h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Premier plan', () => zorder(true)), btn('Arrière-plan', () => zorder(false)), btn('Supprimer', deleteSel, 'danger', 'Suppr')));
 function buildInspector() {
   IB.innerHTML = '';
   const items = selItems();
   if (!items.length) return inspDoc();
   if (items.length > 1) return inspMulti(items);
   const it = items[0];
-  ({ el: inspEl, pipe: inspPipe, text: inspText, zone: inspZone, legend: inspLegend, nomen: inspNomen, cart: inspCart })[it.kind](it);
+  ({ el: inspEl, pipe: inspPipe, text: inspText, zone: inspZone, legend: inspLegend, nomen: inspNomen, cart: inspCart, fond: inspFond })[it.kind](it);
   if (BLOCKS[it.kind]) { const L = layoutSets([it]); if (L) IB.insertBefore(alignSec(L), IB.lastChild); }
 }
 function paramField(el, k, sp) {
@@ -158,6 +158,8 @@ function inspPipe(p) {
   IB.append(SEC(null,
     F('Réseau', fSelect(doc.nets.map(x => [x.id, netLabel(x)]), () => p.net, v => { p.net = v; }, buildInspector)),
     F('Diamètre', fText(() => p.dn, v => { p.dn = v; }, { ph: 'DN50, Ø32, PER 20…', list: 'dn-list', k: 'dn' })),
+    F('État du tronçon', fSelect([['', 'Non précisé'], ...(doc.etats || []).map(e => [e.id, e.name])], () => p.et || '', v => { p.et = v; }, buildInspector)),
+    h('p', { class: 'hint' }, 'Pour ne marquer qu’une partie du tuyau, coupez-le d’abord avec les ciseaux (X).'),
     h('div', { class: 'f' }, fCheck(() => p.arr, v => { p.arr = v; }, 'Flèches de sens d’écoulement')),
     h('div', { class: 'btnrow' }, btn('Inverser le sens du tracé', () => { const b = snapshot(); p.pts.reverse(); commit(b); toast('Sens du tracé inversé.'); })),
     h('p', { class: 'hint' }, 'Glissez un point carré pour le déplacer, un rond pour décaler un segment. Double-clic sur le tuyau : ajouter un coude.')));
@@ -184,7 +186,7 @@ const sizeField = (it, label) => F(label, h('div', null, fNum(() => Math.round(c
 function inspLegend(it) {
   IB.append(headNode('<svg viewBox="0 0 64 46"><rect x="12" y="8" width="40" height="30" fill="#fff" stroke="#16191b"/><line x1="16" y1="17" x2="26" y2="17" stroke="#1c7ed6" stroke-width="2.5"/><line x1="16" y1="28" x2="26" y2="28" stroke="#e03131" stroke-width="2.5"/></svg>', 'Légende', 'Mise à jour automatique'));
   IB.append(SEC(null, sizeField(it, 'Taille de la légende (%)'), F('Titre', fText(() => it.title, v => { it.title = v; }, { k: 'title', max: 60 })), F('Lignes par colonne', fNum(() => it.rows, v => { it.rows = Math.round(v); }, { min: 3, max: 60 })),
-    h('div', { class: 'f' }, fCheck(() => it.nets !== false, v => { it.nets = v; }, 'Réseaux utilisés')), h('div', { class: 'f' }, fCheck(() => it.syms !== false, v => { it.syms = v; }, 'Symboles utilisés'))));
+    h('div', { class: 'f' }, fCheck(() => it.nets !== false, v => { it.nets = v; }, 'Réseaux utilisés')), h('div', { class: 'f' }, fCheck(() => it.syms !== false, v => { it.syms = v; }, 'Symboles utilisés')), h('div', { class: 'f' }, fCheck(() => it.etats !== false, v => { it.etats = v; }, 'États des tronçons utilisés'))));
   IB.append(actionsSec());
 }
 function inspNomen(it) {
@@ -208,7 +210,9 @@ function inspMulti(items) {
   if (nE || ps.length) IB.append(SEC('Orienter l’ensemble', orientPad(true), h('p', { class: 'hint' }, 'L’ensemble pivote autour de son centre et les tuyaux raccordés suivent.')));
   if (ps.length) IB.append(SEC('Tuyauteries', F('Réseau', fSelect([['', 'Inchangé'], ...doc.nets.map(x => [x.id, netLabel(x)])], () => '', v => { if (v) for (const p of ps) p.net = v; })),
     F('Diamètre', fText(() => '', v => { for (const p of ps) p.dn = v; }, { ph: 'Appliquer à tous', list: 'dn-list' })),
+    F('État des tronçons', fSelect([['*', 'Inchangé'], ['', 'Non précisé'], ...(doc.etats || []).map(e => [e.id, e.name])], () => '*', v => { if (v !== '*') for (const p of ps) p.et = v; })),
     h('div', { class: 'btnrow' }, btn('Afficher les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = true; commit(b); }), btn('Masquer les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = false; commit(b); }), btn('Flèches de sens', () => { const b = snapshot(), v = !ps.every(p => p.arr); for (const p of ps) p.arr = v; commit(b); }))));
+  if ((doc.layers || []).length > 1) IB.append(SEC(null, layerField(items)));
   if (nE > 1) IB.append(SEC('Aligner les symboles', h('div', { class: 'btnrow' }, btn('Sur une même ligne', () => alignEls('y')), btn('Sur une même colonne', () => alignEls('x')))));
   IB.append(SEC(null, h('div', { class: 'btnrow' }, btn('Dupliquer', duplicateSel, '', 'Ctrl+D'), btn('Supprimer', deleteSel, 'danger', 'Suppr'))));
 }
@@ -233,7 +237,12 @@ function pageSec() {
 function inspDoc() {
   IB.append(headNode('<svg viewBox="0 0 64 46"><path d="M6 23H58" stroke="#1c7ed6" stroke-width="2.5"/><path d="M22 17L22 29L32 17L32 29Z" fill="#fff" stroke="#16191b" stroke-width="1.4"/><circle cx="44" cy="23" r="6" fill="#fff" stroke="#16191b" stroke-width="1.4"/><path d="M41.8 19.5L41.8 26.5L48 23Z" fill="#16191b"/></svg>', doc.name || 'Sans titre', els().length + ' symboles, ' + pipes().length + ' tuyaux'));
   const list = h('div', { class: 'nets' }); doc.nets.forEach((n, i) => list.append(netRow(n, i)));
-  IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9.'), list, h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet))));
+  const nd = (doc.opts.dim || []).length;
+  IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9. L’œil estompe le réseau à 20 % (outil Estomper : cliquez sur un tuyau).'), list,
+    h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet), nd ? btn('Tout réafficher (' + nd + ')', undimAll) : null)));
+  IB.append(layersSec());
+  IB.append(fondsSec());
+  IB.append(etatsSec());
   const g = h('input', { type: 'checkbox' }); g.checked = state.grid; g.addEventListener('change', () => { state.grid = g.checked; updateGrid(); });
   IB.append(SEC('Affichage', h('div', { class: 'f' }, h('label', { class: 'chk' }, g, h('span', null, 'Grille'))), h('div', { class: 'f' }, fCheck(() => doc.opts.hops !== false, v => { doc.opts.hops = v; }, 'Sauts aux croisements de tuyaux')), h('div', { class: 'f' }, fCheck(() => !!doc.opts.real, v => { doc.opts.real = v; }, 'Équipements en vue réaliste'))));
   IB.append(pageSec());
@@ -248,13 +257,15 @@ function netRow(n, i) {
   const ab = h('input', { class: 'inp', type: 'text', maxlength: 6, 'aria-label': 'Abréviation' }); ab.value = n.abbr; live(ab, () => { n.abbr = ab.value; }, updateNetBtn);
   const nm = h('input', { class: 'inp', type: 'text', maxlength: 40, 'aria-label': 'Nom du réseau' }); nm.value = n.name; live(nm, () => { n.name = nm.value; });
   const ext = h('div', { class: 'ext', hidden: true }, fSelect(DASH_OPTS, () => n.dash, v => { n.dash = v; }), fSelect([['1.2', 'Fin'], ['2', 'Moyen'], ['2.4', 'Normal'], ['3.2', 'Épais'], ['4.5', 'Gaine']], () => String(n.w), v => { n.w = +v; }), btn('Supprimer', () => delNet(n), 'danger'));
+  const dm = (doc.opts.dim || []).includes(n.id); if (dm) row.classList.add('dim');
+  const eye = h('button', { class: 'btn sm ghost dimb', type: 'button', title: dm ? 'Réafficher ce réseau' : 'Estomper ce réseau (20 %)', 'aria-pressed': dm ? 'true' : 'false', onclick: () => toggleDim(n.id), html: dm ? EYE_OFF : EYE_ON });
   const more = h('button', { class: 'btn sm ghost more', type: 'button', title: 'Style du trait', 'aria-expanded': 'false', onclick: () => { ext.hidden = !ext.hidden; more.setAttribute('aria-expanded', String(!ext.hidden)); } }, '…');
-  row.append(pick, col, ab, nm, more, ext);
+  row.append(pick, col, ab, nm, eye, more, ext);
   return row;
 }
 function addNet() { const before = snapshot(), id = 'n' + uid(); doc.nets.push({ id, abbr: 'R' + (doc.nets.length + 1), name: 'Nouveau réseau', color: '#2f9e44', dash: 'solid', w: 2.4 }); commit(before); buildInspector(); }
 function delNet(n) {
-  const used = pipes().filter(p => p.net === n.id).length;
+  const used = doc.items.filter(p => p.kind === 'pipe' && p.net === n.id).length;
   if (used) { toast('Ce réseau est utilisé par ' + used + ' tuyau' + (used > 1 ? 'x' : '') + '. Réaffectez-les avant de le supprimer.'); return; }
   if (doc.nets.length <= 1) return;
   const before = snapshot(); doc.nets = doc.nets.filter(x => x !== n); if (state.activeNet === n.id) state.activeNet = doc.nets[0].id; commit(before); updateNetBtn(); buildInspector();
@@ -323,10 +334,11 @@ function openMenu(anchor, items, id) {
   menuEl = m; const f = m.querySelector('.menu-it:not(:disabled)'); if (f) f.focus();
 }
 function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
-function toggleMenu(id, anchor) { if (menuEl && menuEl.dataset.for === id) { closeMenu(); return; } ({ file: fileMenu, exp: expMenu, net: netMenu })[id](anchor); }
+function toggleMenu(id, anchor) { if (menuEl && menuEl.dataset.for === id) { closeMenu(); return; } ({ file: fileMenu, exp: expMenu, net: netMenu, ly: layerMenu })[id](anchor); }
 document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target) && !e.target.closest('[data-menu]')) closeMenu(); }, true);
 function fileMenu(a) {
   openMenu(a, [{ label: 'Nouveau schéma', run: newSchema }, { label: 'Ouvrir un fichier .json…', run: () => $('#file-in').click() }, { label: 'Enregistrer en fichier .json', run: saveJSON, disabled: !canDownload() }, '-',
+    { head: 'Fond de plan' }, { label: 'Importer un fond de plan (PDF, image)…', run: () => $('#fond-in').click() }, '-',
     { head: 'Mes projets' }, { label: lib.ok ? 'Enregistrer dans Mes projets' : 'Indisponible dans cette vue', kbd: lib.ok ? 'Ctrl+S' : null, run: () => saveLib(false), disabled: !lib.ok }, { label: 'Enregistrer une copie…', run: () => saveLib(true), disabled: !lib.ok }, { label: 'Ouvrir depuis Mes projets…', run: openLib, disabled: !lib.ok }, '-',
     { head: 'Exemples' }, { label: 'Local eau : comptage, protection, distribution', run: () => loadExample('eau') }, { label: 'Chaufferie gaz : 2 circuits et ECS', run: () => loadExample('chauf') }, { label: 'Eaux pluviales : toitures non accessibles', run: () => loadExample('ep') }]
     .concat(MODS.length ? ['-', { head: 'Modèles' }].concat(MODS.map((m, i) => ({ label: (m.doc && m.doc.name) || m.file, run: () => loadModele(i) }))) : []), 'file');
@@ -364,16 +376,24 @@ function sanitize(d) {
     c.id = typeof c.id === 'string' && /^[\w-]{1,40}$/.test(c.id) && !ids.has(c.id) ? c.id : uid(); ids.add(c.id);
     if (c.kind === 'el') { if (!S[c.type]) continue; if (!PRE[c.pre]) c.pre = PRE[c.type] ? c.type : Object.keys(PRE).find(k => PRE[k].type === c.type); c.x = num(c.x); c.y = num(c.y); c.rot = norm360(num(c.rot)); c.fh = !!c.fh; c.p = c.p && typeof c.p === 'object' ? c.p : {}; if (c.type === 'v3v' && c.p.act == null && c.p.mot === false) c.p.act = 'none'; { const pp = (PRE[c.pre] && PRE[c.pre].p) || {}; for (const k in (S[c.type].params || {})) if (c.p[k] == null) c.p[k] = pp[k] != null ? clone(pp[k]) : S[c.type].params[k].def; } c.lx = num(c.lx); c.ly = num(c.ly); if (!isHex(c.color)) delete c.color; ['tag', 'name', 'note'].forEach(k => { c[k] = String(c[k] == null ? '' : c[k]); }); }
     else if (c.kind === 'pipe') { if (!Array.isArray(c.pts) || c.pts.length < 2) continue; c.pts = c.pts.map(q => ({ x: num(q && q.x), y: num(q && q.y) })); c.net = String(c.net); c.lp = clamp(num(c.lp == null ? 0.5 : c.lp), 0, 1); c.dn = String(c.dn || ''); c.txt = String(c.txt || ''); }
+    else if (c.kind === 'fond') { if (typeof c.img !== 'string') continue; c.x = num(c.x); c.y = num(c.y); c.w = Math.max(10, num(c.w) || 1000); c.h = Math.max(10, num(c.h) || 700); c.op = clamp(isFinite(+c.op) ? +c.op : 0.5, 0.05, 1); c.lock = !!c.lock; c.prt = c.prt !== false; c.name = String(c.name || 'Fond de plan').slice(0, 120); }
     else if (['text', 'zone', 'legend', 'nomen', 'cart'].includes(c.kind)) { c.x = num(c.x); c.y = num(c.y); if (c.kind === 'zone') { c.w = Math.max(10, num(c.w)); c.h = Math.max(10, num(c.h)); if (!isHex(c.color)) c.color = '#5c656b'; } if (c.kind === 'text') { c.size = clamp(num(c.size) || 9, 4, 80); if (!isHex(c.color)) c.color = ''; } if (c.kind === 'cart') c.f = c.f && typeof c.f === 'object' ? c.f : {}; }
     else continue;
+    if (c.kind === 'pipe') { c.et = typeof c.et === 'string' ? c.et.slice(0, 40) : ''; }
+    c.cal = typeof c.cal === 'string' ? c.cal.slice(0, 40) : '';
     out.items.push(c);
   }
-  out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real) };
+  /* Calques (un premier par défaut), états des tronçons, réseaux estompés */
+  if (Array.isArray(d.layers) && d.layers.length) out.layers = d.layers.filter(l => l && l.id).map(l => ({ id: String(l.id).slice(0, 40), name: String(l.name || 'Calque').slice(0, 40), show: l.show !== false, lock: !!l.lock }));
+  if (!out.layers.length) out.layers = [newLayer('Calque 1', 'c1')];
+  const lyIds = new Set(out.layers.map(l => l.id)); for (const c of out.items) if (!lyIds.has(c.cal)) c.cal = out.layers[0].id;
+  if (Array.isArray(d.etats)) out.etats = d.etats.filter(e => e && e.id).map(e => ({ id: String(e.id).slice(0, 40), name: String(e.name || 'État').slice(0, 40), hl: isHex(e.hl) ? e.hl : '', dash: DASHES[e.dash] != null ? e.dash : '', x: !!e.x, fade: !!e.fade }));
+  out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real), dim: d.opts && Array.isArray(d.opts.dim) ? d.opts.dim.map(String).filter(id => out.nets.some(n => n.id === id)) : [] };
   const pg = d.opts && d.opts.page; if (pg && typeof pg === 'object') out.opts.page = { on: !!pg.on, fmt: SHEETS[pg.fmt] ? pg.fmt : 'a4', land: pg.land !== false, x: num(pg.x), y: num(pg.y), w: clamp(num(pg.w) || 1000, 100, 50000), border: !!pg.border };
   return out;
 }
 function restore() { try { const raw = localStorage.getItem(LS_KEY); if (!raw) return false; const o = JSON.parse(raw); doc = sanitize(o.doc); state.libId = o.libId || null; if (o.net && doc.nets.some(n => n.id === o.net)) state.activeNet = o.net; return true; } catch (e) { return false; } }
-function loadDocObj(d) { const nd = sanitize(d), before = snapshot(); doc = nd; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
+function loadDocObj(d) { takeAssets(d); const nd = sanitize(d), before = snapshot(); doc = nd; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
 function syncDocName() { $('#docname').value = doc.name || 'Sans titre'; }
 function newSchema() { const before = snapshot(), nets = doc.nets; doc = newDoc(); doc.nets = nets; state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); view.k = 1.5; view.tx = 60; view.ty = 60; applyView(); toast('Nouveau schéma. Ctrl+Z pour revenir au précédent.'); }
 function loadExample(k) { const before = snapshot(); doc = k === 'eau' ? exLocalEau() : k === 'ep' ? exEauxPluviales() : exChaufferie(); state.libId = null; state.sel = new Set(); commit(before); syncDocName(); buildInspector(); fitView(); }
@@ -522,7 +542,7 @@ async function exportPDF(fmt) {
   }
   saveFile(fileBase() + '-' + fmt.toUpperCase() + '.pdf', pdf.output('blob'));
 }
-function saveJSON() { saveFile(fileBase() + '.json', JSON.stringify(doc, null, 1)); }
+function saveJSON() { saveFile(fileBase() + '.json', JSON.stringify(docWithAssets(), null, 1)); }
 async function initCaps() {
   if (window.claude && typeof window.claude.use === 'function') {
     try { dl = await window.claude.use('downloads'); } catch (e) { dl = null; }
@@ -561,7 +581,7 @@ async function saveLib(asNew) {
   if (!lib.ok) { toast('Mes projets n’est pas disponible ici : utilisez Enregistrer en fichier .json.'); return; }
   let name = doc.name || 'Sans titre';
   if (asNew || !state.libId) { const r = await promptModal(asNew ? 'Enregistrer une copie' : 'Enregistrer dans Mes projets', 'Nom du projet', asNew ? name + ' (copie)' : name); if (r == null) return; name = r.trim() || 'Sans titre'; doc.name = name; syncDocName(); }
-  const json = JSON.stringify(doc); if (lib.kind === 'claude' && json.length > 240000) { toast('Projet trop volumineux pour Mes projets : enregistrez-le en fichier .json.'); return; }
+  const json = JSON.stringify(docWithAssets()); if (lib.kind === 'claude' && json.length > 240000) { toast('Projet trop volumineux pour Mes projets : enregistrez-le en fichier .json.'); return; }
   const id = (!asNew && state.libId) || ('s' + Date.now().toString(36) + uid().slice(0, 4));
   try {
     await libStore.put(id, { name, updatedAt: Date.now(), json, n: doc.items.length }); state.libId = id; scheduleSave();
@@ -625,6 +645,8 @@ function updateHint() {
   else if (state.tool === 'text') parts = [['', 'Cliquez à l’endroit où placer le texte.']];
   else if (state.tool === 'zone') parts = [['', 'Glissez pour tracer le contour d’un local ou d’une limite de prestation.']];
   else if (state.tool === 'hand') parts = [['', 'Glissez pour déplacer la vue. Molette pour zoomer.']];
+  else if (state.tool === 'dim') parts = [[K('Clic'), 'sur un tuyau : estomper son réseau à 20 %, ou le réafficher'], [K('Échap'), 'terminer']];
+  else if (state.tool === 'cut') parts = [[K('Clic'), 'sur un tuyau : le couper en deux tronçons à cet endroit'], [K('Échap'), 'terminer'], ['', 'Chaque tronçon reçoit ensuite son état : neuf, existant, à curer, curé.']];
   else parts = [[K('Glisser'), 'déplacer'], [K('Maj') + ' + clic', 'ajouter à la sélection'], [K('Alt') + ' + glisser', 'dupliquer'], [K('R'), 'tourner'], [K('F'), 'inverser le sens'], [K('Double-clic'), 'sur un tuyau : ajouter un coude'], [K('Espace') + ' + glisser', 'vue']];
   $('#hint').innerHTML = parts.map(([k, t]) => '<span>' + k + (k ? ' ' : '') + esc(t) + '</span>').join('');
 }
@@ -645,7 +667,7 @@ window.addEventListener('keydown', e => {
     if (k === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); } else if (k === 'y') { e.preventDefault(); redo(); }
     else if (k === 'c' && state.sel.size) { e.preventDefault(); copySel(); } else if (k === 'x' && state.sel.size) { e.preventDefault(); copySel(); deleteSel(); }
     else if (k === 'v' && clip) { e.preventDefault(); paste(); } else if (k === 'd') { e.preventDefault(); duplicateSel(); }
-    else if (k === 'a') { e.preventDefault(); setSel(doc.items.map(i => i.id)); } else if (k === 's') { e.preventDefault(); if (lib.ok) saveLib(false); else saveJSON(); }
+    else if (k === 'a') { e.preventDefault(); setSel(doc.items.filter(editable).map(i => i.id)); } else if (k === 's') { e.preventDefault(); if (lib.ok) saveLib(false); else saveJSON(); }
     return;
   }
   if (e.altKey) return;
@@ -659,7 +681,7 @@ window.addEventListener('keydown', e => {
   if (k === 'r') rotateCmd(e.shiftKey ? -90 : 90);
   else if (k === 'f') flipCmd(e.shiftKey ? 'v' : 'h');
   else if (k === '/' || k === ':') { if (state.draft) { state.draft.flip = !state.draft.flip; if (state.snap) state.draft.preview = route(state.snap); renderUI(); } }
-  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand');
+  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand'); else if (k === 'o') setTool(state.tool === 'dim' ? 'select' : 'dim'); else if (k === 'x') setTool(state.tool === 'cut' ? 'select' : 'cut');
   else if (k === 'g') { state.grid = !state.grid; updateGrid(); if (!state.sel.size) buildInspector(); }
 });
 window.addEventListener('keyup', e => { if (e.key === ' ') { state.space = false; svg.classList.remove('pan-ready'); } });
@@ -780,7 +802,8 @@ function bindUI() {
   for (const b of $$('[data-tool]')) b.addEventListener('click', () => setTool(b.dataset.tool));
   $('#b-rl').onclick = () => rotateCmd(-90); $('#b-rr').onclick = () => rotateCmd(90); $('#b-fh').onclick = () => flipCmd('h'); $('#b-fv').onclick = () => flipCmd('v');
   $('#b-undo').onclick = undo; $('#b-redo').onclick = redo; $('#b-del').onclick = deleteSel;
-  $('#b-file').onclick = e => toggleMenu('file', e.currentTarget); $('#b-exp').onclick = e => toggleMenu('exp', e.currentTarget); $('#b-fonc').onclick = () => openFonctions(); $('#b-net').onclick = e => toggleMenu('net', e.currentTarget);
+  $('#b-file').onclick = e => toggleMenu('file', e.currentTarget); $('#b-exp').onclick = e => toggleMenu('exp', e.currentTarget); $('#b-fonc').onclick = () => openFonctions(); $('#b-net').onclick = e => toggleMenu('net', e.currentTarget); $('#b-ly').onclick = e => toggleMenu('ly', e.currentTarget);
+  $('#fond-in').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) importFond(f); });
   $('#b-zi').onclick = () => zoomCenter(1.25); $('#b-zo').onclick = () => zoomCenter(0.8); $('#b-fit').onclick = fitView;
   $('#b-pal').onclick = () => { app.classList.toggle('show-pal'); app.classList.remove('show-insp'); };
   $('#b-insp').onclick = () => { app.classList.toggle('show-insp'); app.classList.remove('show-pal'); };
@@ -794,7 +817,7 @@ function bindUI() {
   dn.addEventListener('keydown', e => { if (e.key === 'Enter') dn.blur(); });
   $('#file-in').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { loadDocObj(JSON.parse(await f.text())); state.libId = null; toast('Schéma ouvert.'); } catch (err) { toast('Fichier illisible : choisissez un .json enregistré depuis cet outil.'); } });
   $('#stage').addEventListener('dragover', e => e.preventDefault());
-  $('#stage').addEventListener('drop', async e => { e.preventDefault(); const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return; try { loadDocObj(JSON.parse(await f.text())); toast('Schéma ouvert.'); } catch (err) { toast('Fichier illisible.'); } });
+  $('#stage').addEventListener('drop', async e => { e.preventDefault(); const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return; if (isFondFile(f)) { importFond(f, toWorld(e.clientX, e.clientY)); return; } try { loadDocObj(JSON.parse(await f.text())); toast('Schéma ouvert.'); } catch (err) { toast('Fichier illisible.'); } });
   if (window.ResizeObserver) new ResizeObserver(() => { updateGrid(); renderUI(); }).observe($('#stage'));
   const art = [makeEl('vanne', 70, 30), makeEl('pompe', 130, 30), makeEl('clapet', 180, 30), makeEl('filtre', 230, 30)];
   $('#empty-art').innerHTML = '<line x1="20" y1="30" x2="280" y2="30" stroke="#1c7ed6" stroke-width="2.4"/>' + art.map(a => elSVG(a, null, { exp: true })).join('');
@@ -804,7 +827,7 @@ function init() {
   const had = restore(); syncDocName(); updateNetBtn(); updateHint();
   render(); buildInspector(); updateUndo(); updateToolUI();
   requestAnimationFrame(() => { if (had && doc.items.length) fitView(); else applyView(); });
-  initCaps();
+  initCaps(); loadFondAssets();
 }
 init();
 })();
