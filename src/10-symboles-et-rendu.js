@@ -843,6 +843,16 @@ function labelSVG(el, o) {
   return s + '</g>';
 }
 const HOP = 4.5;
+/* Sauts figés dans le tracé (petit triangle de 9 × 4,5 sur un segment horizontal, venu d'une reprise de PDF) :
+   retirés pour que l'éditeur recalcule lui-même les chapeaux aux croisements */
+function unbakeHops(pts) {
+  const out = pts.slice(); let i = 1, n = 0;
+  while (i < out.length - 1) {
+    const a = out[i - 1], b = out[i], c = out[i + 1];
+    if (Math.abs(a.y - c.y) < 0.01 && Math.abs(Math.abs(c.x - a.x) - HOP * 2) < 0.02 && Math.abs(b.x - (a.x + c.x) / 2) < 0.02 && Math.abs(Math.abs(b.y - a.y) - HOP) < 0.02) { out.splice(i, 1); n++; } else i++;
+  }
+  return n ? simplify(out) : pts;
+}
 function computeHops(P_) {
   const H = [], V = [];
   for (const p of P_) for (let i = 0; i < p.pts.length - 1; i++) { const a = p.pts[i], b = p.pts[i + 1], d = segDir(a, b); if (d === 'h') H.push({ p, i, y: a.y, x0: Math.min(a.x, b.x), x1: Math.max(a.x, b.x) }); else if (d === 'v') V.push({ p, i, x: a.x, y0: Math.min(a.y, b.y), y1: Math.max(a.y, b.y) }); }
@@ -891,7 +901,8 @@ function pipeSVG(p, ctx, hops, o, selected) {
 function pipePartSVG(p, pts, ctx) {
   if (!pts || pts.length < 2) return '';
   const n = ctx.nets[p.net] || FALLBACK_NET, et = etatOf(p), dk = et && et.dash ? et.dash : n.dash, dash = DASHES[dk] || '';
-  return `<path data-id="${p.id}" data-hit="item" d="${polyD(pts)}" fill="none" stroke="${n.color}" stroke-width="${n.w}" stroke-linejoin="round" stroke-linecap="${dk === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}${et && et.fade ? ' stroke-opacity="0.4"' : ''}/>`;
+  const part = { id: '\u0000part', pts }, hops = doc.opts.hops !== false ? computeHops([part].concat(ctx.pipes.filter(o => o.id !== p.id))).get(part.id) : null;
+  return `<path data-id="${p.id}" data-hit="item" d="${pipeD(pts, hops)}" fill="none" stroke="${n.color}" stroke-width="${n.w}" stroke-linejoin="round" stroke-linecap="${dk === 'dot' ? 'round' : 'butt'}"${dash ? ` stroke-dasharray="${dash}"` : ''}${et && et.fade ? ' stroke-opacity="0.4"' : ''}/>`;
 }
 /* Surlignage d'un tronçon (dessiné sous tous les tuyaux) et croix des tronçons à déposer */
 function pipeHlSVG(p, ctx) {
