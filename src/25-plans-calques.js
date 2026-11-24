@@ -234,22 +234,99 @@ function layerField(items) {
   return F('Calque', fSelect((mixed ? [['', 'Plusieurs calques']] : []).concat(doc.layers.map(L => [L.id, L.name + (L.show === false ? ' (masqué)' : L.lock ? ' (verrouillé)' : '')])), () => mixed ? '' : [...cur][0], v => { if (v) for (const i of items) i.cal = v; }, () => { dropHiddenSel(); buildInspector(); render(); }));
 }
 
-/* ----- Réseaux estompés (20 %) ----- */
+/* ----- Circuits : estomper ou isoler la partie d'un réseau où le fluide peut aller -----
+   Un circuit, ce sont les tuyaux d'un même réseau reliés bout à bout, par un piquage ou à travers un équipement.
+   Une vanne normalement fermée l'arrête, même posée sur un tuyau continu : le tuyau est alors coupé en morceaux. */
+const isClosedEl = el => !!(el.p && el.p.nf === true);
+function arcPos(pts, q) {
+  let s = 0, best = null;
+  for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1], L = Math.hypot(b.x - a.x, b.y - a.y), r = distPtSeg(q, a, b); if (!best || r.d < best.d) best = { d: r.d, s: s + r.t * L }; s += L; }
+  return best || { d: 0, s: 0 };
+}
+const polyLen = pts => { let L = 0; for (let i = 0; i < pts.length - 1; i++) L += Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y); return L; };
+function subPoly(pts, s0, s1) {
+  const out = []; let s = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], L = Math.hypot(b.x - a.x, b.y - a.y);
+    if (L > 0 && s1 >= s && s0 <= s + L) { const u0 = clamp((s0 - s) / L, 0, 1), u1 = clamp((s1 - s) / L, 0, 1), P = u => ({ x: r2(a.x + (b.x - a.x) * u), y: r2(a.y + (b.y - a.y) * u) }); if (!out.length) out.push(P(u0)); const q = P(u1); if (!near(out[out.length - 1], q, 0.01)) out.push(q); }
+    s += L;
+  }
+  return out;
+}
+function buildCircuits() {
+  const ps = pipes(), all = els(), closed = all.filter(isClosedEl), pieces = [], byPipe = new Map();
+  for (const p of ps) {
+    const L = polyLen(p.pts), cuts = [];
+    for (const v of closed) { if (!onPoly(v, p.pts, 1)) continue; const a = arcPos(p.pts, v); if (a.s > 0.5 && a.s < L - 0.5) cuts.push(a.s); }
+    cuts.sort((x, y) => x - y);
+    const bd = [0, ...cuts, L], list = [];
+    for (let k = 0; k < bd.length - 1; k++) { const pc = { i: pieces.length, p, k, pts: cuts.length ? subPoly(p.pts, bd[k], bd[k + 1]) : p.pts }; pieces.push(pc); list.push(pc); }
+    byPipe.set(p.id, { cuts, list });
+  }
+  const par = pieces.map((_, i) => i);
+  const find = i => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; };
+  const uni = (x, y) => { x = find(x); y = find(y); if (x !== y) par[x] = y; };
+  const pieceAt = (p, q) => { const B = byPipe.get(p.id); if (!B) return null; if (!B.cuts.length) return B.list[0]; const a = arcPos(p.pts, q); let k = 0; while (k < B.cuts.length && a.s > B.cuts[k]) k++; return B.list[k]; };
+  /* Bouts communs et piquages, entre tuyaux du même réseau */
+  for (const p of ps) for (const q of [p.pts[0], p.pts[p.pts.length - 1]]) {
+    const me = pieceAt(p, q);
+    for (const o of ps) if (o !== p && o.net === p.net && onPoly(q, o.pts)) uni(me.i, pieceAt(o, q).i);
+  }
+  /* À travers un équipement ouvert (pompe, vanne ouverte, collecteur…) : tuyaux du même réseau raccordés à ses points */
+  for (const el of all) {
+    if (isClosedEl(el)) continue; const touch = [];
+    for (const q of portsW(el)) for (const p of ps) if (onPoly(q, p.pts)) touch.push({ net: p.net, pc: pieceAt(p, q) });
+    for (let x = 0; x < touch.length; x++) for (let y = x + 1; y < touch.length; y++) if (touch[x].net === touch[y].net) uni(touch[x].pc.i, touch[y].pc.i);
+  }
+  return { pieces, byPipe, find, pieceAt };
+}
+const seedPiece = (G, sd) => { const p = sd && byId(sd.p); return p && p.kind === 'pipe' && G.byPipe.has(p.id) ? G.pieceAt(p, sd) : null; };
+/* État d'affichage des circuits, ou null s'il n'y a rien d'estompé ni d'isolé */
+function circState() {
+  const c = doc.opts && doc.opts.circ; if (!c || (!(c.dim || []).length && !c.iso)) return null;
+  const G = buildCircuits(), dimR = new Set();
+  for (const sd of c.dim || []) { const pc = seedPiece(G, sd); if (pc) dimR.add(G.find(pc.i)); }
+  let isoR = null; if (c.iso) { const pc = seedPiece(G, c.iso); if (pc) isoR = G.find(pc.i); }
+  if (!dimR.size && isoR == null) return null;
+  return { G, isoR, dimR, dimmed: pc => { if (!pc) return false; const r = G.find(pc.i); return dimR.has(r) || (isoR != null && r !== isoR); } };
+}
+const circOpts = () => doc.opts.circ || (doc.opts.circ = { dim: [], iso: null });
+const anyCirc = () => { const c = doc.opts.circ; return !!(c && ((c.dim || []).length || c.iso)); };
+function pickPipe(w) {
+  const R = 7 / view.k; let best = null;
+  for (const p of pipes()) { const hw = netOf(p.net).w / 2; for (let i = 0; i < p.pts.length - 1; i++) { const r = distPtSeg(w, p.pts[i], p.pts[i + 1]), d = r.d - hw; if (d <= R && (!best || d < best.d)) best = { d, p, q: { x: r2(r.x), y: r2(r.y) } }; } }
+  return best;
+}
+/* Clic avec l'outil Estomper (mode 'dim') ou Isoler (mode 'iso') */
+function circDown(e, w, mode) {
+  const hit = pickPipe(w), c = circOpts();
+  if (!hit) {
+    if (mode === 'iso' && c.iso) { const b = snapshot(); c.iso = null; commit(b); if (!state.sel.size) buildInspector(); toast('Isolement annulé : tout est réaffiché.'); }
+    else toast(mode === 'iso' ? 'Cliquez sur un tuyau pour isoler son circuit.' : 'Cliquez sur un tuyau pour estomper son circuit, ou pour le réafficher.');
+    return;
+  }
+  const G = buildCircuits(), pc = G.pieceAt(hit.p, hit.q), r = G.find(pc.i), b = snapshot(), seed = { p: hit.p.id, x: hit.q.x, y: hit.q.y };
+  const nT = new Set(G.pieces.filter(x => G.find(x.i) === r).map(x => x.p.id)).size, lab = netLabel(netOf(hit.p.net)) + ' — ' + nT + ' tuyau' + (nT > 1 ? 'x' : '');
+  let msg;
+  if (mode === 'iso') {
+    const cur = seedPiece(G, c.iso);
+    if (cur && G.find(cur.i) === r) { c.iso = null; msg = 'Isolement annulé : tout est réaffiché.'; }
+    else { c.iso = seed; c.dim = (c.dim || []).filter(sd => { const sp = seedPiece(G, sd); return sp && G.find(sp.i) !== r; }); msg = 'Circuit isolé : ' + lab + '. Le reste est estompé. Recliquez sur ce circuit pour tout réafficher.'; }
+  } else {
+    const n0 = (c.dim || []).length; c.dim = (c.dim || []).filter(sd => { const sp = seedPiece(G, sd); return sp && G.find(sp.i) !== r; });
+    if (c.dim.length === n0) { c.dim.push(seed); msg = 'Circuit estompé : ' + lab + '. Recliquez dessus pour le réafficher.'; } else msg = 'Circuit réaffiché : ' + lab + '.';
+  }
+  commit(b); if (!state.sel.size) buildInspector(); toast(msg);
+}
+const dimDown = (e, w) => circDown(e, w, 'dim');
+const isoDown = (e, w) => circDown(e, w, 'iso');
+/* Œil du panneau : tout un réseau (tous ses circuits) */
 function toggleDim(id) {
   const b = snapshot(), d = doc.opts.dim || (doc.opts.dim = []), i = d.indexOf(id);
   if (i >= 0) d.splice(i, 1); else d.push(id);
   commit(b); if (!state.sel.size) buildInspector();
 }
-function undimAll() { const b = snapshot(); doc.opts.dim = []; commit(b); buildInspector(); }
-function dimDown(e, w) {
-  const R = 7 / view.k; let best = null;
-  for (const p of pipes()) { const hw = netOf(p.net).w / 2; for (let i = 0; i < p.pts.length - 1; i++) { const d = distPtSeg(w, p.pts[i], p.pts[i + 1]).d - hw; if (d <= R && (!best || d < best.d)) best = { d, net: p.net }; } }
-  let net = best && best.net;
-  if (!net) { const t = e.target.closest ? e.target.closest('[data-hit]') : null, it = t && byId(t.dataset.id); if (it && it.kind === 'el') { const ctx = buildCtx(); for (const q of portsW(it)) { const n = netAt(ctx, q); if (n) { net = n.id; break; } } } }
-  if (!net) { toast('Cliquez sur un tuyau pour estomper son réseau, ou pour le réafficher.'); return; }
-  const was = (doc.opts.dim || []).includes(net); toggleDim(net);
-  toast(netLabel(netOf(net)) + (was ? ' : réaffiché.' : ' : estompé à 20 %. Recliquez dessus pour le réafficher.'));
-}
+function undimAll() { const b = snapshot(); doc.opts.dim = []; doc.opts.circ = { dim: [], iso: null }; commit(b); buildInspector(); toast('Tout est réaffiché.'); }
 
 /* ----- Ciseaux : couper un tuyau en deux tronçons ----- */
 function cutDown(e, w) {
