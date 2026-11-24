@@ -1,7 +1,14 @@
 
 /* ===== Couche interface (sélection, poignées, aperçus) ===== */
-const svg = $('#cv'), VP = $('#vp'), LC = $('#lc'), LU = $('#lu'), app = $('#app');
-function render() { if (palReal !== null && palReal !== REAL()) buildPalette(); LC.innerHTML = contentSVG({}); renderUI(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select'; }
+const svg = $('#cv'), VP = $('#vp'), LC = $('#lc'), LU = $('#lu'), LF = $('#lf'), app = $('#app');
+let fondSig = '';
+function render() {
+  if (palReal !== null && palReal !== REAL()) buildPalette();
+  if (!(doc.layers || []).some(l => l.id === state.layer)) state.layer = doc.layers && doc.layers[0] ? doc.layers[0].id : null;
+  /* Fonds de plan : redessinés seulement quand ils changent (images lourdes) */
+  const fs = fondsLayerSVG(); if (fs !== fondSig) { LF.innerHTML = fs; fondSig = fs; }
+  LC.innerHTML = contentSVG({}); renderUI(); updateLayerBtn(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select';
+}
 function renderUI() {
   const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = pageUI(k), ctx = null;
   for (const it of items) { if (it.kind === 'pipe') continue; ctx = ctx || buildCtx(); const b = bboxOf(it, ctx), pd = 3 / k; s += `<rect class="selbox" x="${r2(b.x0 - pd)}" y="${r2(b.y0 - pd)}" width="${r2(b.x1 - b.x0 + 2 * pd)}" height="${r2(b.y1 - b.y0 + 2 * pd)}" stroke-width="${r2(1.3 / k)}" stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"/>`; }
@@ -10,7 +17,7 @@ function renderUI() {
     for (let i = 0; i < one.pts.length - 1; i++) { const a = one.pts[i], b = one.pts[i + 1], d = segDir(a, b); if ((d !== 'h' && d !== 'v') || Math.hypot(b.x - a.x, b.y - a.y) * k < 26) continue; s += `<circle class="hdl ${d === 'h' ? 'ns' : 'ew'}" data-hit="sh" data-id="${one.id}" data-i="${i}" cx="${r2((a.x + b.x) / 2)}" cy="${r2((a.y + b.y) / 2)}" r="${r2(r)}" stroke-width="${sw}"/>`; }
     one.pts.forEach((q, i) => { s += `<rect class="hdl vh" data-hit="vh" data-id="${one.id}" data-i="${i}" x="${r2(q.x - hs / 2)}" y="${r2(q.y - hs / 2)}" width="${r2(hs)}" height="${r2(hs)}" stroke-width="${sw}"/>`; });
   }
-  if (one && one.kind === 'zone') { const s0 = 8 / k; for (const [c, x, y] of [['nw', one.x, one.y], ['ne', one.x + one.w, one.y], ['sw', one.x, one.y + one.h], ['se', one.x + one.w, one.y + one.h]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="zh" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
+  if (one && (one.kind === 'zone' || one.kind === 'fond')) { const s0 = 8 / k; for (const [c, x, y] of [['nw', one.x, one.y], ['ne', one.x + one.w, one.y], ['sw', one.x, one.y + one.h], ['se', one.x + one.w, one.y + one.h]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="zh" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
   if (one && SCALED[one.kind]) { const b = bboxOf(one), s0 = 9 / k; for (const [c, x, y] of [['nw', b.x0, b.y0], ['ne', b.x1, b.y0], ['sw', b.x0, b.y1], ['se', b.x1, b.y1]]) s += `<rect class="hdl ${c === 'nw' || c === 'se' ? 'nwse' : 'nesw'}" data-hit="ch" data-id="${one.id}" data-c="${c}" x="${r2(x - s0 / 2)}" y="${r2(y - s0 / 2)}" width="${r2(s0)}" height="${r2(s0)}" stroke-width="${r2(1.3 / k)}"/>`; }
   if (one && one.kind === 'el' && state.itab === 'racc') s += portBadges(one, k);
   const showPorts = state.tool === 'pipe' || (drag && drag.kind === 'vertex');
@@ -82,7 +89,7 @@ function fitView() {
 /* ===== Historique ===== */
 const hist = { u: [], r: [] };
 const snapshot = () => JSON.stringify(doc);
-function commit(before) { if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); if (IB.querySelector('.racc')) buildInspector(); }
+function commit(before) { const L = doc.layers || [], lid = L.some(l => l.id === state.layer) ? state.layer : L[0] && L[0].id; for (const it of doc.items) if (!it.cal && lid) it.cal = lid; if (before != null && before !== snapshot()) { hist.u.push(before); if (hist.u.length > 200) hist.u.shift(); hist.r.length = 0; } scheduleSave(); render(); updateUndo(); if (IB.querySelector('.racc')) buildInspector(); }
 function restoreSnap(s) { doc = JSON.parse(s); for (const id of [...state.sel]) if (!byId(id)) state.sel.delete(id); scheduleSave(); render(); buildInspector(); updateUndo(); syncDocName(); }
 function undo() { if (state.draft) { cancelDraft(); return; } if (!hist.u.length) return; hist.r.push(snapshot()); restoreSnap(hist.u.pop()); }
 function redo() { if (!hist.r.length) return; hist.u.push(snapshot()); restoreSnap(hist.r.pop()); }
@@ -278,6 +285,8 @@ function onDown(e) {
   if (state.tool === 'place') return placeDown(e, w);
   if (state.tool === 'text') return textDown(w);
   if (state.tool === 'zone') { drag = { kind: 'zoneNew', before: snapshot(), s: { x: snap(w.x), y: snap(w.y) }, z: null }; return; }
+  if (state.tool === 'dim') return dimDown(e, w);
+  if (state.tool === 'cut') return cutDown(e, w);
   selectDown(e, w, dbl);
 }
 function onMove(e) {
@@ -368,6 +377,12 @@ function dragMove(e, w) {
     const pg = doc.opts.page, W = Math.max(100, Math.round(Math.max(Math.abs(w.x - d.ax), Math.abs(w.y - d.ay) / d.r) / 10) * 10), H = W * d.r;
     pg.w = W; pg.x = r2(d.c.includes('w') ? d.ax - W : d.ax); pg.y = r2(d.c.includes('n') ? d.ay - H : d.ay); d.moved = true; render(); return;
   }
+  if (d.kind === 'zone' && d.z.kind === 'fond') {
+    /* Fond de plan : agrandi par un coin, proportions gardées, coin opposé fixe */
+    const o = d.o, ax = d.c.includes('w') ? o.x + o.w : o.x, ay = d.c.includes('n') ? o.y + o.h : o.y, r = o.h / o.w;
+    const W = Math.max(50, Math.max(Math.abs(w.x - ax), Math.abs(w.y - ay) / r)), H = W * r;
+    Object.assign(d.z, { x: r2(d.c.includes('w') ? ax - W : ax), y: r2(d.c.includes('n') ? ay - H : ay), w: r2(W), h: r2(H) }); d.moved = true; render(); return;
+  }
   if (d.kind === 'zone') {
     const o = d.o, sx = snap(w.x), sy = snap(w.y); let x0 = o.x, y0 = o.y, x1 = o.x + o.w, y1 = o.y + o.h;
     if (d.c.includes('w')) x0 = Math.min(sx, x1 - 40); if (d.c.includes('e')) x1 = Math.max(sx, x0 + 40); if (d.c.includes('n')) y0 = Math.min(sy, y1 - 40); if (d.c.includes('s')) y1 = Math.max(sy, y0 + 40);
@@ -382,7 +397,7 @@ function dragMove(e, w) {
 function dragEnd(d) {
   if (d.kind === 'rubber') { rubberEnd(d); return; }
   if (d.kind === 'move') { if (d.moved || d.dup) { for (const a of d.att) simplifyAtt(a); simplifyLate(d.att.late); for (const it of d.items) if (it.kind === 'pipe') it.pts = simplify(it.pts); commit(d.before); } else if (d.clickSel) setSel([d.clickSel]); return; }
-  if (d.kind === 'label' || d.kind === 'zone') { if (d.moved) commit(d.before); return; }
+  if (d.kind === 'label' || d.kind === 'zone') { if (d.moved) { commit(d.before); if (d.z && d.z.kind === 'fond') buildInspector(); } return; }
   if (d.kind === 'cart' || d.kind === 'pageMove' || d.kind === 'pageSize') { if (d.moved) { commit(d.before); buildInspector(); } return; }
   if (d.kind === 'vertex') { state.snap = null; if (d.moved) { d.p.pts = simplify(d.p.pts); if (d.p.pts.length < 2) { doc.items = doc.items.filter(i => i !== d.p); state.sel.delete(d.p.id); } commit(d.before); } else renderUI(); return; }
   if (d.kind === 'segment') { if (d.moved) { d.p.pts = simplify(d.p.pts); for (const a of d.att) simplifyAtt(a); simplifyLate(d.att.late); commit(d.before); } return; }
@@ -419,6 +434,7 @@ function rubberEnd(d) {
   if ((x1 - x0) * view.k < 3 && (y1 - y0) * view.k < 3) { renderUI(); return; }
   const cross = d.cur.x < d.start.x, ctx = buildCtx(), ids = new Set(d.add ? d.base : []);
   for (const it of doc.items) {
+    if (!editable(it)) continue;
     let hit;
     if (it.kind === 'pipe') hit = cross ? it.pts.some((q, i) => i < it.pts.length - 1 && segRect(q, it.pts[i + 1], x0, y0, x1, y1)) : it.pts.every(q => q.x >= x0 && q.x <= x1 && q.y >= y0 && q.y <= y1);
     else { const b = bboxOf(it, ctx), inter = !(b.x1 < x0 || b.x0 > x1 || b.y1 < y0 || b.y0 > y1), inside = b.x0 >= x0 && b.x1 <= x1 && b.y0 >= y0 && b.y1 <= y1; hit = cross ? inter && !(it.kind === 'zone' && x0 > b.x0 && x1 < b.x1 && y0 > b.y0 && y1 < b.y1) : inside; }

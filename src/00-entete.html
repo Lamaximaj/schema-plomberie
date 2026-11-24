@@ -67,10 +67,35 @@ button,input,select,textarea{font:inherit;color:inherit}
 #stage{grid-area:stage;position:relative;min-width:0;min-height:0;background:var(--paper);overflow:hidden}
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;font-family:Arial,Helvetica,"Liberation Sans",sans-serif}
 #cv.t-pipe,#cv.t-place,#cv.t-text,#cv.t-zone{cursor:crosshair}
+#cv.t-dim,#cv.t-cut{cursor:pointer}
+.lybtn{max-width:170px}
+.lybtn #ly-name{max-width:110px}
+.lybtn #ly-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.lys{display:flex;flex-direction:column;gap:6px}
+.ly{display:grid;grid-template-columns:28px 28px 28px minmax(0,1fr) 30px 30px;gap:5px;align-items:center;padding:5px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2)}
+.ly.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ly .inp{height:28px;padding:0 6px;font-size:13px}
+.ly .tg{height:28px;width:28px;padding:0;border:1px solid var(--rule);border-radius:5px;background:var(--field);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+.ly .tg svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ly .tg.act{color:var(--accent);border-color:var(--accent)}
+.ly .tg.off{opacity:.55}
+.ly .n{font:600 11px Barlow,sans-serif;color:var(--muted);text-align:center}
+.net .dimb{height:28px;min-width:28px;padding:0;display:flex;align-items:center;justify-content:center}
+.net .dimb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.net.dim .sw,.net.dim .inp{opacity:.35}
+.ets{display:flex;flex-direction:column;gap:8px}
+.et{display:grid;grid-template-columns:52px minmax(0,1fr) 30px;gap:6px;align-items:center;padding:6px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2)}
+.et .smp{height:24px;background:var(--paper);border-radius:4px;display:block}
+.et .inp{height:28px;padding:0 6px;font-size:13px}
+.et .opts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12px}
+.et .opts select{height:28px;font-size:12px;width:auto}
+.et .opts input[type=color]{width:30px;height:24px}
+.fd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:6px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2);font-size:12px}
+.fd b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 #cv.t-hand,#cv.pan-ready{cursor:grab}
 #cv.panning{cursor:grabbing}
 #cv.t-select [data-hit="item"],#cv.t-select [data-hit="label"]{cursor:move}
-#lu{pointer-events:none}
+#lu,#gridrect{pointer-events:none}
 #lu .hdl{pointer-events:all}
 .selbox{fill:none;stroke:var(--sel)}
 .hdl{fill:#fff;stroke:var(--sel)}
@@ -120,7 +145,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .orient .btn{border-color:var(--rule);background:var(--panel);height:46px;flex-direction:column;gap:3px;font-size:11.5px;padding:4px 2px}
 .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0;line-height:1.4}
 .nets{display:flex;flex-direction:column;gap:6px}
-.net{display:grid;grid-template-columns:40px 34px 52px minmax(0,1fr) 30px;gap:5px;align-items:center;padding:5px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2)}
+.net{display:grid;grid-template-columns:40px 34px 52px minmax(0,1fr) 30px 30px;gap:5px;align-items:center;padding:5px;border:1px solid var(--rule-soft);border-radius:7px;background:var(--panel-2)}
 .net.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .net .inp{height:28px;padding:0 6px;font-size:13px}
 .net input[type=color]{width:34px;height:28px}
@@ -186,7 +211,9 @@ p.fonc{margin:0;font-size:13.5px;line-height:1.5}
 .lib-row .nm{flex:1;min-width:0}
 .lib-row b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lib-row small{color:var(--muted)}
-@media (max-width:1180px){.desk{display:none}}
+@media (max-width:1440px){.desk{display:none}}
+@media (max-width:1600px){.desk2{display:none}}
+@media (max-width:1440px){.lybtn #ly-name{display:none}}
 @media (max-width:860px){
 #app{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "stage" "foot"}
 #pal,#insp{position:fixed;top:calc(env(safe-area-inset-top,0px) + 53px);bottom:env(safe-area-inset-bottom,0px);width:min(330px,88vw);z-index:40;box-shadow:var(--shadow);transition:transform .2s ease}
@@ -211,6 +238,9 @@ p.fonc{margin:0;font-size:13.5px;line-height:1.5}
 <button class="btn" type="button" data-tool="text" title="Texte (T)" aria-label="Texte"><svg class="ico" viewBox="0 0 24 24"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></svg></button>
 <button class="btn" type="button" data-tool="zone" title="Zone ou local (Z)" aria-label="Zone"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1" stroke-dasharray="3 2.2"/></svg></button>
 <button class="btn" type="button" data-tool="hand" title="Déplacer la vue (H ou Espace)" aria-label="Déplacer la vue"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></svg></button>
+<button class="btn" type="button" data-tool="dim" title="Estomper / réafficher un réseau : cliquez sur un tuyau (O)" aria-label="Estomper un réseau"><svg class="ico" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/><path d="M4 20L20 4"/></svg><span class="desk2">Estomper</span></button>
+<button class="btn" type="button" data-tool="cut" title="Couper un tuyau en tronçons : cliquez à l’endroit de la coupe (X)" aria-label="Couper un tuyau"><svg class="ico" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.6"/><circle cx="6" cy="18" r="2.6"/><path d="M8.2 7.4L20 17M8.2 16.6L20 7"/></svg></button>
+<button class="btn lybtn" type="button" id="b-ly" data-menu title="Calque actif : les nouveaux éléments y sont placés"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16l9 4.5 9-4.5"/></svg><span id="ly-name">Calque 1</span><svg class="ico" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
 <span class="sep"></span>
 <button class="btn" type="button" id="b-rl" title="Tourner de −90° (Maj+R)" aria-label="Tourner à gauche"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5v5h5"/><path d="M4.6 14.5A7.5 7.5 0 1 0 6.3 7L4 10"/></svg></button>
 <button class="btn" type="button" id="b-rr" title="Tourner de +90° (R)" aria-label="Tourner à droite"><svg class="ico" viewBox="0 0 24 24"><path d="M20 5v5h-5"/><path d="M19.4 14.5A7.5 7.5 0 1 1 17.7 7L20 10"/></svg></button>
@@ -238,7 +268,7 @@ p.fonc{margin:0;font-size:13.5px;line-height:1.5}
 <main id="stage">
 <svg id="cv" class="t-select" xmlns="http://www.w3.org/2000/svg">
 <defs><pattern id="gp" width="50" height="50" patternUnits="userSpaceOnUse"></pattern></defs>
-<g id="vp"><rect id="gridrect" fill="url(#gp)"/><g id="lc"></g><g id="lu"></g></g>
+<g id="vp"><g id="lf"></g><rect id="gridrect" fill="url(#gp)"/><g id="lc"></g><g id="lu"></g></g>
 </svg>
 <div class="empty" id="empty" hidden><div class="empty-card"><svg id="empty-art" viewBox="0 0 300 60" aria-hidden="true"></svg>
 <h2>Feuille vierge</h2>
@@ -252,4 +282,5 @@ p.fonc{margin:0;font-size:13.5px;line-height:1.5}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <datalist id="dn-list"><option value="DN15"><option value="DN20"><option value="DN25"><option value="DN32"><option value="DN40"><option value="DN50"><option value="DN65"><option value="DN80"><option value="DN100"><option value="DN125"><option value="DN150"><option value="Ø12"><option value="Ø14"><option value="Ø16"><option value="Ø18"><option value="Ø22"><option value="Ø28"><option value="Ø35"><option value="Ø42"><option value="Ø54"><option value="PER 16"><option value="PER 20"><option value="PER 25"><option value="Multicouche 26"><option value="Multicouche 32"></datalist>
 <input type="file" id="file-in" accept=".json,application/json" hidden>
+<input type="file" id="fond-in" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
 <script>

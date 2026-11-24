@@ -9,6 +9,10 @@
 - **Orientation comme sur le terrain** : un symbole lâché sur un tuyau s'aligne dans le sens d'écoulement. `R` tourne de 90°, `F` inverse le sens, `Maj+F` passe le corps de l'autre côté du tuyau.
 - **Onglet « Raccordement »** sur chaque équipement : points numérotés sur le plan, réseau attendu, état (libre ou raccordé, et vers quoi), accessoires à prévoir, et bouton pour tracer le tuyau depuis le point choisi.
 - **Tuyauteries par réseau** (EF, ECS, bouclage, chauffage, gaz, EU, EP, vapeur, air…) avec tracé orthogonal, piquages, sauts aux croisements, flèches de sens et libellés DN. Un tuyau raccordé suit l'équipement qu'on déplace, tourne ou décale au clavier, avec ce qu'il porte : vannes, manchettes, appareils de mesure, soupapes, tuyaux piqués dessus et tuyaux raccordés à une 3e voie ou à une décharge. Les organes proches de l'équipement gardent leur distance ; l'allongement ou la baïonnette se fait dans le plus grand espace libre du tronçon.
+- **Fond de plan** (Fichier > Importer un fond de plan, ou déposer le fichier sur le plan) : un PDF (page au choix) ou une image (PNG, JPEG) se place sous le schéma pour y tracer les réseaux. On le déplace, on l'agrandit par ses coins (proportions gardées), on règle son opacité, puis on le verrouille : il ne se sélectionne plus et les clics passent au tracé. Il sort à l'export (option) et voyage avec le schéma dans le fichier .json et Mes projets.
+- **Calques** (bouton Calque de la barre d'outils, rubrique Calques du panneau) : le calque actif reçoit ce qu'on trace et pose ; l'œil masque un calque (écran, légende et export), le cadenas le fige. « Un calque par réseau » range chaque réseau et ses organes dans son calque. Chaque élément change de calque depuis son panneau.
+- **Estomper un réseau** (outil Estomper, touche `O`) : un clic sur un tuyau passe tout son réseau à 20 % d'opacité, avec ses organes ; un second clic le réaffiche. Aussi par l'œil de chaque réseau dans le panneau.
+- **États des tronçons** : neuf, existant, à curer, curé (et états ajoutés), chacun avec son surlignage, son trait (tirets, pointillé…), des croix ou un trait estompé, réglables dans le panneau. Les ciseaux (touche `X`) coupent un tuyau en deux tronçons pour ne marquer qu'une partie. Les états utilisés s'ajoutent à la légende.
 - **Mise en page** : légende et nomenclature générées automatiquement, cartouche (lot, phase, indice, date).
 - **Mes projets** (Fichier > Enregistrer dans Mes projets, Ctrl+S) : les projets sont enregistrés dans le navigateur et se rouvrent depuis Fichier > Ouvrir depuis Mes projets. « Sauvegarder tout » crée un fichier de sauvegarde de tous les projets, « Restaurer… » le recharge (sur un autre ordinateur, par exemple).
 - **Cadre de la feuille** (panneau du schéma, rubrique Feuille) : la feuille A4, A3, A2, A1 ou A0, en paysage ou en portrait, apparaît sur le plan avec ses marges, l'extérieur grisé. On la déplace par son étiquette bleue et on la redimensionne par ses coins ; les blocs s'aimantent à ses marges. Le panneau indique la taille des textes une fois imprimés et ce qui sort des marges. L'export sort alors exactement la feuille, avec le trait de cadre en option. Un cadre par schéma.
@@ -34,9 +38,10 @@ open dist/index.html   # ou double-clic sur le fichier
 | `src/10-symboles-et-rendu.js` | Symboles, réseaux, modèle de données, rendu SVG, légende, nomenclature, cartouche |
 | `src/15-fonctions.js` | Fiche de chaque organe : fonction, règles de pose |
 | `src/20-interactions.js` | Tracé, pose, aimantation sur les tuyaux, orientation, déplacements, historique |
+| `src/25-plans-calques.js` | Fonds de plan (import PDF et image), calques, réseaux estompés, ciseaux, états des tronçons |
 | `src/30-interface.js` | Panneau de propriétés, bibliothèque, menus, exports, sauvegarde, exemples |
 | `modeles/*.json` | Modèles proposés dans Fichier > Modèles (schémas enregistrés depuis l'outil) |
-| `vendor/` | jsPDF, svg2pdf.js et police Arimo pour l'export PDF, servis avec la page (licences dans le dossier) |
+| `vendor/` | jsPDF, svg2pdf.js et police Arimo pour l'export PDF, pdf.js pour lire les fonds de plan PDF, servis avec la page (licences dans le dossier) |
 | `build.sh` | Assemble `dist/index.html`, y intègre les modèles et copie `vendor/` |
 
 Pour ajouter un modèle : enregistrer le schéma en `.json` (Fichier > Enregistrer en fichier .json), le déposer dans `modeles/`, puis relancer `build.sh`. Le nom affiché dans le menu est celui du schéma.
