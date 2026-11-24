@@ -265,7 +265,7 @@ function buildCircuits() {
   }
   const par = pieces.map((_, i) => i);
   const find = i => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; };
-  const uni = (x, y) => { x = find(x); y = find(y); if (x !== y) par[x] = y; };
+  const adj = pieces.map(() => []), uni = (x, y) => { if (x !== y) { adj[x].push(y); adj[y].push(x); } x = find(x); y = find(y); if (x !== y) par[x] = y; };
   const pieceAt = (p, q) => { const B = byPipe.get(p.id); if (!B) return null; if (!B.cuts.length) return B.list[0]; const a = arcPos(p.pts, q); let k = 0; while (k < B.cuts.length && a.s > B.cuts[k]) k++; return B.list[k]; };
   /* Bouts communs et piquages, entre tuyaux du même réseau */
   for (const p of ps) for (const q of [p.pts[0], p.pts[p.pts.length - 1]]) {
@@ -278,17 +278,21 @@ function buildCircuits() {
     for (const q of portsW(el)) for (const p of ps) if (onPoly(q, p.pts)) touch.push({ net: p.net, pc: pieceAt(p, q) });
     for (let x = 0; x < touch.length; x++) for (let y = x + 1; y < touch.length; y++) if (touch[x].net === touch[y].net) uni(touch[x].pc.i, touch[y].pc.i);
   }
-  return { pieces, byPipe, find, pieceAt };
+  return { pieces, byPipe, find, pieceAt, adj };
 }
 const seedPiece = (G, sd) => { const p = sd && byId(sd.p); return p && p.kind === 'pipe' && G.byPipe.has(p.id) ? G.pieceAt(p, sd) : null; };
+/* Groupe d'un morceau de tuyau : le circuit défini à la main, sinon le chemin du fluide */
+const circuitOf = p => p && p.ci ? (doc.circuits || []).find(c => c.id === p.ci) || null : null;
+const keyOf = (G, pc) => { const c = circuitOf(pc.p); return c ? 'c:' + c.id : 'r:' + G.find(pc.i); };
+const seedKey = (G, sd) => { if (!sd) return null; if (sd.c) return (doc.circuits || []).some(c => c.id === sd.c) ? 'c:' + sd.c : null; const pc = seedPiece(G, sd); return pc ? keyOf(G, pc) : null; };
 /* État d'affichage des circuits, ou null s'il n'y a rien d'estompé ni d'isolé */
 function circState() {
   const c = doc.opts && doc.opts.circ; if (!c || (!(c.dim || []).length && !c.iso)) return null;
-  const G = buildCircuits(), dimR = new Set();
-  for (const sd of c.dim || []) { const pc = seedPiece(G, sd); if (pc) dimR.add(G.find(pc.i)); }
-  let isoR = null; if (c.iso) { const pc = seedPiece(G, c.iso); if (pc) isoR = G.find(pc.i); }
-  if (!dimR.size && isoR == null) return null;
-  return { G, isoR, dimR, dimmed: pc => { if (!pc) return false; const r = G.find(pc.i); return dimR.has(r) || (isoR != null && r !== isoR); } };
+  const G = buildCircuits(), dimK = new Set();
+  for (const sd of c.dim || []) { const k = seedKey(G, sd); if (k) dimK.add(k); }
+  const isoK = c.iso ? seedKey(G, c.iso) : null;
+  if (!dimK.size && !isoK) return null;
+  return { G, isoK, dimK, dimmed: pc => { if (!pc) return false; const k = keyOf(G, pc); return dimK.has(k) || (!!isoK && k !== isoK); } };
 }
 const circOpts = () => doc.opts.circ || (doc.opts.circ = { dim: [], iso: null });
 const anyCirc = () => { const c = doc.opts.circ; return !!(c && ((c.dim || []).length || c.iso)); };
@@ -297,7 +301,21 @@ function pickPipe(w) {
   for (const p of pipes()) { const hw = netOf(p.net).w / 2; for (let i = 0; i < p.pts.length - 1; i++) { const r = distPtSeg(w, p.pts[i], p.pts[i + 1]), d = r.d - hw; if (d <= R && (!best || d < best.d)) best = { d, p, q: { x: r2(r.x), y: r2(r.y) } }; } }
   return best;
 }
-/* Clic avec l'outil Estomper (mode 'dim') ou Isoler (mode 'iso') */
+/* Isoler / estomper un groupe désigné par sa clé (sd : graine enregistrée, c ou p+x+y) */
+function applyCirc(mode, G, k, sd, lab) {
+  const c = circOpts(), b = snapshot(); let msg;
+  c.dim = (c.dim || []).filter(x => seedKey(G, x)); if (c.iso && !seedKey(G, c.iso)) c.iso = null;
+  if (mode === 'iso') {
+    if (c.iso && seedKey(G, c.iso) === k) { c.iso = null; msg = 'Isolement annulé : tout est réaffiché.'; }
+    else { c.iso = sd; c.dim = c.dim.filter(x => seedKey(G, x) !== k); msg = 'Isolé : ' + lab + '. Le reste est estompé. Recliquez dessus pour tout réafficher.'; }
+  } else {
+    const n0 = c.dim.length; c.dim = c.dim.filter(x => seedKey(G, x) !== k);
+    if (c.dim.length === n0) { c.dim.push(sd); msg = 'Estompé : ' + lab + '. Recliquez dessus pour le réafficher.'; } else msg = 'Réaffiché : ' + lab + '.';
+  }
+  commit(b); if (!state.sel.size) buildInspector(); toast(msg);
+}
+const circLabel = (G, k, p) => { const c = circuitOf(p); const n = c ? doc.items.filter(i => i.kind === 'pipe' && i.ci === c.id).length : new Set(G.pieces.filter(x => keyOf(G, x) === k).map(x => x.p.id)).size; return (c ? 'circuit « ' + c.name + ' »' : 'circuit ' + netLabel(netOf(p.net))) + ' — ' + n + ' tuyau' + (n > 1 ? 'x' : ''); };
+/* Clic avec l'outil Estomper (mode 'dim') ou Isoler (mode 'iso') : circuit défini du tuyau, sinon chemin du fluide */
 function circDown(e, w, mode) {
   const hit = pickPipe(w), c = circOpts();
   if (!hit) {
@@ -305,21 +323,98 @@ function circDown(e, w, mode) {
     else toast(mode === 'iso' ? 'Cliquez sur un tuyau pour isoler son circuit.' : 'Cliquez sur un tuyau pour estomper son circuit, ou pour le réafficher.');
     return;
   }
-  const G = buildCircuits(), pc = G.pieceAt(hit.p, hit.q), r = G.find(pc.i), b = snapshot(), seed = { p: hit.p.id, x: hit.q.x, y: hit.q.y };
-  const nT = new Set(G.pieces.filter(x => G.find(x.i) === r).map(x => x.p.id)).size, lab = netLabel(netOf(hit.p.net)) + ' — ' + nT + ' tuyau' + (nT > 1 ? 'x' : '');
-  let msg;
-  if (mode === 'iso') {
-    const cur = seedPiece(G, c.iso);
-    if (cur && G.find(cur.i) === r) { c.iso = null; msg = 'Isolement annulé : tout est réaffiché.'; }
-    else { c.iso = seed; c.dim = (c.dim || []).filter(sd => { const sp = seedPiece(G, sd); return sp && G.find(sp.i) !== r; }); msg = 'Circuit isolé : ' + lab + '. Le reste est estompé. Recliquez sur ce circuit pour tout réafficher.'; }
-  } else {
-    const n0 = (c.dim || []).length; c.dim = (c.dim || []).filter(sd => { const sp = seedPiece(G, sd); return sp && G.find(sp.i) !== r; });
-    if (c.dim.length === n0) { c.dim.push(seed); msg = 'Circuit estompé : ' + lab + '. Recliquez dessus pour le réafficher.'; } else msg = 'Circuit réaffiché : ' + lab + '.';
-  }
-  commit(b); if (!state.sel.size) buildInspector(); toast(msg);
+  const G = buildCircuits(), pc = G.pieceAt(hit.p, hit.q), k = keyOf(G, pc), ci = circuitOf(hit.p);
+  applyCirc(mode, G, k, ci ? { c: ci.id } : { p: hit.p.id, x: hit.q.x, y: hit.q.y }, circLabel(G, k, hit.p));
 }
 const dimDown = (e, w) => circDown(e, w, 'dim');
 const isoDown = (e, w) => circDown(e, w, 'iso');
+function circPanel(mode, C) { const G = buildCircuits(); applyCirc(mode, G, 'c:' + C.id, { c: C.id }, circLabel(G, 'c:' + C.id, { ci: C.id })); }
+
+/* ----- Circuits définis à la main (départs d'une nourrice, colonnes…) ----- */
+const CI_COLORS = ['#e8590c', '#1971c2', '#2f9e44', '#ae3ec9', '#f08c00', '#0c8599', '#c2255c', '#5c940d', '#495057', '#d6336c'];
+const activeCircuit = () => { const L = doc.circuits || []; return L.find(c => c.id === state.circ) || L[0] || null; };
+function newCircuit(name) {
+  if (!doc.circuits) doc.circuits = [];
+  const C = { id: 'k' + uid(), name: name || 'Circuit ' + (doc.circuits.length + 1), color: CI_COLORS[doc.circuits.length % CI_COLORS.length] };
+  doc.circuits.push(C); state.circ = C.id; return C;
+}
+function addCircuit() { const b = snapshot(), C = newCircuit(); commit(b); buildInspector(); setTimeout(() => { const i = IB.querySelector('[data-ci="' + C.id + '"]'); if (i) { i.focus(); i.select(); } }, 30); return C; }
+function delCircuit(C) {
+  const b = snapshot(); for (const p of doc.items) if (p.kind === 'pipe' && p.ci === C.id) p.ci = '';
+  doc.circuits = doc.circuits.filter(x => x !== C); const c = circOpts(); c.dim = (c.dim || []).filter(x => x.c !== C.id); if (c.iso && c.iso.c === C.id) c.iso = null;
+  commit(b); buildInspector();
+}
+function setActiveCircuit(id) { state.circ = id; if (!state.sel.size) buildInspector(); renderUI(); const C = activeCircuit(); if (C) toast('Circuit actif : ' + C.name + '. Outil Circuits (C) : clic pour ajouter ou retirer un tuyau, Maj+clic pour toute la branche.'); }
+/* Outil Circuits : clic = ajouter / retirer le tuyau ; Maj+clic = toute la branche, sans passer par les tuyaux
+   d'un autre circuit ni par une vanne fermée */
+function defDown(e, w) {
+  const hit = pickPipe(w); if (!hit) { toast('Cliquez sur un tuyau pour le ranger dans le circuit actif (Maj+clic : toute la branche).'); return; }
+  const b = snapshot(); let C = activeCircuit(); if (!C) C = newCircuit();
+  let msg;
+  if (e.shiftKey) {
+    const G = buildCircuits(), start = G.pieceAt(hit.p, hit.q), seen = new Set([start.i]), Q = [start], got = new Set();
+    while (Q.length) { const pc = Q.shift(); got.add(pc.p); for (const j of G.adj[pc.i]) { if (seen.has(j)) continue; const nb = G.pieces[j]; seen.add(j); if (nb.p.ci && nb.p.ci !== C.id && circuitOf(nb.p)) continue; Q.push(nb); } }
+    let n = 0; for (const p of got) if (p.ci !== C.id) { p.ci = C.id; n++; }
+    msg = n ? n + ' tuyau' + (n > 1 ? 'x ajoutés' : ' ajouté') + ' à « ' + C.name + ' » (branche jusqu’aux autres circuits et aux vannes fermées).' : 'Cette branche est déjà dans « ' + C.name + ' ».';
+  } else if (hit.p.ci === C.id) { hit.p.ci = ''; msg = 'Tuyau retiré de « ' + C.name + ' ».'; }
+  else { const o = circuitOf(hit.p); hit.p.ci = C.id; msg = 'Tuyau ' + (o ? 'déplacé de « ' + o.name + ' » vers' : 'ajouté à') + ' « ' + C.name + ' ».'; }
+  commit(b); if (!state.sel.size) buildInspector(); toast(msg);
+}
+/* Halo des circuits pendant leur définition (couche d'interface) */
+function circHalosSVG() {
+  if (state.tool !== 'def' || !(doc.circuits || []).length) return '';
+  const A = activeCircuit(); let s = '';
+  for (const p of pipes()) { const C = circuitOf(p); if (!C) continue; const on = A && C.id === A.id; s += `<path d="${polyD(p.pts)}" fill="none" stroke="${isHex(C.color) ? C.color : '#495057'}" stroke-opacity="${on ? 0.5 : 0.2}" stroke-width="${r2(netOf(p.net).w + (on ? 9 : 6))}" stroke-linejoin="round" stroke-linecap="round"/>`; }
+  return s;
+}
+const ISO_ICO = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg>';
+function circuitRow(C) {
+  const on = activeCircuit() === C, n = doc.items.filter(i => i.kind === 'pipe' && i.ci === C.id).length, c = doc.opts.circ || {};
+  const isIso = !!(c.iso && c.iso.c === C.id), isDim = (c.dim || []).some(x => x.c === C.id);
+  const tg = (svgS, title, fn, cls) => h('button', { class: 'tg' + (cls ? ' ' + cls : ''), type: 'button', title, 'aria-label': title, onclick: fn, html: svgS });
+  const nm = h('input', { class: 'inp', type: 'text', maxlength: 40, 'aria-label': 'Nom du circuit', 'data-ci': C.id }); nm.value = C.name; live(nm, () => { C.name = nm.value; });
+  const col = h('input', { type: 'color', 'aria-label': 'Couleur du circuit' }); col.value = isHex(C.color) ? C.color : '#495057'; live(col, () => { C.color = col.value; });
+  return h('div', { class: 'ci' + (on ? ' on' : '') },
+    tg(on ? DOT_ON : DOT_OFF, on ? 'Circuit actif' : 'Rendre actif (outil Circuits)', () => setActiveCircuit(C.id), on ? 'act' : ''), col, nm,
+    h('span', { class: 'n', title: n + ' tuyau' + (n > 1 ? 'x' : '') }, String(n)),
+    tg(ISO_ICO, isIso ? 'Annuler l’isolement' : 'Isoler ce circuit', () => circPanel('iso', C), isIso ? 'act' : ''),
+    tg(isDim ? EYE_OFF : EYE_ON, isDim ? 'Réafficher ce circuit' : 'Estomper ce circuit', () => circPanel('dim', C), isDim ? 'off' : ''),
+    h('button', { class: 'tg', type: 'button', title: 'Supprimer le circuit (ses tuyaux restent)', 'aria-label': 'Supprimer le circuit', onclick: () => delCircuit(C) }, '✕'));
+}
+/* Coupe chaque tuyau aux piquages qu'il reçoit : un tronçon par portion entre deux tés */
+function splitAtTees() {
+  const ps = doc.items.filter(i => i.kind === 'pipe' && editable(i)), b = snapshot(); let made = 0;
+  for (const p of ps) {
+    const L = polyLen(p.pts), cuts = [];
+    for (const o of doc.items) {
+      if (o.kind !== 'pipe' || o === p || !isVis(o)) continue;
+      for (const q of [o.pts[0], o.pts[o.pts.length - 1]]) {
+        if (!onPoly(q, p.pts) || near(q, p.pts[0]) || near(q, p.pts[p.pts.length - 1])) continue;
+        const a = arcPos(p.pts, q); if (a.s > 1 && a.s < L - 1 && !cuts.some(c => Math.abs(c - a.s) < 1)) cuts.push(a.s);
+      }
+    }
+    if (!cuts.length) continue;
+    cuts.sort((x, y) => x - y); const bd = [0, ...cuts, L], parts = [];
+    for (let k = 0; k < bd.length - 1; k++) { const pts = simplify(subPoly(p.pts, bd[k], bd[k + 1])); if (pts.length >= 2) parts.push(pts); }
+    if (parts.length < 2) continue;
+    p.pts = parts[0]; let at = doc.items.indexOf(p);
+    for (const pts of parts.slice(1)) { doc.items.splice(++at, 0, Object.assign(clone(p), { id: uid(), pts, lab: false })); made++; }
+  }
+  if (!made) { toast('Aucun tuyau à découper : chaque tuyau va déjà d’un té au suivant.'); return; }
+  commit(b); if (!state.sel.size) buildInspector();
+  toast(made + ' tronçon' + (made > 1 ? 's' : '') + ' de plus : chaque tuyau va maintenant d’un té au suivant. Annulable (Ctrl+Z).');
+}
+function circuitsSec() {
+  const list = h('div', { class: 'lys' }); for (const C of doc.circuits || []) list.append(circuitRow(C));
+  return SEC('Circuits', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Découpez l’installation en circuits (départs d’une nourrice, colonnes…). Outil Circuits (C) : clic sur un tuyau pour le ranger dans le circuit actif ou l’en retirer, Maj+clic pour toute la branche. Si un tuyau va d’un départ à l’autre, « Découper en tronçons » le coupe à chaque té (ou les ciseaux, X, à un endroit précis). Rangez d’abord la nourrice dans son propre circuit : les branches s’arrêtent aux tuyaux d’un autre circuit et aux vannes fermées. Isoler et Estomper agissent ensuite sur ces circuits.'),
+    list, h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Nouveau circuit', () => { addCircuit(); setTool('def'); }), btn('Définir les circuits (C)', () => setTool(state.tool === 'def' ? 'select' : 'def')), btn('Découper en tronçons', splitAtTees, '', 'Coupe chaque tuyau à chaque piquage (té) pour pouvoir ranger chaque tronçon dans son circuit'), anyCirc() ? btn('Tout réafficher', undimAll) : null));
+}
+function circuitField(ps, multi) {
+  const L = doc.circuits || [], cur = new Set(ps.map(p => p.ci || '')), mixed = cur.size > 1;
+  const opts = (multi ? [['*', mixed ? 'Plusieurs (inchangé)' : 'Inchangé']] : []).concat([['', 'Aucun']], L.map(c => [c.id, c.name]), [['+', 'Nouveau circuit…']]);
+  return F('Circuit', fSelect(opts, () => multi ? '*' : (ps[0].ci && L.some(c => c.id === ps[0].ci) ? ps[0].ci : ''), v => { if (v === '*') return; let id = v; if (v === '+') id = newCircuit().id; for (const p of ps) p.ci = id; }, buildInspector));
+}
+
 /* Œil du panneau : tout un réseau (tous ses circuits) */
 function toggleDim(id) {
   const b = snapshot(), d = doc.opts.dim || (doc.opts.dim = []), i = d.indexOf(id);

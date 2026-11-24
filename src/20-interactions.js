@@ -10,7 +10,7 @@ function render() {
   LC.innerHTML = contentSVG({}); renderUI(); updateLayerBtn(); $('#empty').hidden = doc.items.length > 0 || state.tool !== 'select';
 }
 function renderUI() {
-  const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = pageUI(k), ctx = null;
+  const k = view.k, items = selItems(), one = items.length === 1 ? items[0] : null; let s = pageUI(k) + circHalosSVG(), ctx = null;
   for (const it of items) { if (it.kind === 'pipe') continue; ctx = ctx || buildCtx(); const b = bboxOf(it, ctx), pd = 3 / k; s += `<rect class="selbox" x="${r2(b.x0 - pd)}" y="${r2(b.y0 - pd)}" width="${r2(b.x1 - b.x0 + 2 * pd)}" height="${r2(b.y1 - b.y0 + 2 * pd)}" stroke-width="${r2(1.3 / k)}" stroke-dasharray="${r2(4 / k)} ${r2(3 / k)}"/>`; }
   if (one && one.kind === 'pipe') {
     const hs = 7 / k, r = 4.2 / k, sw = r2(1.3 / k);
@@ -287,6 +287,7 @@ function onDown(e) {
   if (state.tool === 'zone') { drag = { kind: 'zoneNew', before: snapshot(), s: { x: snap(w.x), y: snap(w.y) }, z: null }; return; }
   if (state.tool === 'dim') return dimDown(e, w);
   if (state.tool === 'iso') return isoDown(e, w);
+  if (state.tool === 'def') return defDown(e, w);
   if (state.tool === 'cut') return cutDown(e, w);
   selectDown(e, w, dbl);
 }
