@@ -733,7 +733,7 @@ const DEFAULT_ETATS = [
   { id: 'cure', name: 'Curé', hl: '', dash: 'dot', x: false, fade: true },
 ];
 const newLayer = (name, id) => ({ id: id || 'c' + uid(), name: name || 'Calque', show: true, lock: false });
-function newDoc() { return { v: 2, name: 'Sans titre', nets: clone(DEFAULT_NETS), layers: [newLayer('Calque 1', 'c1')], etats: clone(DEFAULT_ETATS), items: [], opts: { hops: true, dim: [] } }; }
+function newDoc() { return { v: 2, name: 'Sans titre', nets: clone(DEFAULT_NETS), layers: [newLayer('Calque 1', 'c1')], etats: clone(DEFAULT_ETATS), circuits: [], items: [], opts: { hops: true, dim: [] } }; }
 let doc = newDoc();
 const state = { tool: 'select', pre: null, ghost: null, gRot: 0, gFh: false, activeNet: 'ef', grid: true, sel: new Set(), draft: null, snap: null, space: false, mouse: null, mouseIn: false, libId: null, itab: 'prop', hiPort: null };
 const view = { k: 1.5, tx: 60, ty: 60 };

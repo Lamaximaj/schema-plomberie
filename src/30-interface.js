@@ -158,6 +158,7 @@ function inspPipe(p) {
   IB.append(SEC(null,
     F('Réseau', fSelect(doc.nets.map(x => [x.id, netLabel(x)]), () => p.net, v => { p.net = v; }, buildInspector)),
     F('Diamètre', fText(() => p.dn, v => { p.dn = v; }, { ph: 'DN50, Ø32, PER 20…', list: 'dn-list', k: 'dn' })),
+    circuitField([p], false),
     F('État du tronçon', fSelect([['', 'Non précisé'], ...(doc.etats || []).map(e => [e.id, e.name])], () => p.et || '', v => { p.et = v; }, buildInspector)),
     h('p', { class: 'hint' }, 'Pour ne marquer qu’une partie du tuyau, coupez-le d’abord avec les ciseaux (X).'),
     h('div', { class: 'f' }, fCheck(() => p.arr, v => { p.arr = v; }, 'Flèches de sens d’écoulement')),
@@ -210,6 +211,7 @@ function inspMulti(items) {
   if (nE || ps.length) IB.append(SEC('Orienter l’ensemble', orientPad(true), h('p', { class: 'hint' }, 'L’ensemble pivote autour de son centre et les tuyaux raccordés suivent.')));
   if (ps.length) IB.append(SEC('Tuyauteries', F('Réseau', fSelect([['', 'Inchangé'], ...doc.nets.map(x => [x.id, netLabel(x)])], () => '', v => { if (v) for (const p of ps) p.net = v; })),
     F('Diamètre', fText(() => '', v => { for (const p of ps) p.dn = v; }, { ph: 'Appliquer à tous', list: 'dn-list' })),
+    circuitField(ps, true),
     F('État des tronçons', fSelect([['*', 'Inchangé'], ['', 'Non précisé'], ...(doc.etats || []).map(e => [e.id, e.name])], () => '*', v => { if (v !== '*') for (const p of ps) p.et = v; })),
     h('div', { class: 'btnrow' }, btn('Afficher les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = true; commit(b); }), btn('Masquer les libellés', () => { const b = snapshot(); for (const p of ps) p.lab = false; commit(b); }), btn('Flèches de sens', () => { const b = snapshot(), v = !ps.every(p => p.arr); for (const p of ps) p.arr = v; commit(b); }))));
   if ((doc.layers || []).length > 1) IB.append(SEC(null, layerField(items)));
@@ -240,6 +242,7 @@ function inspDoc() {
   const nd = (doc.opts.dim || []).length + ((doc.opts.circ && doc.opts.circ.dim) || []).length + (doc.opts.circ && doc.opts.circ.iso ? 1 : 0);
   IB.append(SEC('Réseaux', h('p', { class: 'hint', style: 'margin:0 0 8px' }, 'Cliquez sur la pastille d’un réseau pour tracer avec. Au clavier : touches 1 à 9. L’œil estompe tout le réseau à 20 %. Pour un seul circuit (là où le fluide peut aller), outils Isoler (I) et Estomper (O) : cliquez sur un tuyau.'), list,
     h('div', { class: 'btnrow', style: 'margin-top:8px' }, btn('Ajouter un réseau', addNet), nd ? btn('Tout réafficher', undimAll) : null)));
+  IB.append(circuitsSec());
   IB.append(layersSec());
   IB.append(fondsSec());
   IB.append(etatsSec());
@@ -389,7 +392,9 @@ function sanitize(d) {
   const lyIds = new Set(out.layers.map(l => l.id)); for (const c of out.items) if (!lyIds.has(c.cal)) c.cal = out.layers[0].id;
   if (Array.isArray(d.etats)) out.etats = d.etats.filter(e => e && e.id).map(e => ({ id: String(e.id).slice(0, 40), name: String(e.name || 'État').slice(0, 40), hl: isHex(e.hl) ? e.hl : '', dash: DASHES[e.dash] != null ? e.dash : '', x: !!e.x, fade: !!e.fade }));
   out.opts = { hops: !d.opts || d.opts.hops !== false, real: !!(d.opts && d.opts.real), dim: d.opts && Array.isArray(d.opts.dim) ? d.opts.dim.map(String).filter(id => out.nets.some(n => n.id === id)) : [] };
-  { const c = d.opts && d.opts.circ, sd = v => v && typeof v === 'object' && typeof v.p === 'string' ? { p: v.p.slice(0, 40), x: num(v.x), y: num(v.y) } : null; out.opts.circ = { dim: c && Array.isArray(c.dim) ? c.dim.map(sd).filter(Boolean) : [], iso: c ? sd(c.iso) : null }; }
+  out.circuits = Array.isArray(d.circuits) ? d.circuits.filter(c => c && c.id).map(c => ({ id: String(c.id).slice(0, 40), name: String(c.name || 'Circuit').slice(0, 40), color: isHex(c.color) ? c.color : '#495057' })) : [];
+  for (const c of out.items) if (c.kind === 'pipe') c.ci = typeof c.ci === 'string' && out.circuits.some(k => k.id === c.ci) ? c.ci : '';
+  { const c = d.opts && d.opts.circ, sd = v => v && typeof v === 'object' && typeof v.c === 'string' ? { c: v.c.slice(0, 40) } : v && typeof v === 'object' && typeof v.p === 'string' ? { p: v.p.slice(0, 40), x: num(v.x), y: num(v.y) } : null; out.opts.circ = { dim: c && Array.isArray(c.dim) ? c.dim.map(sd).filter(Boolean) : [], iso: c ? sd(c.iso) : null }; }
   const pg = d.opts && d.opts.page; if (pg && typeof pg === 'object') out.opts.page = { on: !!pg.on, fmt: SHEETS[pg.fmt] ? pg.fmt : 'a4', land: pg.land !== false, x: num(pg.x), y: num(pg.y), w: clamp(num(pg.w) || 1000, 100, 50000), border: !!pg.border };
   return out;
 }
@@ -648,6 +653,7 @@ function updateHint() {
   else if (state.tool === 'hand') parts = [['', 'Glissez pour déplacer la vue. Molette pour zoomer.']];
   else if (state.tool === 'dim') parts = [[K('Clic'), 'sur un tuyau : estomper à 20 % le circuit où son fluide peut aller, ou le réafficher'], [K('Échap'), 'terminer'], ['', 'Une vanne normalement fermée arrête le circuit.']];
   else if (state.tool === 'iso') parts = [[K('Clic'), 'sur un tuyau : ne garder que son circuit, le reste à 20 %'], [K('Clic'), 'sur le même circuit ou dans le vide : tout réafficher'], [K('Échap'), 'terminer'], ['', 'Une vanne normalement fermée arrête le circuit.']];
+  else if (state.tool === 'def') { const C = activeCircuit(); parts = [[K('Clic'), 'sur un tuyau : le ranger dans « ' + (C ? C.name : 'Circuit 1') + ' » ou l’en retirer'], [K('Maj') + ' + clic', 'toute la branche, jusqu’aux autres circuits et aux vannes fermées'], [K('Échap'), 'terminer'], ['', 'Circuit actif : pastille dans la rubrique Circuits du panneau.']]; }
   else if (state.tool === 'cut') parts = [[K('Clic'), 'sur un tuyau : le couper en deux tronçons à cet endroit'], [K('Échap'), 'terminer'], ['', 'Chaque tronçon reçoit ensuite son état : neuf, existant, à curer, curé.']];
   else parts = [[K('Glisser'), 'déplacer'], [K('Maj') + ' + clic', 'ajouter à la sélection'], [K('Alt') + ' + glisser', 'dupliquer'], [K('R'), 'tourner'], [K('F'), 'inverser le sens'], [K('Double-clic'), 'sur un tuyau : ajouter un coude'], [K('Espace') + ' + glisser', 'vue']];
   $('#hint').innerHTML = parts.map(([k, t]) => '<span>' + k + (k ? ' ' : '') + esc(t) + '</span>').join('');
@@ -683,7 +689,7 @@ window.addEventListener('keydown', e => {
   if (k === 'r') rotateCmd(e.shiftKey ? -90 : 90);
   else if (k === 'f') flipCmd(e.shiftKey ? 'v' : 'h');
   else if (k === '/' || k === ':') { if (state.draft) { state.draft.flip = !state.draft.flip; if (state.snap) state.draft.preview = route(state.snap); renderUI(); } }
-  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand'); else if (k === 'o') setTool(state.tool === 'dim' ? 'select' : 'dim'); else if (k === 'i') setTool(state.tool === 'iso' ? 'select' : 'iso'); else if (k === 'x') setTool(state.tool === 'cut' ? 'select' : 'cut');
+  else if (k === 'v') setTool('select'); else if (k === 'l') setTool('pipe'); else if (k === 't') setTool('text'); else if (k === 'z') setTool('zone'); else if (k === 'h') setTool('hand'); else if (k === 'o') setTool(state.tool === 'dim' ? 'select' : 'dim'); else if (k === 'i') setTool(state.tool === 'iso' ? 'select' : 'iso'); else if (k === 'c') setTool(state.tool === 'def' ? 'select' : 'def'); else if (k === 'x') setTool(state.tool === 'cut' ? 'select' : 'cut');
   else if (k === 'g') { state.grid = !state.grid; updateGrid(); if (!state.sel.size) buildInspector(); }
 });
 window.addEventListener('keyup', e => { if (e.key === ' ') { state.space = false; svg.classList.remove('pan-ready'); } });
